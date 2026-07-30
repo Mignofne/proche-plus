@@ -33,26 +33,35 @@ function LoginForm() {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+        }),
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error ?? "Erreur de connexion");
-      return;
+      if (!res.ok) {
+        setError(data.error ?? "Erreur de connexion");
+        setLoading(false);
+        return;
+      }
+
+      const target =
+        data.role === "caregiver" && !data.onboardingDone
+          ? "/aidant/onboarding"
+          : (data.redirectTo ?? "/");
+
+      router.replace(target);
+      router.refresh();
+    } catch {
+      setError("Connexion impossible. Réessaie.");
+      setLoading(false);
     }
-
-    if (data.role === "caregiver" && !data.onboardingDone) {
-      router.push("/aidant/onboarding");
-      return;
-    }
-
-    router.push(data.redirectTo ?? "/");
   }
 
   return (

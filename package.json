@@ -14,7 +14,11 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma db push && tsx prisma/seed.ts",
     "bmad:install": "bmad-method install --modules bmm --tools cursor --yes --communication-language French --document-output-language French",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "playwright test",
+    "test:api": "playwright test tests/api",
+    "test:e2e": "playwright test tests/e2e",
+    "test:ui": "playwright test --ui"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
@@ -31,6 +35,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4.0.17",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.13.14",

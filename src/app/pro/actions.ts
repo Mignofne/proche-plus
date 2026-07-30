@@ -119,7 +119,7 @@ export async function upsertCaregiver(input: {
   });
   if (!patient) throw new Error("Patient introuvable dans votre établissement");
 
-  const passwordHash = await bcrypt.hash("demo1234", 10);
+  const passwordHash = await bcrypt.hash("demo1234", 8);
 
   if (input.caregiverLinkId) {
     const link = await prisma.patientCaregiver.findFirst({

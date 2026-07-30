@@ -23,7 +23,7 @@ async function main() {
   await prisma.resource.deleteMany();
   await prisma.establishment.deleteMany();
 
-  const passwordHash = await bcrypt.hash("demo1234", 10);
+  const passwordHash = await bcrypt.hash("demo1234", 8);
 
   const establishment = await prisma.establishment.create({
     data: { name: "Centre de rééducation Val-de-Marne" },

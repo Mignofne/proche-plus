@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSession, homePathForRole, type AppRole } from "@/lib/auth";
 
+const BCRYPT_ROUNDS = 8;
+
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { email, password } = body;
@@ -15,8 +17,17 @@ export async function POST(request: NextRequest) {
   }
 
   const user = await prisma.user.findUnique({
-    where: { email },
-    include: { professional: true, caregiver: true },
+    where: { email: String(email).trim().toLowerCase() },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      passwordHash: true,
+      onboardingDone: true,
+      isPlatformAdmin: true,
+      professional: { select: { role: true } },
+      caregiver: { select: { id: true } },
+    },
   });
 
   if (!user) {
@@ -32,6 +43,17 @@ export async function POST(request: NextRequest) {
       { error: "Identifiants incorrects" },
       { status: 401 }
     );
+  }
+
+  // Migrate older cost-10 hashes to 8 without blocking the response.
+  if (bcrypt.getRounds(user.passwordHash) > BCRYPT_ROUNDS) {
+    void (async () => {
+      const nextHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordHash: nextHash },
+      });
+    })().catch(() => undefined);
   }
 
   let role: AppRole | null = null;
