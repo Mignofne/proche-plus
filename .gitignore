@@ -47,3 +47,6 @@ next-env.d.ts
 # bmad (personnel)
 _bmad/custom/config.user.toml
 _bmad/config.user.toml
+
+playwright-report/
+test-results/

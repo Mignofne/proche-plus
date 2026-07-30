@@ -103,9 +103,14 @@ export default async function AdminProduitPage() {
               </p>
             </div>
           </div>
-          <Link href="/" className="text-sm text-teal">
-            Déconnexion
-          </Link>
+          <div className="flex gap-4 text-sm">
+            <Link href="/admin-produit/exercices" className="text-teal font-medium">
+              Catalogue exercices
+            </Link>
+            <Link href="/" className="text-teal">
+              Accueil
+            </Link>
+          </div>
         </div>
       </header>
 

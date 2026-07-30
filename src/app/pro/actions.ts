@@ -202,3 +202,55 @@ export async function deleteCaregiverLink(linkId: string, patientId: string) {
   revalidatePath("/pro");
   revalidatePath(`/pro/patient/${patientId}`);
 }
+
+export async function activatePatientExercise(
+  patientId: string,
+  exerciseId: string
+) {
+  const { professional } = await requirePro();
+  const patient = await prisma.patient.findFirst({
+    where: { id: patientId, establishmentId: professional.establishmentId },
+  });
+  if (!patient) throw new Error("Patient introuvable");
+
+  const { activateExerciseForPatient } = await import(
+    "@/lib/exercises/service"
+  );
+  await activateExerciseForPatient({
+    patientId,
+    exerciseId,
+    professionalId: professional.id,
+    makeCurrent: true,
+  });
+
+  revalidatePath(`/pro/patient/${patientId}`);
+  revalidatePath("/aidant/mode-visite");
+  revalidatePath("/pro");
+}
+
+export async function treatExerciseAlert(
+  alertId: string,
+  patientId: string,
+  activateNext: boolean
+) {
+  const { professional } = await requirePro();
+  const alert = await prisma.professionalAlert.findFirst({
+    where: {
+      id: alertId,
+      patientId,
+      patient: { establishmentId: professional.establishmentId },
+    },
+  });
+  if (!alert) throw new Error("Alerte introuvable");
+
+  const { treatAlert } = await import("@/lib/exercises/service");
+  await treatAlert({
+    alertId,
+    professionalId: professional.id,
+    activateNext,
+  });
+
+  revalidatePath(`/pro/patient/${patientId}`);
+  revalidatePath("/aidant/mode-visite");
+  revalidatePath("/pro");
+}

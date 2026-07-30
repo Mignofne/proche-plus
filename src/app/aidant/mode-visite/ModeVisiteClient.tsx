@@ -12,9 +12,32 @@ import {
   VISIT_MODE_STEPS,
 } from "@/lib/constants";
 import { getMicrocopy } from "@/lib/microcopy";
-import { submitCaregiverVisitAction } from "@/app/aidant/actions";
+import {
+  submitCaregiverVisitAction,
+  submitExerciseOutcome,
+} from "@/app/aidant/actions";
 
-type VisitData = {
+type ThemeOption = {
+  id: string;
+  label: string;
+  icon: string | null;
+};
+
+type ExerciseView = {
+  patientExerciseId: string;
+  name: string;
+  objective: string;
+  steps: string[];
+  caregiverCan: string[];
+  caregiverMustNot: string[];
+  estimatedDuration: string | null;
+  themeLabel: string;
+  levelLabel: string;
+  tier: number;
+};
+
+type LegacyVisitData = {
+  mode: "legacy";
   transmissionId: string;
   patientName: string;
   autonomyLevel: string;
@@ -25,7 +48,212 @@ type VisitData = {
   aEviter: string[];
 };
 
-export function ModeVisiteClient({ data }: { data: VisitData }) {
+type ExerciseVisitData = {
+  mode: "exercise";
+  transmissionId: string | null;
+  patientName: string;
+  autonomyLevel: string;
+  themes: ThemeOption[];
+  exercisesByTheme: Record<string, ExerciseView | null>;
+};
+
+export type VisitClientData = LegacyVisitData | ExerciseVisitData;
+
+export function ModeVisiteClient({ data }: { data: VisitClientData }) {
+  if (data.mode === "exercise") {
+    return <ExerciseModeVisite data={data} />;
+  }
+  return <LegacyModeVisite data={data} />;
+}
+
+function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
+  const router = useRouter();
+  const [themeId, setThemeId] = useState<string | null>(
+    data.themes.length === 1 ? data.themes[0].id : null
+  );
+  const [pending, startTransition] = useTransition();
+  const [done, setDone] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+
+  const exercise = themeId ? data.exercisesByTheme[themeId] : null;
+
+  function record(outcome: "reussi" | "essai" | "echec") {
+    if (!exercise) return;
+    startTransition(async () => {
+      const result = await submitExerciseOutcome({
+        patientExerciseId: exercise.patientExerciseId,
+        outcome,
+        note: note.trim() || undefined,
+        transmissionId: data.transmissionId,
+      });
+      setDone(result.message);
+    });
+  }
+
+  if (done) {
+    return (
+      <div className="mx-auto min-h-dvh max-w-lg bg-cream">
+        <AppHeader title="Visite terminée" backHref="/aidant" />
+        <main className="flex flex-col items-center gap-6 p-6 text-center">
+          <Mascot pose="celebrate" />
+          <p className="text-lg font-medium">{done}</p>
+          <Button onClick={() => router.push("/aidant")} fullWidth>
+            Retour à l&apos;accueil
+          </Button>
+        </main>
+      </div>
+    );
+  }
+
+  if (!themeId) {
+    return (
+      <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
+        <AppHeader title="Mode visite" backHref="/aidant" />
+        <main className="flex flex-col gap-4 p-4">
+          <div className="flex items-center gap-3">
+            <Mascot pose="welcome" size="sm" />
+            <div>
+              <h2 className="text-lg font-bold">Que souhaitez-vous travailler ?</h2>
+              <p className="text-sm text-text-muted">
+                Pour {data.patientName} · {AUTONOMY_LABELS[data.autonomyLevel]}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            {data.themes.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setThemeId(t.id)}
+                className="flex items-center gap-3 rounded-2xl border border-cream-dark bg-white p-4 text-left transition-colors hover:border-teal hover:bg-teal/5"
+              >
+                <span className="text-2xl" aria-hidden>
+                  {t.icon ?? "•"}
+                </span>
+                <span className="text-lg font-semibold">{t.label}</span>
+              </button>
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!exercise) {
+    return (
+      <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
+        <AppHeader title="Mode visite" backHref="/aidant" />
+        <main className="flex flex-col gap-4 p-4">
+          <Card>
+            <SectionTitle>Pas d&apos;exercice activé</SectionTitle>
+            <p className="mt-3 leading-relaxed">
+              Aucun exercice n&apos;a été activé pour ce thème par
+              l&apos;équipe. Parlez-en lors de la prochaine visite — plutôt
+              qu&apos;improviser un geste non validé.
+            </p>
+          </Card>
+          <Button variant="ghost" onClick={() => setThemeId(null)} fullWidth>
+            ← Choisir un autre thème
+          </Button>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
+      <AppHeader title="Mode visite" backHref="/aidant" />
+      <main className="flex flex-col gap-4 p-4">
+        <button
+          type="button"
+          onClick={() => setThemeId(null)}
+          className="text-left text-sm text-teal"
+        >
+          ← Changer de thème
+        </button>
+
+        <div className="flex items-center gap-3">
+          <Mascot pose="encourage" size="sm" />
+          <div>
+            <p className="text-sm text-teal font-medium">
+              {exercise.themeLabel} · Niveau {exercise.levelLabel} · Palier{" "}
+              {exercise.tier}
+            </p>
+            <h2 className="text-xl font-bold leading-snug">{exercise.name}</h2>
+          </div>
+        </div>
+
+        <Card>
+          <SectionTitle>Objectif</SectionTitle>
+          <p className="mt-2 text-lg leading-snug">{exercise.objective}</p>
+          {exercise.estimatedDuration && (
+            <p className="mt-3 text-sm text-text-muted">
+              Durée indicative : {exercise.estimatedDuration}
+            </p>
+          )}
+        </Card>
+
+        <Card>
+          <SectionTitle>Étapes / guidance verbale</SectionTitle>
+          <ol className="mt-3 list-decimal space-y-3 pl-5 text-base leading-relaxed">
+            {exercise.steps.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ol>
+        </Card>
+
+        <Card>
+          <SectionTitle>Ce que vous pouvez faire</SectionTitle>
+          <ul className="mt-3 list-inside list-disc space-y-2">
+            {exercise.caregiverCan.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card className="border-terracotta/30">
+          <SectionTitle>Ce que vous ne devez pas faire</SectionTitle>
+          <ul className="mt-3 list-inside list-disc space-y-2">
+            {exercise.caregiverMustNot.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        </Card>
+
+        <SectionTitle>Comment ça s&apos;est passé ?</SectionTitle>
+        <div className="flex flex-col gap-3">
+          <Button onClick={() => record("reussi")} disabled={pending} fullWidth>
+            Réussi
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => record("essai")}
+            disabled={pending}
+            fullWidth
+          >
+            Essai, avec difficulté
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => record("echec")}
+            disabled={pending}
+            fullWidth
+          >
+            Échec
+          </Button>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Précision facultative…"
+            className="min-h-24 rounded-xl border border-cream-dark bg-white p-4"
+          />
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function LegacyModeVisite({ data }: { data: LegacyVisitData }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [note, setNote] = useState("");
@@ -56,10 +284,6 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
           <Mascot pose="celebrate" />
           <p className="text-lg font-medium">
             C&apos;est noté — le professionnel en sera informé.
-          </p>
-          <p className="text-sm text-text-muted">
-            Un retour facultatif pourra vous être proposé plus tard. Aucune
-            obligation.
           </p>
           <Button onClick={() => router.push("/aidant")} fullWidth>
             Retour à l&apos;accueil
@@ -118,9 +342,6 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
             <p className="mt-2 text-lg font-semibold leading-snug">
               {data.nextStep ?? "Participer à la réadaptation"}
             </p>
-            <p className="mt-4 text-sm font-semibold text-teal-dark">
-              En pratique, concrètement :
-            </p>
             <ol className="mt-3 list-decimal space-y-3 pl-5 text-base leading-relaxed">
               {data.instructionSteps.map((line, i) => (
                 <li key={i}>{line}</li>
@@ -143,9 +364,6 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
                 <li key={i}>{text}</li>
               ))}
             </ul>
-            <p className="mt-4 rounded-xl bg-teal/10 p-3 text-sm font-medium text-teal-dark">
-              {getMicrocopy("notDoingForThem")}
-            </p>
           </Card>
         )}
 
@@ -167,12 +385,7 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
           <div className="flex flex-col gap-3">
             <p className="text-lg font-medium">{current.hint}</p>
             {(
-              [
-                "realise_succes",
-                "essaye",
-                "doute",
-                "aide",
-              ] as const
+              ["realise_succes", "essaye", "doute", "aide"] as const
             ).map((type) => (
               <Button
                 key={type}
@@ -210,15 +423,6 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
           <Button variant="ghost" onClick={() => setStep((s) => s - 1)} fullWidth>
             ← Revoir l&apos;étape précédente
           </Button>
-        )}
-        {step > 0 && (
-          <button
-            type="button"
-            onClick={() => setStep(0)}
-            className="touch-target text-center text-sm text-teal"
-          >
-            Revoir depuis le début
-          </button>
         )}
       </main>
     </div>
