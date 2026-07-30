@@ -43,7 +43,12 @@ function LoginForm() {
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        role?: string;
+        redirectTo?: string;
+        onboardingDone?: boolean;
+      };
 
       if (!res.ok) {
         setError(data.error ?? "Erreur de connexion");
