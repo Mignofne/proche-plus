@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sun: #f5c842;
+  --color-sun-dark: #e0a820;
+  --color-teal: #2a9d8f;
+  --color-teal-dark: #1f7a6f;
+  --color-terracotta: #c67b5c;
+  --color-cream: #faf7f2;
+  --color-cream-dark: #f0ebe3;
+  --color-bear: #8b5e3c;
+  --color-text: #2d2a26;
+  --color-text-muted: #5c5650;
+  --font-sans: "Nunito", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    background-color: var(--color-cream);
+    color: var(--color-text);
+  }
+
+  body {
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .large-text {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  .large-text h1 {
+    font-size: 2rem;
+  }
+
+  .large-text h2 {
+    font-size: 1.5rem;
+  }
+
+  .large-text button,
+  .large-text .btn {
+    font-size: 1.125rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
+
+@layer utilities {
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Proche+",
+  "short_name": "Proche+",
+  "description": "Continuité éducative entre professionnels et familles",
+  "start_url": "/aidant",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#2a9d8f",
+  "orientation": "portrait",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,264 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Enums ---
+
+enum ProfessionalRole {
+  ergotherapeute
+  kinesitherapeute
+  infirmier
+  educateur
+  admin_etablissement
+}
+
+enum AutonomyLevel {
+  autonome
+  semi_autonome_faible
+  semi_autonome_eleve
+  dependant
+  grabataire
+}
+
+enum Skill {
+  transfert
+  fauteuil
+  toilette
+  communication
+  repas
+  mobilite
+  autonomie
+  comportement
+  autre
+}
+
+enum ObjectiveStatus {
+  acquis
+  en_cours
+  a_reprendre
+  non_travaille
+}
+
+enum CaregiverStatus {
+  invite
+  actif
+  parcours_propose_non_active
+}
+
+enum ComprehensionResult {
+  clair
+  doute
+}
+
+enum FeedbackOutcome {
+  facile
+  difficile
+  non_essaye
+}
+
+enum QuestionStatus {
+  en_attente
+  traitee
+  associee_ressource
+}
+
+enum MessageSection {
+  a_retenir
+  a_essayer
+  a_eviter
+  a_revoir_ensemble
+}
+
+// --- Models ---
+
+model Establishment {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+  professionals Professional[]
+  patients      Patient[]
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String?         @unique
+  phone          String?
+  passwordHash   String
+  firstName      String
+  lastName       String
+  largeText      Boolean         @default(false)
+  soberMode      Boolean         @default(false)
+  onboardingDone Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  professional   Professional?
+  caregiver      Caregiver?
+}
+
+model Professional {
+  id              String           @id @default(cuid())
+  userId          String           @unique
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role            ProfessionalRole
+  establishmentId String
+  establishment   Establishment    @relation(fields: [establishmentId], references: [id])
+  visits          VisitProfessional[]
+  transmissions   Transmission[]
+  questions       Question[]       @relation("QuestionProfessional")
+  clinicalNotes   ClinicalNote[]
+}
+
+model Caregiver {
+  id        String            @id @default(cuid())
+  userId    String            @unique
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    CaregiverStatus   @default(invite)
+  patients  PatientCaregiver[]
+  feedbacks CaregiverFeedback[]
+  questions Question[]
+}
+
+model Patient {
+  id              String              @id @default(cuid())
+  firstName       String
+  lastName        String
+  autonomyLevel   AutonomyLevel       @default(semi_autonome_faible)
+  establishmentId String
+  establishment   Establishment       @relation(fields: [establishmentId], references: [id])
+  caregivers      PatientCaregiver[]
+  objectives      EducationalObjective[]
+  visits          Visit[]
+  createdAt       DateTime            @default(now())
+}
+
+model PatientCaregiver {
+  id          String    @id @default(cuid())
+  patientId   String
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  caregiverId String
+  caregiver   Caregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  relationship String
+  isPrimary   Boolean   @default(true)
+
+  @@unique([patientId, caregiverId])
+}
+
+model EducationalObjective {
+  id          String          @id @default(cuid())
+  patientId   String
+  patient     Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  skill       Skill
+  status      ObjectiveStatus @default(en_cours)
+  instructions String
+  nextStep    String?
+  isCurrent   Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  transmissions Transmission[]
+}
+
+model Visit {
+  id            String              @id @default(cuid())
+  patientId     String
+  patient       Patient             @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  date          DateTime            @default(now())
+  professionals VisitProfessional[]
+  transmission  Transmission?
+}
+
+model VisitProfessional {
+  id             String       @id @default(cuid())
+  visitId        String
+  visit          Visit        @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  professionalId String
+  professional   Professional @relation(fields: [professionalId], references: [id])
+
+  @@unique([visitId, professionalId])
+}
+
+model Transmission {
+  id          String               @id @default(cuid())
+  visitId     String               @unique
+  visit       Visit                @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  objectiveId String
+  objective   EducationalObjective @relation(fields: [objectiveId], references: [id])
+  professionalId String
+  professional Professional        @relation(fields: [professionalId], references: [id])
+  messages    TransmissionMessage[]
+  sentAt      DateTime             @default(now())
+  readAt      DateTime?
+  comprehensionChecks ComprehensionCheck[]
+  feedbacks   CaregiverFeedback[]
+}
+
+model TransmissionMessage {
+  id             String       @id @default(cuid())
+  transmissionId String
+  transmission   Transmission @relation(fields: [transmissionId], references: [id], onDelete: Cascade)
+  section        MessageSection
+  content        String
+}
+
+model ComprehensionCheck {
+  id             String              @id @default(cuid())
+  transmissionId String
+  transmission   Transmission        @relation(fields: [transmissionId], references: [id], onDelete: Cascade)
+  result         ComprehensionResult
+  comment        String?
+  createdAt      DateTime            @default(now())
+}
+
+model CaregiverFeedback {
+  id             String          @id @default(cuid())
+  transmissionId String
+  transmission   Transmission    @relation(fields: [transmissionId], references: [id], onDelete: Cascade)
+  caregiverId    String
+  caregiver      Caregiver       @relation(fields: [caregiverId], references: [id])
+  outcome        FeedbackOutcome
+  difficulties   String
+  wantsToDiscuss Boolean         @default(false)
+  treated        Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+}
+
+model Question {
+  id             String         @id @default(cuid())
+  caregiverId    String
+  caregiver      Caregiver      @relation(fields: [caregiverId], references: [id])
+  professionalId String?
+  professional   Professional?  @relation("QuestionProfessional", fields: [professionalId], references: [id])
+  text           String
+  status         QuestionStatus @default(en_attente)
+  answer         String?
+  createdAt      DateTime       @default(now())
+}
+
+model Resource {
+  id       String @id @default(cuid())
+  category String
+  title    String
+  content  String
+}
+
+// Données professionnelles — jamais visibles par l'aidant
+model ClinicalNote {
+  id             String       @id @default(cuid())
+  professionalId String
+  professional   Professional @relation(fields: [professionalId], references: [id])
+  patientId      String
+  content        String
+  createdAt      DateTime     @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  createdAt DateTime @default(now())
+}
