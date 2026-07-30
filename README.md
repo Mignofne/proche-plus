@@ -1,4 +1,4 @@
-# Proche+ 🧸
+# Proche+
 
 SaaS de continuité éducative entre établissements de rééducation et familles-aidants.
 

@@ -6,9 +6,15 @@ const secret = new TextEncoder().encode(
   process.env.JWT_SECRET ?? "dev-secret-change-me"
 );
 
+export type AppRole =
+  | "caregiver"
+  | "professional"
+  | "admin_etablissement"
+  | "admin_produit";
+
 export type SessionPayload = {
   userId: string;
-  role: "caregiver" | "professional";
+  role: AppRole;
 };
 
 export async function createSession(payload: SessionPayload) {
@@ -44,4 +50,17 @@ export async function getSession(): Promise<SessionPayload | null> {
 export async function clearSession() {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
+}
+
+export function homePathForRole(role: AppRole): string {
+  switch (role) {
+    case "caregiver":
+      return "/aidant";
+    case "admin_etablissement":
+      return "/pro";
+    case "admin_produit":
+      return "/admin-produit";
+    default:
+      return "/pro";
+  }
 }

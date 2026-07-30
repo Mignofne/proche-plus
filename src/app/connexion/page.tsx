@@ -5,13 +5,25 @@ import { Suspense, useState } from "react";
 import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
 
+function roleLabel(role: string | null) {
+  if (role === "pro" || role === "admin")
+    return "Espace professionnel (soin + pilotage établissement si habilité)";
+  if (role === "fondateur") return "Admin produit (fondateurs)";
+  return "Espace aidant — démo Jean Martin";
+}
+
+function defaultEmail(role: string | null) {
+  if (role === "pro") return "pro@procheplus.demo";
+  if (role === "admin") return "admin@procheplus.demo";
+  if (role === "fondateur") return "fondateur@procheplus.demo";
+  return "jean.martin@demo.fr";
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roleHint = searchParams.get("role");
-  const [email, setEmail] = useState(
-    roleHint === "pro" ? "pro@procheplus.demo" : "jean.martin@demo.fr"
-  );
+  const [email, setEmail] = useState(defaultEmail(roleHint));
   const [password, setPassword] = useState("demo1234");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,13 +47,12 @@ function LoginForm() {
       return;
     }
 
-    if (data.role === "caregiver") {
-      router.push(
-        data.onboardingDone ? "/aidant" : "/aidant/onboarding"
-      );
-    } else {
-      router.push("/pro");
+    if (data.role === "caregiver" && !data.onboardingDone) {
+      router.push("/aidant/onboarding");
+      return;
     }
+
+    router.push(data.redirectTo ?? "/");
   }
 
   return (
@@ -50,9 +61,7 @@ function LoginForm() {
         <Mascot pose="welcome" />
         <h1 className="text-2xl font-bold text-teal-dark">Connexion</h1>
         <p className="text-center text-sm text-text-muted">
-          {roleHint === "pro"
-            ? "Espace professionnel"
-            : "Espace aidant — démo Jean Martin"}
+          {roleLabel(roleHint)}
         </p>
       </div>
 

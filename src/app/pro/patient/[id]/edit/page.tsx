@@ -1,9 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { TransmissionWizard } from "./TransmissionWizard";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { PatientForm } from "../../PatientForm";
 
-export default async function CreateTransmissionPage({
+export default async function EditPatientPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -24,9 +25,20 @@ export default async function CreateTransmissionPage({
 
   const patient = await prisma.patient.findFirst({
     where: { id, establishmentId: professional.establishmentId },
-    select: { id: true, firstName: true, lastName: true },
   });
   if (!patient) notFound();
 
-  return <TransmissionWizard patient={patient} />;
+  return (
+    <div className="min-h-dvh bg-cream">
+      <SiteHeader
+        variant="app"
+        title="Modifier patient"
+        nav={[
+          { href: "/pro", label: "Patients" },
+          { href: `/pro/patient/${id}`, label: "Fiche" },
+        ]}
+      />
+      <PatientForm mode="edit" patient={patient} />
+    </div>
+  );
 }

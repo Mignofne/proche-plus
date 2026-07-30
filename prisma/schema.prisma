@@ -17,6 +17,14 @@ enum ProfessionalRole {
   admin_etablissement
 }
 
+enum CaregiverActionType {
+  realise_succes
+  essaye
+  doute
+  aide
+  note
+}
+
 enum AutonomyLevel {
   autonome
   semi_autonome_faible
@@ -85,18 +93,19 @@ model Establishment {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  email          String?         @unique
-  phone          String?
-  passwordHash   String
-  firstName      String
-  lastName       String
-  largeText      Boolean         @default(false)
-  soberMode      Boolean         @default(false)
-  onboardingDone Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  professional   Professional?
-  caregiver      Caregiver?
+  id               String          @id @default(cuid())
+  email            String?         @unique
+  phone            String?
+  passwordHash     String
+  firstName        String
+  lastName         String
+  largeText        Boolean         @default(false)
+  soberMode        Boolean         @default(false)
+  onboardingDone   Boolean         @default(false)
+  isPlatformAdmin  Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  professional     Professional?
+  caregiver        Caregiver?
 }
 
 model Professional {
@@ -120,6 +129,7 @@ model Caregiver {
   patients  PatientCaregiver[]
   feedbacks CaregiverFeedback[]
   questions Question[]
+  actions   CaregiverAction[]
 }
 
 model Patient {
@@ -127,6 +137,7 @@ model Patient {
   firstName       String
   lastName        String
   autonomyLevel   AutonomyLevel       @default(semi_autonome_faible)
+  girLevel        Int?
   establishmentId String
   establishment   Establishment       @relation(fields: [establishmentId], references: [id])
   caregivers      PatientCaregiver[]
@@ -193,6 +204,19 @@ model Transmission {
   readAt      DateTime?
   comprehensionChecks ComprehensionCheck[]
   feedbacks   CaregiverFeedback[]
+  actions     CaregiverAction[]
+}
+
+model CaregiverAction {
+  id             String             @id @default(cuid())
+  transmissionId String
+  transmission   Transmission       @relation(fields: [transmissionId], references: [id], onDelete: Cascade)
+  caregiverId    String
+  caregiver      Caregiver          @relation(fields: [caregiverId], references: [id])
+  type           CaregiverActionType
+  stepLabel      String?
+  note           String?
+  createdAt      DateTime           @default(now())
 }
 
 model TransmissionMessage {
@@ -200,6 +224,7 @@ model TransmissionMessage {
   transmissionId String
   transmission   Transmission @relation(fields: [transmissionId], references: [id], onDelete: Cascade)
   section        MessageSection
+  theme          String?
   content        String
 }
 

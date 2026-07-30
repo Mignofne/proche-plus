@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const session = await getSession();
-  if (!session || session.role !== "professional") {
+  if (!session || (session.role !== "professional" && session.role !== "admin_etablissement")) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
@@ -34,6 +34,10 @@ export async function GET() {
               messages: true,
               feedbacks: true,
               comprehensionChecks: true,
+              actions: {
+                orderBy: { createdAt: "desc" },
+                include: { caregiver: { include: { user: true } } },
+              },
             },
           },
         },
@@ -88,7 +92,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
-  if (!session || session.role !== "professional") {
+  if (!session || (session.role !== "professional" && session.role !== "admin_etablissement")) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
 
@@ -145,9 +149,10 @@ export async function POST(request: NextRequest) {
         professionalId: professional.id,
         messages: {
           create: messages.map(
-            (m: { section: string; content: string }) => ({
+            (m: { section: string; content: string; theme?: string }) => ({
               section: m.section,
               content: m.content,
+              theme: m.theme ?? null,
             })
           ),
         },

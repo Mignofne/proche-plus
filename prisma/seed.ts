@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.auditLog.deleteMany();
   await prisma.clinicalNote.deleteMany();
+  await prisma.caregiverAction.deleteMany();
   await prisma.comprehensionCheck.deleteMany();
   await prisma.caregiverFeedback.deleteMany();
   await prisma.transmissionMessage.deleteMany();
@@ -25,9 +26,11 @@ async function main() {
   const passwordHash = await bcrypt.hash("demo1234", 10);
 
   const establishment = await prisma.establishment.create({
-    data: {
-      name: "Centre de rééducation Val-de-Marne",
-    },
+    data: { name: "Centre de rééducation Val-de-Marne" },
+  });
+
+  await prisma.establishment.create({
+    data: { name: "Centre Loire (cloisonné — aucune donnée croisée)" },
   });
 
   const proUser = await prisma.user.create({
@@ -47,6 +50,33 @@ async function main() {
     include: { professional: true },
   });
 
+  await prisma.user.create({
+    data: {
+      email: "admin@procheplus.demo",
+      firstName: "Claire",
+      lastName: "Moreau",
+      passwordHash,
+      onboardingDone: true,
+      professional: {
+        create: {
+          role: "admin_etablissement",
+          establishmentId: establishment.id,
+        },
+      },
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      email: "fondateur@procheplus.demo",
+      firstName: "Alex",
+      lastName: "Fondateur",
+      passwordHash,
+      onboardingDone: true,
+      isPlatformAdmin: true,
+    },
+  });
+
   const caregiverUser = await prisma.user.create({
     data: {
       email: "jean.martin@demo.fr",
@@ -54,10 +84,20 @@ async function main() {
       firstName: "Jean",
       lastName: "Martin",
       passwordHash,
+      onboardingDone: true,
+      caregiver: { create: { status: "actif" } },
+    },
+    include: { caregiver: true },
+  });
+
+  const invitedUser = await prisma.user.create({
+    data: {
+      email: "invite@demo.fr",
+      firstName: "Paul",
+      lastName: "Bernard",
+      passwordHash,
       onboardingDone: false,
-      caregiver: {
-        create: { status: "actif" },
-      },
+      caregiver: { create: { status: "invite" } },
     },
     include: { caregiver: true },
   });
@@ -67,6 +107,17 @@ async function main() {
       firstName: "Marie",
       lastName: "Martin",
       autonomyLevel: "semi_autonome_eleve",
+      girLevel: 4,
+      establishmentId: establishment.id,
+    },
+  });
+
+  const patientSansTx = await prisma.patient.create({
+    data: {
+      firstName: "Henri",
+      lastName: "Bernard",
+      autonomyLevel: "semi_autonome_faible",
+      girLevel: 5,
       establishmentId: establishment.id,
     },
   });
@@ -80,14 +131,24 @@ async function main() {
     },
   });
 
+  await prisma.patientCaregiver.create({
+    data: {
+      patientId: patientSansTx.id,
+      caregiverId: invitedUser.caregiver!.id,
+      relationship: "fils",
+      isPrimary: true,
+    },
+  });
+
   const objective = await prisma.educationalObjective.create({
     data: {
       patientId: patient.id,
       skill: "transfert",
       status: "en_cours",
       instructions:
-        "Lors du transfert, donnez votre consigne puis attendez que votre proche initie le mouvement.",
-      nextStep: "Participer davantage au repositionnement lors de la prochaine visite",
+        "1) Dites « Glissez un peu vers l’avant ».\n2) Attendez qu’il bouge.\n3) Si besoin, guidez le bassin d’une main sans tirer les bras.\n4) Félicitez le moindre effort.",
+      nextStep:
+        "Aider votre proche à se repositionner dans le fauteuil — sans le soulever à sa place",
       isCurrent: true,
     },
   });
@@ -97,9 +158,7 @@ async function main() {
       patientId: patient.id,
       date: new Date(),
       professionals: {
-        create: {
-          professionalId: proUser.professional!.id,
-        },
+        create: { professionalId: proUser.professional!.id },
       },
     },
   });
@@ -113,24 +172,39 @@ async function main() {
         create: [
           {
             section: "a_retenir",
+            theme: "fauteuil",
             content:
-              "Laissez votre proche commencer le mouvement avant de l'aider.",
+              "Le but : qu’il bouge un peu tout seul dans le fauteuil. Vous guidez avec la voix d’abord, les mains ensuite — et seulement si besoin.",
           },
           {
             section: "a_essayer",
+            theme: "fauteuil",
             content:
-              "Lors du prochain transfert, donnez votre consigne puis attendez.",
+              "Une fois pendant la visite : demandez-lui de glisser les fesses vers l’avant du fauteuil. Phrase : « Glissez un peu vers moi ». Comptez jusqu’à 5 avant d’aider.",
           },
           {
             section: "a_eviter",
-            content: "Ne tirez pas votre proche par le bras.",
+            theme: "fauteuil",
+            content:
+              "Ne le tirez pas par les bras ou les aisselles. Ne le soulevez pas d’un coup pour le « remettre droit ».",
           },
           {
             section: "a_revoir_ensemble",
-            content: "Le moment où vous devez intervenir.",
+            theme: "transfert",
+            content:
+              "Si ça bloque ou si vous avez peur qu’il glisse : arrêtez, mettez le frein du fauteuil, et reparlez-en avec l’équipe.",
           },
         ],
       },
+    },
+  });
+
+  await prisma.question.create({
+    data: {
+      caregiverId: caregiverUser.caregiver!.id,
+      professionalId: proUser.professional!.id,
+      text: "Puis-je l'aider à se lever si le kiné n'est pas dans la chambre ?",
+      status: "en_attente",
     },
   });
 
@@ -139,7 +213,7 @@ async function main() {
       professionalId: proUser.professional!.id,
       patientId: patient.id,
       content:
-        "Observation clinique interne : vigilance posturale à maintenir, non partagée avec la famille.",
+        "Observation clinique interne : vigilance posturale — jamais visible côté famille.",
     },
   });
 
@@ -149,7 +223,7 @@ async function main() {
         category: "Transfert",
         title: "Comment aider mon proche à se lever ?",
         content:
-          "Placez-vous face à lui, donnez une consigne courte, attendez qu'il initie le mouvement avant d'assister légèrement.",
+          "Placez-vous face à lui, donnez une consigne courte, attendez qu'il initie le mouvement.",
       },
       {
         category: "Mobilité",
@@ -167,8 +241,10 @@ async function main() {
   });
 
   console.log("Seed OK");
-  console.log("  Pro: pro@procheplus.demo / demo1234");
   console.log("  Aidant: jean.martin@demo.fr / demo1234");
+  console.log("  Pro: pro@procheplus.demo / demo1234");
+  console.log("  Admin établissement: admin@procheplus.demo / demo1234");
+  console.log("  Admin produit: fondateur@procheplus.demo / demo1234");
   console.log(`  Transmission: ${transmission.id}`);
 }
 

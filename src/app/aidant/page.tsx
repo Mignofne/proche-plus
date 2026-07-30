@@ -1,43 +1,28 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Mascot } from "@/components/mascot/Mascot";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { AppHeader } from "@/components/layout/AppHeader";
+import { getSession } from "@/lib/auth";
 import { getMicrocopy } from "@/lib/microcopy";
+import {
+  getCaregiverByUserId,
+  getCaregiverTransmissions,
+} from "@/lib/services/aidant";
 
-type AidantData = {
-  transmissions: Array<{
-    id: string;
-    readAt: string | null;
-    sentAt: string;
-    visit: { patient: { firstName: string; lastName: string } };
-  }>;
-  caregiver: {
-    patients: Array<{
-      patient: {
-        firstName: string;
-        lastName: string;
-        objectives: Array<{ nextStep: string | null }>;
-      };
-    }>;
-  };
-};
+export default async function AidantHomePage() {
+  const session = await getSession();
+  if (!session || session.role !== "caregiver") {
+    redirect("/connexion?role=aidant");
+  }
 
-export default function AidantHomePage() {
-  const [data, setData] = useState<AidantData | null>(null);
+  const caregiver = await getCaregiverByUserId(session.userId);
+  if (!caregiver) redirect("/connexion?role=aidant");
 
-  useEffect(() => {
-    fetch("/api/aidant")
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error);
-  }, []);
-
-  const patient = data?.caregiver.patients[0]?.patient;
-  const latestTransmission = data?.transmissions[0];
+  const transmissions = await getCaregiverTransmissions(caregiver.id);
+  const patient = caregiver.patients[0]?.patient;
+  const latestTransmission = transmissions[0];
   const unread = latestTransmission && !latestTransmission.readAt;
 
   return (
@@ -103,7 +88,25 @@ export default function AidantHomePage() {
         {patient?.objectives[0]?.nextStep && (
           <Card>
             <SectionTitle>Objectif en cours</SectionTitle>
-            <p className="mt-2">{patient.objectives[0].nextStep}</p>
+            <p className="mt-2 font-semibold">
+              {patient.objectives[0].nextStep}
+            </p>
+            {patient.objectives[0].instructions && (
+              <>
+                <p className="mt-3 text-sm font-semibold text-teal-dark">
+                  En pratique :
+                </p>
+                <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-text-muted">
+                  {patient.objectives[0].instructions
+                    .split(/\s*\d+\)\s*/)
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                </ol>
+              </>
+            )}
           </Card>
         )}
 

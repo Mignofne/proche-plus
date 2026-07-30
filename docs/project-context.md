@@ -42,7 +42,7 @@ prisma/schema.prisma → Modèle données (cloisonnement RGPD)
 
 ## Identité
 
-- Mascotte : ours brun en peluche, ton débonnaire et rassurant
+- Mascotte : ours brun adulte, débonnaire et rassurant (jamais infantile)
 - Couleurs : jaune soleil, teal santé, terracotta
 - Cible : aidants nés ~1955–1970, accessibilité AA
 

@@ -25,6 +25,46 @@ export const AUTONOMY_LABELS: Record<string, string> = {
   grabataire: "Grabataire",
 };
 
+export const GIR_LABELS: Record<number, string> = {
+  1: "GIR 1 — dépendance totale",
+  2: "GIR 2 — dépendance sévère",
+  3: "GIR 3 — aide plusieurs fois / jour",
+  4: "GIR 4 — aide pour transferts / toilette",
+  5: "GIR 5 — aide ponctuelle",
+  6: "GIR 6 — autonomie pour les actes essentiels",
+};
+
+export const CAREGIVER_ACTION_LABELS: Record<string, string> = {
+  realise_succes: "Réalisé avec succès",
+  essaye: "J'ai essayé",
+  doute: "J'ai un doute",
+  aide: "Demander de l'aide",
+  note: "Laisser une note",
+};
+
+export const VISIT_MODE_STEPS = [
+  {
+    id: "objectif",
+    title: "Objectif du jour",
+    hint: "Ce que vous venez faire ensemble",
+  },
+  {
+    id: "faire",
+    title: "Ce que je peux faire",
+    hint: "Consignes à essayer",
+  },
+  {
+    id: "eviter",
+    title: "Ce que je ne dois pas faire",
+    hint: "Sécurité",
+  },
+  {
+    id: "agir",
+    title: "Comment ça s'est passé ?",
+    hint: "Une action — le professionnel en sera informé",
+  },
+] as const;
+
 export const MESSAGE_SECTION_LABELS: Record<string, string> = {
   a_retenir: "À retenir",
   a_essayer: "À essayer",
@@ -74,9 +114,9 @@ export const ONBOARDING_STEPS = [
 ] as const;
 
 export const PREDEFINED_INSTRUCTIONS = [
-  "Laissez votre proche commencer le mouvement avant de l'aider",
-  "Donnez une consigne courte puis attendez",
-  "Encouragez le changement de position",
-  "Utilisez la guidance verbale, pas la traction",
-  "Ne réalisez pas un transfert sans supervision",
+  "Dites une phrase courte, puis attendez 5 secondes avant d’aider",
+  "Exemple : « Glissez un peu vers l’avant » — sans tirer les bras",
+  "Guidez le bassin d’une main si besoin, jamais par les aisselles",
+  "Encouragez le moindre mouvement : « Bien, continuez »",
+  "Si frein du fauteuil : vérifiez-le avant toute aide",
 ] as const;

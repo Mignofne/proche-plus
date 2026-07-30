@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { createSession } from "@/lib/auth";
+import { createSession, homePathForRole, type AppRole } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -34,11 +34,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const role = user.professional
-    ? "professional"
-    : user.caregiver
-      ? "caregiver"
-      : null;
+  let role: AppRole | null = null;
+  if (user.isPlatformAdmin) {
+    role = "admin_produit";
+  } else if (user.professional?.role === "admin_etablissement") {
+    role = "admin_etablissement";
+  } else if (user.professional) {
+    role = "professional";
+  } else if (user.caregiver) {
+    role = "caregiver";
+  }
 
   if (!role) {
     return NextResponse.json({ error: "Compte invalide" }, { status: 403 });
@@ -48,6 +53,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     role,
+    redirectTo: homePathForRole(role),
     onboardingDone: user.onboardingDone,
     user: {
       id: user.id,
