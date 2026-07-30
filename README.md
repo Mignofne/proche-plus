@@ -53,8 +53,14 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 ### Professionnel (web responsive)
 - Tableau de bord (stats, patients, questions)
 - Fiche patient (objectif, historique)
+- Activation d'exercices par thème / niveau (matrice A–E)
 - Création transmission en 5 étapes (< 2 min)
 - Réponse aux questions
+- Alertes parcours (changement de niveau, régression)
+
+### Admin produit (fondateurs)
+- KPIs MVP agrégés
+- Catalogue thèmes / niveaux / exercices + transitions évolutives
 
 ## Architecture
 

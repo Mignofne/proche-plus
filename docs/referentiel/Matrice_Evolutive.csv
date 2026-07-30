@@ -1,0 +1,44 @@
+Thème,Niveau,Palier,Nom de l'exercice,Si RÉUSSI → exercice suivant,Si ESSAI/difficulté → exercice suivant,Si ÉCHEC → exercice suivant,Franchit un niveau si réussi ?,Alerte professionnel requise ?,Statut
+Fauteuil,E — Grabataire / alité,1,"Mobilisation passive des membres en fauteuil roulant, aidé",D / palier 1,Répéter E / palier 1,Alerter le professionnel (pas de palier plus bas),Oui (E→D),Oui,Validé
+Fauteuil,D — Dépendant pour les transferts,1,Participer au transfert avec assistance complète,D / palier 2,Répéter D / palier 1,E / palier 1 (repli confort),Non,Non,Validé
+Fauteuil,D — Dépendant pour les transferts,2,Initier le mouvement de transfert avant l'aide,C / palier 1,Répéter D / palier 2,D / palier 1,Oui (D→C),Oui,Validé
+Fauteuil,"C — Semi-autonome, aide humaine à proximité",1,Faire un demi-tour en fauteuil,C / palier 2,Répéter C / palier 1,D / palier 2,Non,Non,Validé
+Fauteuil,"C — Semi-autonome, aide humaine à proximité",2,Franchir un léger seuil de porte avec supervision,B / palier 1,Répéter C / palier 2,C / palier 1,Oui (C→B),Oui,Validé
+Fauteuil,"B — Semi-autonome, aide technique, risque faible à modéré",1,"Propulsion autonome sur trajet court, aidant à distance",B / palier 2,Répéter B / palier 1,C / palier 2,Non,Non,Validé
+Fauteuil,"B — Semi-autonome, aide technique, risque faible à modéré",2,Trajet plus long avec changement de direction autonome,A / palier 1,Répéter B / palier 2,B / palier 1,Oui (B→A),Oui,Validé
+Fauteuil,A — Autonome,1,"Déplacement autonome en fauteuil, aidant en simple observation",Objectif maintenu (pas de palier supérieur),Répéter A / palier 1,B / palier 2 + alerte (possible régression),Non,Oui (si échec),Validé
+S'habiller,E — Grabataire / alité,1,,,,,,,À compléter
+S'habiller,D — Dépendant pour les transferts,1,,,,,,,À compléter
+S'habiller,"C — Semi-autonome, aide humaine à proximité",1,,,,,,,À compléter
+S'habiller,"B — Semi-autonome, aide technique, risque faible à modéré",1,,,,,,,À compléter
+S'habiller,A — Autonome,1,,,,,,,À compléter
+Manger,E — Grabataire / alité,1,,,,,,,À compléter
+Manger,D — Dépendant pour les transferts,1,,,,,,,À compléter
+Manger,"C — Semi-autonome, aide humaine à proximité",1,,,,,,,À compléter
+Manger,"B — Semi-autonome, aide technique, risque faible à modéré",1,,,,,,,À compléter
+Manger,A — Autonome,1,,,,,,,À compléter
+Se déplacer,E — Grabataire / alité,1,,,,,,,À compléter
+Se déplacer,D — Dépendant pour les transferts,1,,,,,,,À compléter
+Se déplacer,"C — Semi-autonome, aide humaine à proximité",1,,,,,,,À compléter
+Se déplacer,"B — Semi-autonome, aide technique, risque faible à modéré",1,,,,,,,À compléter
+Se déplacer,A — Autonome,1,,,,,,,À compléter
+Toilette / hygiène,E — Grabataire / alité,1,,,,,,,À compléter
+Toilette / hygiène,D — Dépendant pour les transferts,1,,,,,,,À compléter
+Toilette / hygiène,"C — Semi-autonome, aide humaine à proximité",1,,,,,,,À compléter
+Toilette / hygiène,"B — Semi-autonome, aide technique, risque faible à modéré",1,,,,,,,À compléter
+Toilette / hygiène,A — Autonome,1,,,,,,,À compléter
+Mobilité au lit,E — Grabataire / alité,1,,,,,,,À compléter
+Mobilité au lit,D — Dépendant pour les transferts,1,,,,,,,À compléter
+Mobilité au lit,"C — Semi-autonome, aide humaine à proximité",1,,,,,,,À compléter
+Mobilité au lit,"B — Semi-autonome, aide technique, risque faible à modéré",1,,,,,,,À compléter
+Mobilité au lit,A — Autonome,1,,,,,,,À compléter
+Communication,E — Grabataire / alité,1,,,,,,,À compléter
+Communication,D — Dépendant pour les transferts,1,,,,,,,À compléter
+Communication,"C — Semi-autonome, aide humaine à proximité",1,,,,,,,À compléter
+Communication,"B — Semi-autonome, aide technique, risque faible à modéré",1,,,,,,,À compléter
+Communication,A — Autonome,1,,,,,,,À compléter
+Mémoire / attention,E — Grabataire / alité,1,,,,,,,À compléter
+Mémoire / attention,D — Dépendant pour les transferts,1,,,,,,,À compléter
+Mémoire / attention,"C — Semi-autonome, aide humaine à proximité",1,,,,,,,À compléter
+Mémoire / attention,"B — Semi-autonome, aide technique, risque faible à modéré",1,,,,,,,À compléter
+Mémoire / attention,A — Autonome,1,,,,,,,À compléter

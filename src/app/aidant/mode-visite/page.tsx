@@ -2,6 +2,11 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getVisitModeData } from "@/lib/services/aidant";
+import {
+  getCurrentExerciseForTheme,
+  getThemesAvailableForCaregiver,
+} from "@/lib/exercises/service";
+import { parseJsonStringArray } from "@/lib/exercises/mapping";
 import { ModeVisiteClient } from "./ModeVisiteClient";
 
 export default async function ModeVisitePage() {
@@ -19,11 +24,70 @@ export default async function ModeVisitePage() {
     caregiver.id
   );
 
-  if (!latestTransmission || !patientLink) {
+  if (!patientLink) {
     redirect("/aidant");
   }
 
   const patient = patientLink.patient;
+  const themes = await getThemesAvailableForCaregiver(patient.id);
+
+  if (themes.length > 0) {
+    const exercisesByTheme: Record<
+      string,
+      {
+        patientExerciseId: string;
+        name: string;
+        objective: string;
+        steps: string[];
+        caregiverCan: string[];
+        caregiverMustNot: string[];
+        estimatedDuration: string | null;
+        themeLabel: string;
+        levelLabel: string;
+        tier: number;
+      } | null
+    > = {};
+
+    for (const theme of themes) {
+      const pe = await getCurrentExerciseForTheme(patient.id, theme.id);
+      exercisesByTheme[theme.id] = pe
+        ? {
+            patientExerciseId: pe.id,
+            name: pe.exercise.name,
+            objective: pe.exercise.objective,
+            steps: parseJsonStringArray(pe.exercise.steps),
+            caregiverCan: parseJsonStringArray(pe.exercise.caregiverCan),
+            caregiverMustNot: parseJsonStringArray(pe.exercise.caregiverMustNot),
+            estimatedDuration: pe.exercise.estimatedDuration,
+            themeLabel: pe.exercise.theme.label,
+            levelLabel: pe.exercise.autonomyScale.code,
+            tier: pe.exercise.tier,
+          }
+        : null;
+    }
+
+    return (
+      <ModeVisiteClient
+        data={{
+          mode: "exercise",
+          transmissionId: latestTransmission?.id ?? null,
+          patientName: `${patient.firstName} ${patient.lastName}`,
+          autonomyLevel: patient.autonomyLevel,
+          themes: themes.map((t) => ({
+            id: t.id,
+            label: t.label,
+            icon: t.icon,
+          })),
+          exercisesByTheme,
+        }}
+      />
+    );
+  }
+
+  if (!latestTransmission) {
+    redirect("/aidant");
+  }
+
   const objective = patient.objectives[0];
   const messages = latestTransmission.messages;
   const instructions =
@@ -38,15 +102,14 @@ export default async function ModeVisitePage() {
   return (
     <ModeVisiteClient
       data={{
+        mode: "legacy",
         transmissionId: latestTransmission.id,
         patientName: `${patient.firstName} ${patient.lastName}`,
         autonomyLevel: patient.autonomyLevel,
         nextStep: objective?.nextStep ?? null,
         instructions,
         instructionSteps:
-          instructionSteps.length > 0
-            ? instructionSteps
-            : [instructions],
+          instructionSteps.length > 0 ? instructionSteps : [instructions],
         aEssayer: messages
           .filter((m) => m.section === "a_essayer")
           .map((m) => m.content),

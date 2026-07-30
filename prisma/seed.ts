@@ -1,9 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { seedExerciseCatalog } from "./seed-exercises";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.exerciseAttempt.deleteMany();
+  await prisma.professionalAlert.deleteMany();
+  await prisma.patientExercise.deleteMany();
+  await prisma.exercise.deleteMany();
+  await prisma.theme.deleteMany();
+  await prisma.autonomyScale.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.clinicalNote.deleteMany();
   await prisma.caregiverAction.deleteMany();
@@ -240,12 +247,30 @@ async function main() {
     ],
   });
 
+  const { idByKey } = await seedExerciseCatalog(prisma);
+
+  // Marie (niveau C) : parcours Fauteuil C1 activé pour la démo aidant
+  const fauteuilC1 = idByKey.get("fauteuil-C1");
+  if (fauteuilC1) {
+    await prisma.patientExercise.create({
+      data: {
+        patientId: patient.id,
+        exerciseId: fauteuilC1,
+        currentStatus: "actif",
+        activatedById: proUser.professional!.id,
+        activatedAt: new Date(),
+        isCurrent: true,
+      },
+    });
+  }
+
   console.log("Seed OK");
   console.log("  Aidant: jean.martin@demo.fr / demo1234");
   console.log("  Pro: pro@procheplus.demo / demo1234");
   console.log("  Admin établissement: admin@procheplus.demo / demo1234");
   console.log("  Admin produit: fondateur@procheplus.demo / demo1234");
   console.log(`  Transmission: ${transmission.id}`);
+  console.log("  Exercice actif démo: Fauteuil / C / Faire un demi-tour");
 }
 
 main()
