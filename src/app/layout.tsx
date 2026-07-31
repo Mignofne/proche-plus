@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Nunito } from "next/font/google";
+import { LegalFooter } from "@/components/layout/LegalFooter";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -35,7 +37,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={`${nunito.variable} antialiased`}>{children}</body>
+      <body className={`${nunito.variable} flex min-h-dvh flex-col antialiased`}>
+        <div className="flex-1">{children}</div>
+        <LegalFooter />
+        <Analytics />
+      </body>
     </html>
   );
 }
