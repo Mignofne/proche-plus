@@ -56,6 +56,7 @@ type ExerciseVisitData = {
   autonomyLevel: string;
   themes: ThemeOption[];
   exercisesByTheme: Record<string, ExerciseView | null>;
+  readyThemeLabels?: string[];
 };
 
 export type VisitClientData = LegacyVisitData | ExerciseVisitData;
@@ -122,8 +123,9 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
             </div>
           </div>
           <p className="text-sm text-text-muted">
-            Choisissez un thème selon ce que vous allez faire pendant la visite.
-            L&apos;exercice proposé aura été validé par l&apos;équipe.
+            Les thèmes avec « Exercice prêt » sont utilisables tout de suite.
+            Les autres n&apos;ont pas encore de contenu pour ce niveau
+            d&apos;autonomie.
           </p>
           <div className="flex flex-col gap-3">
             {data.themes.map((t) => (
@@ -131,17 +133,25 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
                 key={t.id}
                 type="button"
                 onClick={() => setThemeId(t.id)}
-                className="flex items-center gap-3 rounded-2xl border border-cream-dark bg-white p-4 text-left transition-colors hover:border-teal hover:bg-teal/5"
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors ${
+                  t.hasExercise
+                    ? "border-teal/40 bg-teal/5 hover:border-teal"
+                    : "border-cream-dark bg-white hover:border-teal/30"
+                }`}
               >
                 <span className="text-2xl" aria-hidden>
                   {t.icon ?? "•"}
                 </span>
                 <span className="flex-1">
                   <span className="block text-lg font-semibold">{t.label}</span>
-                  <span className="mt-0.5 block text-sm text-text-muted">
+                  <span
+                    className={`mt-0.5 block text-sm ${
+                      t.hasExercise ? "font-medium text-teal-dark" : "text-text-muted"
+                    }`}
+                  >
                     {t.hasExercise
                       ? "Exercice prêt pour cette visite"
-                      : "Pas encore activé par l'équipe"}
+                      : "Pas encore de contenu pour ce niveau"}
                   </span>
                 </span>
               </button>
@@ -153,6 +163,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
   }
 
   if (!exercise) {
+    const ready = data.readyThemeLabels?.filter(Boolean) ?? [];
     return (
       <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
         <AppHeader title="Mode visite" backHref="/aidant" />
@@ -160,10 +171,16 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
           <Card>
             <SectionTitle>Pas encore d&apos;exercice pour ce thème</SectionTitle>
             <p className="mt-3 leading-relaxed">
-              L&apos;équipe n&apos;a pas encore activé d&apos;exercice pour ce
-              thème. Parlez-en lors de la prochaine visite — plutôt
-              qu&apos;improviser un geste non validé.
+              Pour le niveau d&apos;autonomie de votre proche, aucun exercice
+              n&apos;est encore disponible sur ce thème (ou l&apos;équipe ne
+              l&apos;a pas activé).
             </p>
+            {ready.length > 0 && (
+              <p className="mt-3 rounded-xl bg-teal/10 p-3 text-sm text-teal-dark">
+                Exercice(s) prêt(s) pour cette visite :{" "}
+                <strong>{ready.join(", ")}</strong>
+              </p>
+            )}
           </Card>
           <Button variant="ghost" onClick={() => setThemeId(null)} fullWidth>
             ← Choisir un autre thème

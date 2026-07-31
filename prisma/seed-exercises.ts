@@ -444,57 +444,75 @@ async function fillExerciseCatalog(prisma: PrismaClient) {
   return { idByKey, themeBySlug, scaleByCode };
 }
 
-/** Active Fauteuil C1 pour Marie Martin si aucun exercice courant. */
+/** Active les exercices publiés au niveau du patient pour Marie (et tout patient démo). */
 async function ensureDemoPatientExercise(
   prisma: PrismaClient,
-  idByKey?: Map<string, string>
+  _idByKey?: Map<string, string>
 ) {
-  const marie = await prisma.patient.findFirst({
-    where: { firstName: "Marie", lastName: "Martin" },
+  const patients = await prisma.patient.findMany({
+    where: {
+      caregivers: { some: {} },
+    },
   });
-  if (!marie) return;
 
-  const current = await prisma.patientExercise.count({
-    where: { patientId: marie.id, isCurrent: true },
-  });
-  if (current > 0) return;
+  for (const patient of patients) {
+    const code =
+      patient.autonomyLevel === "autonome"
+        ? "A"
+        : patient.autonomyLevel === "semi_autonome_faible"
+          ? "B"
+          : patient.autonomyLevel === "semi_autonome_eleve"
+            ? "C"
+            : patient.autonomyLevel === "dependant"
+              ? "D"
+              : "E";
 
-  let exerciseId = idByKey?.get("fauteuil-C1");
-  if (!exerciseId) {
-    const ex = await prisma.exercise.findFirst({
+    const scale = await prisma.autonomyScale.findUnique({ where: { code } });
+    if (!scale) continue;
+
+    const candidates = await prisma.exercise.findMany({
       where: {
         status: "publie",
-        name: "Faire un demi-tour en fauteuil",
-        theme: { slug: "fauteuil" },
+        autonomyScaleId: scale.id,
+        tier: 1,
       },
     });
-    exerciseId = ex?.id;
+
+    const pro = await prisma.professional.findFirst({
+      where: { establishmentId: patient.establishmentId },
+    });
+
+    for (const exercise of candidates) {
+      const existingCurrent = await prisma.patientExercise.findFirst({
+        where: {
+          patientId: patient.id,
+          isCurrent: true,
+          exercise: { themeId: exercise.themeId },
+        },
+      });
+      if (existingCurrent) continue;
+
+      await prisma.patientExercise.upsert({
+        where: {
+          patientId_exerciseId: {
+            patientId: patient.id,
+            exerciseId: exercise.id,
+          },
+        },
+        create: {
+          patientId: patient.id,
+          exerciseId: exercise.id,
+          currentStatus: "actif",
+          activatedById: pro?.id ?? null,
+          activatedAt: new Date(),
+          isCurrent: true,
+        },
+        update: {
+          currentStatus: "actif",
+          isCurrent: true,
+          activatedAt: new Date(),
+        },
+      });
+    }
   }
-  if (!exerciseId) return;
-
-  const pro = await prisma.professional.findFirst({
-    where: { establishmentId: marie.establishmentId },
-  });
-
-  await prisma.patientExercise.upsert({
-    where: {
-      patientId_exerciseId: {
-        patientId: marie.id,
-        exerciseId,
-      },
-    },
-    create: {
-      patientId: marie.id,
-      exerciseId,
-      currentStatus: "actif",
-      activatedById: pro?.id ?? null,
-      activatedAt: new Date(),
-      isCurrent: true,
-    },
-    update: {
-      currentStatus: "actif",
-      isCurrent: true,
-      activatedAt: new Date(),
-    },
-  });
 }
