@@ -99,18 +99,19 @@ export function getBearFaceSrc(
 function bodySheetStyle(panel: 0 | 1 | 2 | 3): CSSProperties {
   /**
    * Sheet en 400 % de largeur (= 4 panneaux).
-   * `left: -panel * 100%` aligne le panneau ; translateY centre le corps dans le cadre.
+   * `left: -panel * 100%` aligne le panneau.
+   * Top-pinned (no vertical center/cover zoom) so ears & head stay in frame.
+   * Parent at panel aspect (~384/1024) + height 100% → full body via contain-like fit.
    */
   return {
     position: "absolute",
     left: `${-panel * 100}%`,
-    top: "50%",
+    top: 0,
     width: "400%",
     height: "auto",
     maxWidth: "none",
-    transform: "translateY(-50%)",
-    objectFit: "cover",
-    objectPosition: "center center",
+    objectFit: "contain",
+    objectPosition: "center top",
     pointerEvents: "none",
     userSelect: "none",
   };

@@ -90,17 +90,23 @@ export default function BetaPage() {
             className="animate-fade-up flex justify-center lg:justify-end"
             style={{ animationDelay: "320ms" }}
           >
-            <div className="animate-mascot-float relative aspect-[4/5] w-[min(72vw,320px)] max-h-[42vh] lg:w-[min(100%,380px)] lg:max-h-[min(58vh,480px)]">
+            {/*
+              Outer keeps the hero footprint; inner uses C-v3 panel ratio so
+              BearFace body sprite can object-fit:contain the full figure (ears).
+            */}
+            <div className="animate-mascot-float relative flex aspect-[4/5] w-[min(72vw,320px)] max-h-[42vh] items-center justify-center lg:w-[min(100%,380px)] lg:max-h-[min(58vh,480px)]">
               <div
                 aria-hidden
                 className="absolute inset-x-[10%] bottom-[4%] top-[22%] rounded-[45%] bg-[radial-gradient(ellipse_at_center,rgb(42_157_143/0.1),transparent_72%)]"
               />
-              <BearFace
-                pose="welcome"
-                variant="body"
-                className="relative h-full w-full"
-                decorative={false}
-              />
+              <div className="relative h-full max-h-full w-auto max-w-full aspect-[384/1024]">
+                <BearFace
+                  pose="welcome"
+                  variant="body"
+                  className="relative h-full w-full"
+                  decorative={false}
+                />
+              </div>
             </div>
           </div>
         </div>
