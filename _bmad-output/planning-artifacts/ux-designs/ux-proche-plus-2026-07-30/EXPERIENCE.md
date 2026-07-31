@@ -7,7 +7,7 @@ sources:
   - docs/project-context.md
   - _bmad-output/planning-artifacts/ux-designs/ux-proche-plus-2026-07-30/.memlog.md
   - _bmad-output/planning-artifacts/ux-designs/ux-proche-plus-2026-07-30/DESIGN.md
-updated: 2026-07-30
+updated: 2026-07-31
 ---
 
 # Proche+ — Experience Spine
@@ -46,9 +46,10 @@ Aucun établissement ne lit les données d’un autre.
 |---|---|---|
 | Accueil | Login / cold open | Objectif en cours + prochaines actions claires |
 | Transmission | Accueil / notif | Lire à retenir / essayer / éviter / revoir + compréhension |
-| Mode visite | Accueil CTA | Parcours hybride étape par étape pendant la visite |
-| Action sur consigne | Mode visite | Réalisé avec succès · J’ai essayé · Doute · Aide · Note libre |
-| Fin de visite | Dernière étape mode visite | Clore la session ; annoncer le feedback à venir |
+| Choix de thème | Mode visite (entrée) | Choisir ce qu’on veut travailler aujourd’hui (S’habiller, Manger, Fauteuil…) |
+| Mode visite | Après thème | Exercice adapté au niveau + consignes + actions |
+| Action sur consigne | Mode visite | Réussi · Essai avec difficulté · Échec (ou actions legacy) |
+| Fin de visite | Dernière étape mode visite | Clore ; expliquer que l’équipe s’en sert pour la suite |
 | Feedback | Post-visite / rappel | Retour simple facultatif |
 | Question | Accueil | Question ponctuelle au pro |
 | Ressources | Accueil | Bibliothèque sans solliciter le pro |
@@ -93,12 +94,16 @@ Microcopy. Posture de marque dans `DESIGN.md`.
 | Do | Don't |
 |---|---|
 | « Réalisé avec succès » | « Valider le geste médical » |
+| « Comment ça s’est passé avec votre proche ? » | « Une action — le professionnel en sera informé » |
+| « Votre réponse aide l’équipe pour la prochaine visite » | Jargon opaque (« action », « informé ») sans bénéfice pour l’aidant |
+| « Que souhaitez-vous travailler aujourd’hui ? » | Sauter le choix de thème à la place de l’aidant |
 | « Prenez votre temps » | « Dépêchez-vous, objectif du jour » |
 | « Une étape à la fois — 2 sur 4 » | Écran fourre-tout sans prochaine action |
 | Ton sobre sur doute / chute | Humour sur risque |
 | « Message bien reçu » (mode sobre) | Clin d’œil radio sur sujet sensible |
 
-Libellés d’action aidant **requis** : Réalisé avec succès · J’ai essayé · J’ai un doute (sur *cette* consigne) · Demander de l’aide · Laisser une note.
+Libellés d’outcome visite (matrice) **requis** : Réussi · Essai, avec difficulté · Échec.  
+Libellés d’action legacy (transmission seule) : Réalisé avec succès · J’ai essayé · J’ai un doute · Demander de l’aide · Laisser une note.
 
 ## Component Patterns
 
@@ -106,7 +111,8 @@ Behavioral. Visuel dans `DESIGN.md.Components`.
 
 | Composant | Règles |
 |---|---|
-| Progress visite | Toujours visible en mode visite ; indique étape N/M ; ne remplace pas le CTA |
+| Sélecteur de thème | Entrée obligatoire du mode visite ; liste complète des thèmes actifs ; jamais auto-sélection silencieuse |
+| Progress visite | Après le thème ; indique étape N/M ; ne remplace pas le CTA |
 | CTA principal | Un seul au-dessus de la fold ; ≥ 48 px |
 | Chip / bouton d’outcome | Par consigne ou en fin d’étape ; un outcome primaire à la fois |
 | Timeline éducative | Lecture seule pour aidant (résumé simple) ; éditable / complète pour pro |
@@ -181,10 +187,11 @@ Invariant : filtre `establishmentId` partout ; RLS Postgres recommandé en prod 
 
 1. Ouvre Proche+ → voit **une** carte claire : « Aujourd’hui : mode visite » (+ transmission non lue si besoin).
 2. Lit la transmission (sections) → confirme compréhension (clair / doute).
-3. Lance **Mode visite** → voit étapes 1/4… en barre + consignes du jour.
-4. **Climax** : sur la consigne de transfert, choisit **« Réalisé avec succès »** (ou doute / note) — *quelque chose se passe*, le pro le saura.
-5. Fin de visite → message calme : un retour pourra être demandé plus tard.
-6. J+1 : feedback optionnel en 2 taps.
+3. Lance **Mode visite** → **choisit un thème** (ex. Fauteuil) parmi la liste — même s’il n’y a qu’un thème disponible, le choix reste explicite.
+4. Voit l’exercice adapté (objectif, étapes au tutoiement, peut / ne doit pas) — ou un message « pas encore activé, parlez-en à l’équipe » si le pro n’a rien activé pour ce thème.
+5. **Climax** : répond à « Comment ça s’est passé avec votre proche ? » → **Réussi / Essai / Échec** — *il comprend que ça sert à adapter la visite suivante*.
+6. Fin de visite → message calme de confirmation.
+7. J+1 : feedback optionnel en 2 taps.
 
 ### Flow B — Sophie (ergo), préparer la semaine
 

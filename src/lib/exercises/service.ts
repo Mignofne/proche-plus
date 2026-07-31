@@ -30,6 +30,14 @@ export async function listActiveThemesWithPublishedExercises() {
   });
 }
 
+/** Tous les thèmes actifs (catalogue) — pour le choix aidant en mode visite. */
+export async function listActiveThemesForVisit() {
+  return prisma.theme.findMany({
+    where: { active: true },
+    orderBy: { displayOrder: "asc" },
+  });
+}
+
 export async function listPublishedExercisesForTheme(themeId: string) {
   return prisma.exercise.findMany({
     where: { themeId, status: "publie" },

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getVisitModeData } from "@/lib/services/aidant";
 import {
   getCurrentExerciseForTheme,
-  getThemesAvailableForCaregiver,
+  listActiveThemesForVisit,
 } from "@/lib/exercises/service";
 import { parseJsonStringArray } from "@/lib/exercises/mapping";
 import { ModeVisiteClient } from "./ModeVisiteClient";
@@ -29,8 +29,9 @@ export default async function ModeVisitePage() {
   }
 
   const patient = patientLink.patient;
-  const themes = await getThemesAvailableForCaregiver(patient.id);
+  const themes = await listActiveThemesForVisit();
 
+  // Parcours thème-first dès qu'un catalogue existe (specs §10 + UX Sally)
   if (themes.length > 0) {
     const exercisesByTheme: Record<
       string,
@@ -77,6 +78,7 @@ export default async function ModeVisitePage() {
             id: t.id,
             label: t.label,
             icon: t.icon,
+            hasExercise: Boolean(exercisesByTheme[t.id]),
           })),
           exercisesByTheme,
         }}

@@ -21,6 +21,7 @@ type ThemeOption = {
   id: string;
   label: string;
   icon: string | null;
+  hasExercise?: boolean;
 };
 
 type ExerciseView = {
@@ -68,9 +69,8 @@ export function ModeVisiteClient({ data }: { data: VisitClientData }) {
 
 function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
   const router = useRouter();
-  const [themeId, setThemeId] = useState<string | null>(
-    data.themes.length === 1 ? data.themes[0].id : null
-  );
+  // Toujours laisser l'aidant choisir le thème (même s'il n'y en a qu'un)
+  const [themeId, setThemeId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [done, setDone] = useState<string | null>(null);
   const [note, setNote] = useState("");
@@ -113,12 +113,18 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
           <div className="flex items-center gap-3">
             <Mascot pose="welcome" size="sm" />
             <div>
-              <h2 className="text-lg font-bold">Que souhaitez-vous travailler ?</h2>
+              <h2 className="text-lg font-bold">
+                Que souhaitez-vous travailler aujourd&apos;hui ?
+              </h2>
               <p className="text-sm text-text-muted">
                 Pour {data.patientName} · {AUTONOMY_LABELS[data.autonomyLevel]}
               </p>
             </div>
           </div>
+          <p className="text-sm text-text-muted">
+            Choisissez un thème selon ce que vous allez faire pendant la visite.
+            L&apos;exercice proposé aura été validé par l&apos;équipe.
+          </p>
           <div className="flex flex-col gap-3">
             {data.themes.map((t) => (
               <button
@@ -130,7 +136,14 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
                 <span className="text-2xl" aria-hidden>
                   {t.icon ?? "•"}
                 </span>
-                <span className="text-lg font-semibold">{t.label}</span>
+                <span className="flex-1">
+                  <span className="block text-lg font-semibold">{t.label}</span>
+                  <span className="mt-0.5 block text-sm text-text-muted">
+                    {t.hasExercise
+                      ? "Exercice prêt pour cette visite"
+                      : "Pas encore activé par l'équipe"}
+                  </span>
+                </span>
               </button>
             ))}
           </div>
@@ -145,10 +158,10 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
         <AppHeader title="Mode visite" backHref="/aidant" />
         <main className="flex flex-col gap-4 p-4">
           <Card>
-            <SectionTitle>Pas d&apos;exercice activé</SectionTitle>
+            <SectionTitle>Pas encore d&apos;exercice pour ce thème</SectionTitle>
             <p className="mt-3 leading-relaxed">
-              Aucun exercice n&apos;a été activé pour ce thème par
-              l&apos;équipe. Parlez-en lors de la prochaine visite — plutôt
+              L&apos;équipe n&apos;a pas encore activé d&apos;exercice pour ce
+              thème. Parlez-en lors de la prochaine visite — plutôt
               qu&apos;improviser un geste non validé.
             </p>
           </Card>
@@ -220,7 +233,12 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
           </ul>
         </Card>
 
-        <SectionTitle>Comment ça s&apos;est passé ?</SectionTitle>
+        <div>
+          <SectionTitle>Comment ça s&apos;est passé avec votre proche ?</SectionTitle>
+          <p className="mt-1 text-sm text-text-muted">
+            Votre réponse aide l&apos;équipe à adapter la prochaine visite.
+          </p>
+        </div>
         <div className="flex flex-col gap-3">
           <Button onClick={() => record("reussi")} disabled={pending} fullWidth>
             Réussi
@@ -384,6 +402,10 @@ function LegacyModeVisite({ data }: { data: LegacyVisitData }) {
         {current.id === "agir" && (
           <div className="flex flex-col gap-3">
             <p className="text-lg font-medium">{current.hint}</p>
+            <p className="text-sm text-text-muted">
+              Choisissez ce qui correspond le mieux — ce n&apos;est pas un
+              examen, juste un retour pour l&apos;équipe.
+            </p>
             {(
               ["realise_succes", "essaye", "doute", "aide"] as const
             ).map((type) => (

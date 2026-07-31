@@ -61,7 +61,7 @@ export const VISIT_MODE_STEPS = [
   {
     id: "agir",
     title: "Comment ça s'est passé ?",
-    hint: "Une action — le professionnel en sera informé",
+    hint: "Dites-nous ce qui s'est passé — ça aide l'équipe pour la prochaine visite",
   },
 ] as const;
 

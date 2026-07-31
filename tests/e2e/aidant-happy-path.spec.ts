@@ -17,15 +17,18 @@ test.describe("Aidant happy path", () => {
 
     await page.getByRole("link", { name: "Mode visite" }).click();
     await expect(page).toHaveURL(/\/aidant\/mode-visite/);
-    // Matrice : un seul thème activé → exercice directement (Fauteuil C1)
-    const themePicker = page.getByRole("heading", {
-      name: /Que souhaitez-vous travailler/i,
-    });
-    if (await themePicker.isVisible().catch(() => false)) {
-      await page.getByRole("button", { name: /Fauteuil/i }).click();
-    }
+    // Choix de thème obligatoire (tous les thèmes du catalogue)
+    await expect(
+      page.getByRole("heading", {
+        name: /Que souhaitez-vous travailler aujourd/i,
+      })
+    ).toBeVisible();
+    await page.getByRole("button", { name: /Fauteuil/i }).click();
     await expect(
       page.getByRole("heading", { name: /demi-tour/i })
+    ).toBeVisible();
+    await expect(
+      page.getByText(/aide l.équipe à adapter la prochaine visite/i)
     ).toBeVisible();
 
     await page.goto("/aidant/question");
