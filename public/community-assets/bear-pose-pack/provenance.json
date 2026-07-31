@@ -1,0 +1,22 @@
+{
+  "version": "1.2.0",
+  "license": "Proche+ kit interne — usage Community uniquement",
+  "source": "src/components/mascot/BearFace.tsx (mascotte produit)",
+  "poses": ["accueil", "encourage", "patience", "celebration", "vigilance", "curiosite"],
+  "mascotMap": {
+    "accueil": "welcome",
+    "encourage": "encourage",
+    "patience": "patience",
+    "celebration": "celebrate",
+    "vigilance": "vigilance",
+    "curiosite": "question"
+  },
+  "styleLock": {
+    "adultOnly": true,
+    "productMascot": true,
+    "noMedicalGestures": true,
+    "noPhi": true,
+    "palette": ["#8B5E3C", "#6B4423", "#A67B5B", "#C4A484", "#2A9D8F", "#F5C842", "#C67B5C"]
+  },
+  "notes": "v1.2 — SVG miroir de BearFace ; les previews Community rendent <Mascot>/<BearFace> React, pas <img>"
+}

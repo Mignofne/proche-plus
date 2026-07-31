@@ -506,3 +506,313 @@ model ProfessionalAlert {
 
   @@index([patientId, status])
 }
+
+// =============================================================================
+// Community / marketing (AD-2, AD-3) — aucune jointure clinique
+// =============================================================================
+
+enum CommunityAppVersionType {
+  vercel_preview
+}
+
+enum CommunityBetaLeadStatus {
+  nouveau
+  invite
+  refuse
+  archive
+}
+
+enum CommunityBetaTesterStatus {
+  invite
+  actif
+  revoque
+}
+
+enum CommunityConsentPurpose {
+  beta
+  newsletter
+}
+
+enum CommunityPublicationKind {
+  classique
+  carrousel
+  video
+}
+
+enum CommunityPublicationStatus {
+  draft
+  scheduled
+  ready
+  published
+  cancelled
+  failed
+}
+
+enum CommunitySocialChannel {
+  instagram
+  threads
+  tiktok
+}
+
+enum CommunityGeoFormat {
+  definition_glossaire
+  faq_qr
+  guide_howto
+  comparatif
+  checklist
+  tldr_resume
+  liste_structuree
+  fiche_pratique
+}
+
+enum CommunityBlogStatus {
+  brouillon
+  publie
+  exporte
+  archive
+}
+
+enum CommunityTemplateKind {
+  classique
+  video
+  both
+}
+
+/// Version Preview Vercel pour invitations bêta (FR10, AD-9)
+model CommunityAppVersion {
+  id          String                   @id @default(cuid())
+  label       String
+  type        CommunityAppVersionType  @default(vercel_preview)
+  previewUrl  String
+  notes       String?
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+  testers     CommunityBetaTester[]
+}
+
+model CommunityConsentProof {
+  id              String                   @id @default(cuid())
+  purpose         CommunityConsentPurpose
+  purposeText     String
+  textVersion     String
+  origin          String                   @default("landing")
+  consentedAt     DateTime                 @default(now())
+  betaLeadId      String?
+  betaLead        CommunityBetaLead?       @relation(fields: [betaLeadId], references: [id], onDelete: Cascade)
+  createdAt       DateTime                 @default(now())
+
+  @@index([betaLeadId, purpose])
+}
+
+model CommunityBetaLead {
+  id                   String                   @id @default(cuid())
+  email                String
+  firstName            String
+  profile              String
+  motivation           String?
+  status               CommunityBetaLeadStatus  @default(nouveau)
+  newsletterOptIn      Boolean                  @default(false)
+  brevoSyncedAt        DateTime?
+  brevoSyncError       String?
+  consents             CommunityConsentProof[]
+  tester               CommunityBetaTester?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+model CommunityBetaTester {
+  id           String                     @id @default(cuid())
+  leadId       String                     @unique
+  lead         CommunityBetaLead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  appVersionId String
+  appVersion   CommunityAppVersion        @relation(fields: [appVersionId], references: [id])
+  status       CommunityBetaTesterStatus  @default(invite)
+  inviteNote   String?
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+
+  @@index([status])
+}
+
+model CommunityMediaAsset {
+  id           String   @id @default(cuid())
+  label        String
+  url          String
+  mimeType     String?
+  license      String
+  source       String
+  provenance   String?
+  width        Int?
+  height       Int?
+  isPosePack   Boolean  @default(false)
+  poseKey      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  publicationAssets CommunityPublicationAsset[]
+}
+
+model CommunityTheme {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  label            String
+  description      String
+  networksJson     String
+  formatsJson      String
+  suggestedTagsJson String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  publications     CommunityPublication[]
+  articles         CommunityBlogArticle[]
+  templates        CommunityTemplate[]
+  bearScenarios    CommunityBearScenario[]
+}
+
+model CommunityTemplate {
+  id        String                 @id @default(cuid())
+  name      String
+  body      String
+  kind      CommunityTemplateKind  @default(both)
+  themeId   String?
+  theme     CommunityTheme?        @relation(fields: [themeId], references: [id])
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+}
+
+model CommunityBearScenario {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  bearRole        String
+  beatSheetJson   String
+  suggestedTagsJson String
+  themeId         String?
+  theme           CommunityTheme? @relation(fields: [themeId], references: [id])
+  poseKeysJson    String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  publications    CommunityPublication[]
+}
+
+model CommunitySocialAccount {
+  id        String                 @id @default(cuid())
+  channel   CommunitySocialChannel
+  label     String
+  url       String
+  active    Boolean                @default(true)
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  targets   CommunityPublicationTarget[]
+
+  @@unique([channel, url])
+}
+
+model CommunityRightsAttestation {
+  id             String   @id @default(cuid())
+  label          String
+  fileUrl        String?
+  notes          String?
+  archivedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+  publications   CommunityPublication[]
+}
+
+model CommunityPublication {
+  id                String                     @id @default(cuid())
+  kind              CommunityPublicationKind
+  status            CommunityPublicationStatus @default(draft)
+  title             String?
+  body              String
+  tagsJson          String                     @default("[]")
+  themeId           String?
+  theme             CommunityTheme?            @relation(fields: [themeId], references: [id])
+  bearScenarioId    String?
+  bearScenario      CommunityBearScenario?     @relation(fields: [bearScenarioId], references: [id])
+  bearEnabled       Boolean                    @default(true)
+  poseKey           String?
+  /// Carrousel CAP-2 : JSON slides[{ overlayText, poseKey?, imageSrc?, accent? }]
+  slidesJson        String?
+  scheduledAt       DateTime?
+  publishedAt       DateTime?
+  isTestimonial     Boolean                    @default(false)
+  isAttributable    Boolean                    @default(false)
+  rightsAttestationId String?
+  rightsAttestation CommunityRightsAttestation? @relation(fields: [rightsAttestationId], references: [id])
+  videoBlobUrl      String?
+  remotionComposition String?
+  articleId         String?
+  article           CommunityBlogArticle?      @relation(fields: [articleId], references: [id])
+  assets            CommunityPublicationAsset[]
+  targets           CommunityPublicationTarget[]
+  notifications     CommunityFounderNotification[]
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+
+  @@index([status, scheduledAt])
+  @@index([kind])
+}
+
+model CommunityPublicationAsset {
+  id            String                @id @default(cuid())
+  publicationId String
+  publication   CommunityPublication  @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  mediaId       String
+  media         CommunityMediaAsset   @relation(fields: [mediaId], references: [id])
+  sortOrder     Int                   @default(0)
+
+  @@unique([publicationId, mediaId])
+}
+
+model CommunityPublicationTarget {
+  id            String                 @id @default(cuid())
+  publicationId String
+  publication   CommunityPublication   @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  accountId     String
+  account       CommunitySocialAccount @relation(fields: [accountId], references: [id])
+  channel       CommunitySocialChannel
+
+  @@unique([publicationId, accountId])
+}
+
+model CommunityFounderNotification {
+  id            String                @id @default(cuid())
+  publicationId String?
+  publication   CommunityPublication? @relation(fields: [publicationId], references: [id], onDelete: SetNull)
+  title         String
+  body          String
+  readAt        DateTime?
+  createdAt     DateTime              @default(now())
+
+  @@index([readAt, createdAt])
+}
+
+model CommunityBlogArticle {
+  id              String               @id @default(cuid())
+  format          CommunityGeoFormat
+  status          CommunityBlogStatus  @default(brouillon)
+  titleSeo        String
+  metaDescription String
+  slug            String               @unique
+  tldr            String?
+  authorName      String
+  authorExpertise String
+  publishedAt     DateTime?
+  updatedContentAt DateTime?
+  sourcesJson     String               @default("[]")
+  disclaimer      String
+  bodyMarkdown    String
+  planJson        String?
+  faqJson         String?
+  howtoJson       String?
+  themeId         String?
+  theme           CommunityTheme?      @relation(fields: [themeId], references: [id])
+  tagsJson        String               @default("[]")
+  teasers         CommunityPublication[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([status, slug])
+}
+
