@@ -247,15 +247,21 @@ async function main() {
     ],
   });
 
-  const { idByKey } = await seedExerciseCatalog(prisma);
+  await seedExerciseCatalog(prisma);
 
-  // Marie (niveau C) : parcours Fauteuil C1 activé pour la démo aidant
-  const fauteuilC1 = idByKey.get("fauteuil-C1");
-  if (fauteuilC1) {
+  // Marie (niveau C) : activer les exercices publiés de son niveau (tous thèmes)
+  const marieExercises = await prisma.exercise.findMany({
+    where: {
+      status: "publie",
+      tier: 1,
+      autonomyScale: { code: "C" },
+    },
+  });
+  for (const ex of marieExercises) {
     await prisma.patientExercise.create({
       data: {
         patientId: patient.id,
-        exerciseId: fauteuilC1,
+        exerciseId: ex.id,
         currentStatus: "actif",
         activatedById: proUser.professional!.id,
         activatedAt: new Date(),
@@ -270,7 +276,9 @@ async function main() {
   console.log("  Admin établissement: admin@procheplus.demo / demo1234");
   console.log("  Admin produit: fondateur@procheplus.demo / demo1234");
   console.log(`  Transmission: ${transmission.id}`);
-  console.log("  Exercice actif démo: Fauteuil / C / Faire un demi-tour");
+  console.log(
+    `  Exercices actifs démo (niveau C): ${marieExercises.length} thèmes`
+  );
 }
 
 main()

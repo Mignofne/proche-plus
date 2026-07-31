@@ -1,6 +1,6 @@
 /**
- * Remplit le catalogue exercices si la base prod est vide
- * (db push crée les tables, mais le seed manuel n'est pas toujours fait).
+ * Synchronise le catalogue depuis docs/referentiel/Referentiel_Exercices.csv
+ * (idempotent — met à jour le contenu sans supprimer les patients).
  */
 import { PrismaClient } from "@prisma/client";
 import { ensureExerciseCatalog } from "./seed-exercises";
@@ -9,11 +9,9 @@ const prisma = new PrismaClient();
 
 async function main() {
   const result = await ensureExerciseCatalog(prisma);
-  if (result.seeded) {
-    console.log("Catalogue exercices initialisé (thèmes + matrice Fauteuil).");
-  } else {
-    console.log("Catalogue déjà présent — rien à faire.");
-  }
+  console.log(
+    `Catalogue synchronisé — ${result.upserted} exercice(s) depuis le référentiel CSV.`
+  );
 }
 
 main()
