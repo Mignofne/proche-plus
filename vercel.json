@@ -4,7 +4,7 @@
   "crons": [
     {
       "path": "/api/community/cron/semi",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 8 * * *"
     }
   ]
 }
