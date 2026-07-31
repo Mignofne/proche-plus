@@ -1,11 +1,17 @@
 import {
   AbsoluteFill,
+  Img,
   interpolate,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { BearFace, toMascotPose } from "@/components/mascot/BearFace";
+import {
+  BearFace,
+  CANON_BEAR_STATIC_FILE,
+  toMascotPose,
+} from "@/components/mascot/BearFace";
 import type { RemotionInputProps } from "@/lib/community/video/remotion";
 
 const COLORS = {
@@ -175,7 +181,17 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
               justifyContent: "center",
             }}
           >
-            <BearFace pose={mascotPose} style={{ width: "100%", height: "100%" }} />
+            <BearFace
+              pose={mascotPose}
+              variant="body"
+              src={staticFile(CANON_BEAR_STATIC_FILE)}
+              Image={Img}
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "50%",
+              }}
+            />
           </div>
         </div>
       </AbsoluteFill>
