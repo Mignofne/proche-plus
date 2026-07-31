@@ -16,7 +16,9 @@ test.describe("Aidant happy path", () => {
     ).toBeVisible();
 
     await page.getByRole("link", { name: "Mode visite" }).click();
-    await expect(page).toHaveURL(/\/aidant\/mode-visite/);
+    await expect(page).toHaveURL(/\/aidant\/mode-visite(\?patientId=|$|\?)/);
+    // 1 proche démo → auto-sélection via ?patientId=
+    await expect(page).toHaveURL(/patientId=/);
     // Choix de thème obligatoire (tous les thèmes du catalogue)
     await expect(
       page.getByRole("heading", {

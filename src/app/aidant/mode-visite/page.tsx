@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import {
   caregiverNeedsOnboarding,
   getVisitModeData,
+  listVisitProches,
+  resolveVisitPatientSelection,
 } from "@/lib/services/aidant";
 import {
   getCurrentExerciseForTheme,
@@ -13,8 +15,16 @@ import { parseJsonStringArray } from "@/lib/exercises/mapping";
 import { ensureCatalogReady } from "@/lib/exercises/ensure-catalog";
 import { ensurePatientExercisesForLevel } from "@/lib/exercises/activate-for-level";
 import { ModeVisiteClient } from "./ModeVisiteClient";
+import {
+  ModeVisiteEmptyProches,
+  ModeVisiteProchePicker,
+} from "./ProchePicker";
 
-export default async function ModeVisitePage() {
+export default async function ModeVisitePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ patientId?: string }>;
+}) {
   const session = await getSession();
   if (!session || session.role !== "caregiver") {
     redirect("/connexion?role=aidant");
@@ -29,12 +39,39 @@ export default async function ModeVisitePage() {
   });
   if (!caregiver) redirect("/connexion?role=aidant");
 
+  const { patientId: requestedPatientId } = await searchParams;
+  const proches = await listVisitProches(caregiver.id);
+  const selection = resolveVisitPatientSelection({
+    ownedPatientIds: proches.map((p) => p.patientId),
+    requestedPatientId,
+  });
+
+  if (selection.status === "empty") {
+    return <ModeVisiteEmptyProches />;
+  }
+
+  if (selection.status === "unauthorized") {
+    redirect("/aidant/mode-visite");
+  }
+
+  if (selection.status === "pick") {
+    return <ModeVisiteProchePicker proches={proches} />;
+  }
+
+  if (selection.status === "auto" && requestedPatientId !== selection.patientId) {
+    redirect(
+      `/aidant/mode-visite?patientId=${encodeURIComponent(selection.patientId)}`
+    );
+  }
+
+  const patientId = selection.patientId;
   const { patientLink, latestTransmission } = await getVisitModeData(
-    caregiver.id
+    caregiver.id,
+    patientId
   );
 
   if (!patientLink) {
-    redirect("/aidant/proches");
+    redirect("/aidant/mode-visite");
   }
 
   // Secours prod : catalogue + activation des exercices publiés au bon niveau
@@ -46,6 +83,7 @@ export default async function ModeVisitePage() {
   );
 
   const patient = patientLink.patient;
+  const canChangeProche = proches.length > 1;
   let themes = await listActiveThemesForVisit();
 
   // Thèmes avec exercice prêt en premier
@@ -111,6 +149,7 @@ export default async function ModeVisitePage() {
           })),
           exercisesByTheme,
           readyThemeLabels,
+          canChangeProche,
         }}
       />
     );
@@ -148,6 +187,7 @@ export default async function ModeVisitePage() {
         aEviter: messages
           .filter((m) => m.section === "a_eviter")
           .map((m) => m.content),
+        canChangeProche,
       }}
     />
   );

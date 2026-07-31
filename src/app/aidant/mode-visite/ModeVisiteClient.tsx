@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { AppHeader } from "@/components/layout/AppHeader";
 import {
-  AUTONOMY_LABELS,
   CAREGIVER_ACTION_LABELS,
   VISIT_MODE_STEPS,
 } from "@/lib/constants";
@@ -16,6 +16,17 @@ import {
   submitCaregiverVisitAction,
   submitExerciseOutcome,
 } from "@/app/aidant/actions";
+
+function ChangeProcheLink() {
+  return (
+    <Link
+      href="/aidant/mode-visite"
+      className="text-left text-sm text-teal"
+    >
+      ← Changer de proche
+    </Link>
+  );
+}
 
 type ThemeOption = {
   id: string;
@@ -47,6 +58,7 @@ type LegacyVisitData = {
   instructionSteps: string[];
   aEssayer: string[];
   aEviter: string[];
+  canChangeProche?: boolean;
 };
 
 type ExerciseVisitData = {
@@ -57,6 +69,7 @@ type ExerciseVisitData = {
   themes: ThemeOption[];
   exercisesByTheme: Record<string, ExerciseView | null>;
   readyThemeLabels?: string[];
+  canChangeProche?: boolean;
 };
 
 export type VisitClientData = LegacyVisitData | ExerciseVisitData;
@@ -111,6 +124,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
       <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
         <AppHeader title="Mode visite" backHref="/aidant" />
         <main className="flex flex-col gap-4 p-4">
+          {data.canChangeProche && <ChangeProcheLink />}
           <div className="flex items-center gap-3">
             <Mascot pose="welcome" size="sm" />
             <div>
@@ -118,14 +132,13 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
                 Que souhaitez-vous travailler aujourd&apos;hui ?
               </h2>
               <p className="text-sm text-text-muted">
-                Pour {data.patientName} · {AUTONOMY_LABELS[data.autonomyLevel]}
+                Pour {data.patientName}
               </p>
             </div>
           </div>
           <p className="text-sm text-text-muted">
             Les thèmes avec « Exercice prêt » sont utilisables tout de suite.
-            Les autres n&apos;ont pas encore de contenu pour ce niveau
-            d&apos;autonomie.
+            Les autres n&apos;ont pas encore de contenu adapté pour votre proche.
           </p>
           <div className="flex flex-col gap-3">
             {data.themes.map((t) => (
@@ -151,7 +164,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
                   >
                     {t.hasExercise
                       ? "Exercice prêt pour cette visite"
-                      : "Pas encore de contenu pour ce niveau"}
+                      : "Pas encore de contenu pour votre proche"}
                   </span>
                 </span>
               </button>
@@ -168,12 +181,12 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
       <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
         <AppHeader title="Mode visite" backHref="/aidant" />
         <main className="flex flex-col gap-4 p-4">
+          {data.canChangeProche && <ChangeProcheLink />}
           <Card>
             <SectionTitle>Pas encore d&apos;exercice pour ce thème</SectionTitle>
             <p className="mt-3 leading-relaxed">
-              Pour le niveau d&apos;autonomie de votre proche, aucun exercice
-              n&apos;est encore disponible sur ce thème (ou l&apos;équipe ne
-              l&apos;a pas activé).
+              Aucun exercice n&apos;est encore disponible sur ce thème pour votre
+              proche (ou l&apos;équipe ne l&apos;a pas activé).
             </p>
             {ready.length > 0 && (
               <p className="mt-3 rounded-xl bg-teal/10 p-3 text-sm text-teal-dark">
@@ -194,20 +207,22 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
     <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
       <AppHeader title="Mode visite" backHref="/aidant" />
       <main className="flex flex-col gap-4 p-4">
-        <button
-          type="button"
-          onClick={() => setThemeId(null)}
-          className="text-left text-sm text-teal"
-        >
-          ← Changer de thème
-        </button>
+        <div className="flex flex-col gap-1">
+          {data.canChangeProche && <ChangeProcheLink />}
+          <button
+            type="button"
+            onClick={() => setThemeId(null)}
+            className="text-left text-sm text-teal"
+          >
+            ← Changer de thème
+          </button>
+        </div>
 
         <div className="flex items-center gap-3">
           <Mascot pose="encourage" size="sm" />
           <div>
             <p className="text-sm text-teal font-medium">
-              {exercise.themeLabel} · Niveau {exercise.levelLabel} · Palier{" "}
-              {exercise.tier}
+              {exercise.themeLabel}
             </p>
             <h2 className="text-xl font-bold leading-snug">{exercise.name}</h2>
           </div>
@@ -339,6 +354,7 @@ function LegacyModeVisite({ data }: { data: LegacyVisitData }) {
     <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
       <AppHeader title="Mode visite" backHref="/aidant" />
       <main className="flex flex-col gap-4 p-4">
+        {data.canChangeProche && <ChangeProcheLink />}
         <div
           className="flex gap-2"
           aria-label={`Étape ${step + 1} sur ${VISIT_MODE_STEPS.length}`}
@@ -383,7 +399,7 @@ function LegacyModeVisite({ data }: { data: LegacyVisitData }) {
               ))}
             </ol>
             <p className="mt-4 text-sm text-text-muted">
-              Pour {data.patientName} · {AUTONOMY_LABELS[data.autonomyLevel]}
+              Pour {data.patientName}
             </p>
           </Card>
         )}
