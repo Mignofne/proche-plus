@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
+import { getProfile } from "@/lib/patient-profiles";
 import { prisma } from "@/lib/prisma";
 import { markTransmissionRead } from "@/lib/services/aidant";
 import {
@@ -31,6 +32,215 @@ async function assertCaregiverPatient(caregiverId: string, patientId: string) {
   });
   if (!link) throw new Error("Proche introuvable");
   return link;
+}
+
+async function resolveEstablishmentId(caregiverId: string) {
+  const existing = await prisma.patientCaregiver.findFirst({
+    where: { caregiverId },
+    select: { patient: { select: { establishmentId: true } } },
+  });
+  if (existing) return existing.patient.establishmentId;
+
+  const establishment = await prisma.establishment.findFirst({
+    orderBy: { createdAt: "asc" },
+    select: { id: true },
+  });
+  if (!establishment) {
+    throw new Error("Aucun établissement disponible");
+  }
+  return establishment.id;
+}
+
+async function completeCaregiverOnboarding(
+  userId: string,
+  caregiverId: string,
+  largeText?: boolean
+) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      onboardingDone: true,
+      ...(typeof largeText === "boolean" ? { largeText } : {}),
+    },
+  });
+  await prisma.caregiver.update({
+    where: { id: caregiverId },
+    data: { status: "actif" },
+  });
+}
+
+function revalidateCaregiverPaths(patientId?: string) {
+  revalidatePath("/aidant");
+  revalidatePath("/aidant/proches");
+  revalidatePath("/aidant/onboarding");
+  revalidatePath("/aidant/mode-visite");
+  revalidatePath("/pro");
+  revalidatePath("/admin-etablissement");
+  if (patientId) {
+    revalidatePath(`/aidant/proches/${patientId}/edit`);
+    revalidatePath(`/pro/patient/${patientId}`);
+  }
+}
+
+export async function createCaregiverPatient(input: {
+  firstName: string;
+  lastName: string;
+  autonomyLevel: AutonomyLevel;
+  relationship?: string;
+  completeOnboarding?: boolean;
+  largeText?: boolean;
+}) {
+  const { session, caregiver } = await requireCaregiver();
+  const firstName = input.firstName.trim();
+  const lastName = input.lastName.trim();
+  if (!firstName || !lastName) {
+    throw new Error("Prénom et nom sont requis");
+  }
+  if (!input.autonomyLevel) {
+    throw new Error("Choisissez la situation qui correspond le mieux");
+  }
+
+  const establishmentId = await resolveEstablishmentId(caregiver.id);
+  const profile = getProfile(input.autonomyLevel);
+  const existingLinks = await prisma.patientCaregiver.count({
+    where: { caregiverId: caregiver.id },
+  });
+
+  const patient = await prisma.patient.create({
+    data: {
+      firstName,
+      lastName,
+      autonomyLevel: input.autonomyLevel,
+      establishmentId,
+      caregivers: {
+        create: {
+          caregiverId: caregiver.id,
+          relationship: input.relationship?.trim() || "proche",
+          isPrimary: existingLinks === 0,
+        },
+      },
+      ...(profile
+        ? {
+            objectives: {
+              create: {
+                skill: "transfert" as const,
+                status: "en_cours" as const,
+                instructions: profile.instructionExample,
+                nextStep: profile.objectiveExample,
+                isCurrent: true,
+              },
+            },
+          }
+        : {}),
+    },
+  });
+
+  await setPatientAutonomyLevel({
+    patientId: patient.id,
+    autonomyLevel: input.autonomyLevel,
+    source: "declare_aidant",
+    historySource: "question_aidant",
+    status: "provisoire",
+    setByUserId: session.userId,
+    createConfirmAlert: true,
+    restartReviewTimer: true,
+  });
+
+  if (input.completeOnboarding) {
+    await completeCaregiverOnboarding(
+      session.userId,
+      caregiver.id,
+      input.largeText
+    );
+  }
+
+  revalidateCaregiverPaths(patient.id);
+  return { patientId: patient.id };
+}
+
+export async function updateCaregiverPatient(input: {
+  patientId: string;
+  firstName: string;
+  lastName: string;
+  autonomyLevel?: AutonomyLevel;
+  relationship?: string;
+}) {
+  const { session, caregiver } = await requireCaregiver();
+  const link = await assertCaregiverPatient(caregiver.id, input.patientId);
+
+  const firstName = input.firstName.trim();
+  const lastName = input.lastName.trim();
+  if (!firstName || !lastName) {
+    throw new Error("Prénom et nom sont requis");
+  }
+
+  const existing = await prisma.patient.findUnique({
+    where: { id: input.patientId },
+  });
+  if (!existing) throw new Error("Proche introuvable");
+
+  await prisma.patient.update({
+    where: { id: input.patientId },
+    data: { firstName, lastName },
+  });
+
+  if (typeof input.relationship === "string" && input.relationship.trim()) {
+    await prisma.patientCaregiver.update({
+      where: { id: link.id },
+      data: { relationship: input.relationship.trim() },
+    });
+  }
+
+  if (
+    input.autonomyLevel &&
+    input.autonomyLevel !== existing.autonomyLevel
+  ) {
+    await setPatientAutonomyLevel({
+      patientId: input.patientId,
+      autonomyLevel: input.autonomyLevel,
+      source: "declare_aidant",
+      historySource: "question_aidant",
+      status: "provisoire",
+      setByUserId: session.userId,
+      createConfirmAlert: true,
+      restartReviewTimer: true,
+    });
+  }
+
+  revalidateCaregiverPaths(input.patientId);
+}
+
+export async function deleteCaregiverPatient(patientId: string) {
+  const { session, caregiver } = await requireCaregiver();
+  await assertCaregiverPatient(caregiver.id, patientId);
+
+  await prisma.patientCaregiver.delete({
+    where: {
+      patientId_caregiverId: {
+        patientId,
+        caregiverId: caregiver.id,
+      },
+    },
+  });
+
+  const remaining = await prisma.patientCaregiver.count({
+    where: { patientId },
+  });
+  if (remaining === 0) {
+    await prisma.patient.delete({ where: { id: patientId } });
+  }
+
+  const stillLinked = await prisma.patientCaregiver.count({
+    where: { caregiverId: caregiver.id },
+  });
+  if (stillLinked === 0) {
+    await prisma.user.update({
+      where: { id: session.userId },
+      data: { onboardingDone: false },
+    });
+  }
+
+  revalidateCaregiverPaths(patientId);
 }
 
 export async function markTransmissionReadIfNeeded(transmissionId: string) {
@@ -181,24 +391,14 @@ export async function declarePatientAutonomy(input: {
   });
 
   if (input.completeOnboarding) {
-    await prisma.user.update({
-      where: { id: session.userId },
-      data: {
-        onboardingDone: true,
-        ...(typeof input.largeText === "boolean"
-          ? { largeText: input.largeText }
-          : {}),
-      },
-    });
-    await prisma.caregiver.update({
-      where: { id: caregiver.id },
-      data: { status: "actif" },
-    });
+    await completeCaregiverOnboarding(
+      session.userId,
+      caregiver.id,
+      input.largeText
+    );
   }
 
-  revalidatePath("/aidant");
-  revalidatePath("/pro");
-  revalidatePath("/admin-etablissement");
+  revalidateCaregiverPaths(input.patientId);
 }
 
 export async function answerAutonomyReviewPrompt(input: {

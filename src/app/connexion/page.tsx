@@ -48,6 +48,7 @@ function LoginForm() {
         role?: string;
         redirectTo?: string;
         onboardingDone?: boolean;
+        needsOnboarding?: boolean;
       };
 
       if (!res.ok) {
@@ -57,7 +58,8 @@ function LoginForm() {
       }
 
       const target =
-        data.role === "caregiver" && !data.onboardingDone
+        data.needsOnboarding ||
+        (data.role === "caregiver" && !data.onboardingDone)
           ? "/aidant/onboarding"
           : (data.redirectTo ?? "/");
 

@@ -8,6 +8,7 @@ import { getSession } from "@/lib/auth";
 import { getMicrocopy } from "@/lib/microcopy";
 import { prisma } from "@/lib/prisma";
 import {
+  caregiverNeedsOnboarding,
   getCaregiverByUserId,
   getCaregiverTransmissions,
 } from "@/lib/services/aidant";
@@ -18,6 +19,10 @@ export default async function AidantHomePage() {
   const session = await getSession();
   if (!session || session.role !== "caregiver") {
     redirect("/connexion?role=aidant");
+  }
+
+  if (await caregiverNeedsOnboarding(session.userId)) {
+    redirect("/aidant/onboarding");
   }
 
   const caregiver = await getCaregiverByUserId(session.userId);
@@ -108,6 +113,9 @@ export default async function AidantHomePage() {
             fullWidth
           >
             Dernière transmission
+          </ButtonLink>
+          <ButtonLink href="/aidant/proches" variant="ghost" fullWidth>
+            Mes proches
           </ButtonLink>
           <ButtonLink href="/aidant/question" variant="ghost" fullWidth>
             J&apos;ai une question

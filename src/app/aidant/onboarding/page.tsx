@@ -9,22 +9,40 @@ export default async function OnboardingPage() {
     redirect("/connexion?role=aidant");
   }
 
-  const caregiver = await prisma.caregiver.findUnique({
-    where: { userId: session.userId },
-    include: {
-      patients: {
-        include: { patient: true },
-        take: 1,
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: {
+      onboardingDone: true,
+      caregiver: {
+        include: {
+          patients: {
+            include: { patient: true },
+            orderBy: { isPrimary: "desc" },
+          },
+        },
       },
     },
   });
 
-  const patient = caregiver?.patients[0]?.patient ?? null;
+  if (!user?.caregiver) {
+    redirect("/connexion?role=aidant");
+  }
+
+  const links = user.caregiver.patients;
+  const hasPatients = links.length > 0;
+
+  // Déjà prêt → espace aidant
+  if (user.onboardingDone && hasPatients) {
+    redirect("/aidant");
+  }
+
+  const primary = links[0]?.patient ?? null;
 
   return (
     <OnboardingClient
-      patientId={patient?.id ?? null}
-      patientFirstName={patient?.firstName ?? null}
+      needsCreate={!hasPatients}
+      patientId={primary?.id ?? null}
+      patientFirstName={primary?.firstName ?? null}
     />
   );
 }
