@@ -354,6 +354,9 @@ const EXERCISES: SeedExercise[] = [
   },
 ];
 
+export const CATALOG_THEMES = THEMES;
+export const CATALOG_SCALES = SCALES;
+
 export async function seedExerciseCatalog(prisma: PrismaClient) {
   await prisma.exerciseAttempt.deleteMany();
   await prisma.professionalAlert.deleteMany();
@@ -362,6 +365,26 @@ export async function seedExerciseCatalog(prisma: PrismaClient) {
   await prisma.theme.deleteMany();
   await prisma.autonomyScale.deleteMany();
 
+  return fillExerciseCatalog(prisma);
+}
+
+/**
+ * Remplit le catalogue s'il est vide — sans toucher aux patients / utilisateurs.
+ * À appeler au build Vercel et en secours côté app (prod sans seed manuel).
+ */
+export async function ensureExerciseCatalog(prisma: PrismaClient) {
+  const themeCount = await prisma.theme.count();
+  if (themeCount > 0) {
+    await ensureDemoPatientExercise(prisma);
+    return { seeded: false as const };
+  }
+
+  const result = await fillExerciseCatalog(prisma);
+  await ensureDemoPatientExercise(prisma, result.idByKey);
+  return { seeded: true as const, ...result };
+}
+
+async function fillExerciseCatalog(prisma: PrismaClient) {
   for (const t of THEMES) {
     await prisma.theme.create({ data: t });
   }
@@ -419,4 +442,59 @@ export async function seedExerciseCatalog(prisma: PrismaClient) {
   }
 
   return { idByKey, themeBySlug, scaleByCode };
+}
+
+/** Active Fauteuil C1 pour Marie Martin si aucun exercice courant. */
+async function ensureDemoPatientExercise(
+  prisma: PrismaClient,
+  idByKey?: Map<string, string>
+) {
+  const marie = await prisma.patient.findFirst({
+    where: { firstName: "Marie", lastName: "Martin" },
+  });
+  if (!marie) return;
+
+  const current = await prisma.patientExercise.count({
+    where: { patientId: marie.id, isCurrent: true },
+  });
+  if (current > 0) return;
+
+  let exerciseId = idByKey?.get("fauteuil-C1");
+  if (!exerciseId) {
+    const ex = await prisma.exercise.findFirst({
+      where: {
+        status: "publie",
+        name: "Faire un demi-tour en fauteuil",
+        theme: { slug: "fauteuil" },
+      },
+    });
+    exerciseId = ex?.id;
+  }
+  if (!exerciseId) return;
+
+  const pro = await prisma.professional.findFirst({
+    where: { establishmentId: marie.establishmentId },
+  });
+
+  await prisma.patientExercise.upsert({
+    where: {
+      patientId_exerciseId: {
+        patientId: marie.id,
+        exerciseId,
+      },
+    },
+    create: {
+      patientId: marie.id,
+      exerciseId,
+      currentStatus: "actif",
+      activatedById: pro?.id ?? null,
+      activatedAt: new Date(),
+      isCurrent: true,
+    },
+    update: {
+      currentStatus: "actif",
+      isCurrent: true,
+      activatedAt: new Date(),
+    },
+  });
 }

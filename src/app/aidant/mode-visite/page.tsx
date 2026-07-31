@@ -7,6 +7,7 @@ import {
   listActiveThemesForVisit,
 } from "@/lib/exercises/service";
 import { parseJsonStringArray } from "@/lib/exercises/mapping";
+import { ensureCatalogReady } from "@/lib/exercises/ensure-catalog";
 import { ModeVisiteClient } from "./ModeVisiteClient";
 
 export default async function ModeVisitePage() {
@@ -27,6 +28,9 @@ export default async function ModeVisitePage() {
   if (!patientLink) {
     redirect("/aidant");
   }
+
+  // Secours prod : si le seed n'a jamais tourné, créer le catalogue (idempotent)
+  await ensureCatalogReady();
 
   const patient = patientLink.patient;
   const themes = await listActiveThemesForVisit();
