@@ -1,5 +1,22 @@
 import { prisma } from "@/lib/prisma";
 
+/** True si l'aidant doit passer par /aidant/onboarding avant le reste de l'app. */
+export async function caregiverNeedsOnboarding(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      onboardingDone: true,
+      caregiver: {
+        select: {
+          _count: { select: { patients: true } },
+        },
+      },
+    },
+  });
+  if (!user?.caregiver) return true;
+  return !user.onboardingDone || user.caregiver._count.patients === 0;
+}
+
 export async function getCaregiverByUserId(userId: string) {
   return prisma.caregiver.findUnique({
     where: { userId },

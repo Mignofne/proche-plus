@@ -7,45 +7,82 @@ import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ONBOARDING_STEPS } from "@/lib/constants";
-import { declarePatientAutonomy } from "@/app/aidant/actions";
+import {
+  createCaregiverPatient,
+  declarePatientAutonomy,
+} from "@/app/aidant/actions";
 import type { AutonomyLevel } from "@prisma/client";
 
 type Props = {
+  needsCreate: boolean;
   patientId: string | null;
   patientFirstName: string | null;
 };
 
-export function OnboardingClient({ patientId, patientFirstName }: Props) {
+const inputClass =
+  "touch-target rounded-xl border border-cream-dark bg-white px-4 py-3 text-base";
+
+export function OnboardingClient({
+  needsCreate,
+  patientId,
+  patientFirstName,
+}: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [largeText, setLargeText] = useState(false);
+  const [firstName, setFirstName] = useState(patientFirstName ?? "");
+  const [lastName, setLastName] = useState("");
   const [autonomyLevel, setAutonomyLevel] = useState<AutonomyLevel | null>(
     null
   );
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
 
-  // Étapes pédagogiques + choix du profil d'autonomie (un seul écran)
-  const totalSteps = ONBOARDING_STEPS.length + 1;
-  const isAutonomyStep = step === ONBOARDING_STEPS.length;
-  const isLast = isAutonomyStep;
-  const current = !isAutonomyStep ? ONBOARDING_STEPS[step] : null;
+  // Grands caractères → pédagogie → (identité si création) → picker autonomie
+  const identityStepIndex = needsCreate ? ONBOARDING_STEPS.length : -1;
+  const autonomyStepIndex = needsCreate
+    ? ONBOARDING_STEPS.length + 1
+    : ONBOARDING_STEPS.length;
+  const totalSteps = autonomyStepIndex + 1;
+
+  const isPedagogy = step >= 0 && step < ONBOARDING_STEPS.length;
+  const isIdentityStep = needsCreate && step === identityStepIndex;
+  const isAutonomyStep = step === autonomyStepIndex;
+  const current = isPedagogy ? ONBOARDING_STEPS[step] : null;
 
   function finish() {
-    if (!patientId || !autonomyLevel) {
+    if (!autonomyLevel) {
       setError("Choisissez la situation qui correspond le mieux.");
+      return;
+    }
+    if (needsCreate && (!firstName.trim() || !lastName.trim())) {
+      setError("Indiquez le prénom et le nom de votre proche.");
+      return;
+    }
+    if (!needsCreate && !patientId) {
+      setError("Aucun proche n'est encore lié à votre compte.");
       return;
     }
     setError("");
     startTransition(async () => {
       try {
-        await declarePatientAutonomy({
-          patientId,
-          autonomyLevel,
-          historySource: "question_aidant",
-          completeOnboarding: true,
-          largeText,
-        });
+        if (needsCreate) {
+          await createCaregiverPatient({
+            firstName,
+            lastName,
+            autonomyLevel,
+            completeOnboarding: true,
+            largeText,
+          });
+        } else {
+          await declarePatientAutonomy({
+            patientId: patientId!,
+            autonomyLevel,
+            historySource: "question_aidant",
+            completeOnboarding: true,
+            largeText,
+          });
+        }
         router.push("/aidant");
         router.refresh();
       } catch (e) {
@@ -55,12 +92,24 @@ export function OnboardingClient({ patientId, patientFirstName }: Props) {
   }
 
   function next() {
-    if (isLast) {
+    if (isIdentityStep) {
+      if (!firstName.trim() || !lastName.trim()) {
+        setError("Indiquez le prénom et le nom de votre proche.");
+        return;
+      }
+      setError("");
+      setStep((s) => s + 1);
+      return;
+    }
+    if (isAutonomyStep) {
       finish();
     } else {
       setStep((s) => s + 1);
     }
   }
+
+  const canContinueAutonomy =
+    !!autonomyLevel && (needsCreate ? !!firstName.trim() && !!lastName.trim() : !!patientId);
 
   return (
     <main
@@ -88,7 +137,7 @@ export function OnboardingClient({ patientId, patientFirstName }: Props) {
         </Card>
       )}
 
-      {!isAutonomyStep && current && (
+      {isPedagogy && current && (
         <div className="mx-auto flex max-w-lg flex-1 flex-col items-center justify-center gap-6 text-center">
           <Mascot pose={step < 2 ? "welcome" : step === 2 ? "encourage" : "vigilance"} />
           <p className="text-sm font-medium text-teal">
@@ -96,6 +145,43 @@ export function OnboardingClient({ patientId, patientFirstName }: Props) {
           </p>
           <h1 className="text-2xl font-bold text-teal-dark">{current.title}</h1>
           <p className="text-text-muted">{current.content}</p>
+        </div>
+      )}
+
+      {isIdentityStep && (
+        <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-4">
+          <div className="flex items-center justify-center gap-3">
+            <Mascot pose="welcome" size="sm" />
+            <p className="text-sm font-medium text-teal">
+              Étape {step + 1} / {totalSteps}
+            </p>
+          </div>
+          <h1 className="text-center text-2xl font-bold text-teal-dark">
+            Ajouter mon proche
+          </h1>
+          <p className="text-center text-sm text-text-muted">
+            Qui accompagnez-vous pendant la réadaptation&nbsp;?
+          </p>
+          <Card className="flex flex-col gap-4">
+            <label className="flex flex-col gap-2">
+              <span className="font-medium">Prénom</span>
+              <input
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className={inputClass}
+                autoComplete="given-name"
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="font-medium">Nom</span>
+              <input
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className={inputClass}
+                autoComplete="family-name"
+              />
+            </label>
+          </Card>
         </div>
       )}
 
@@ -107,18 +193,21 @@ export function OnboardingClient({ patientId, patientFirstName }: Props) {
               Étape {step + 1} / {totalSteps}
             </p>
           </div>
-          {!patientId ? (
+          {!needsCreate && !patientId ? (
             <Card className="mx-auto max-w-lg text-center">
               <p>
-                Aucun proche n&apos;est encore lié à votre compte. Contactez
-                l&apos;équipe pour finaliser.
+                Aucun proche n&apos;est encore lié à votre compte. Rechargez
+                la page ou contactez l&apos;équipe.
               </p>
             </Card>
           ) : (
             <AutonomyLevelPicker
               value={autonomyLevel}
               onChange={setAutonomyLevel}
-              patientFirstName={patientFirstName ?? undefined}
+              patientFirstName={
+                (needsCreate ? firstName.trim() : patientFirstName) ||
+                undefined
+              }
             />
           )}
           <p className="text-center text-xs text-text-muted">
@@ -160,12 +249,13 @@ export function OnboardingClient({ patientId, patientFirstName }: Props) {
           size="lg"
           disabled={
             pending ||
-            (isAutonomyStep && (!patientId || !autonomyLevel))
+            (isAutonomyStep && !canContinueAutonomy) ||
+            (isIdentityStep && (!firstName.trim() || !lastName.trim()))
           }
         >
           {pending
             ? "Enregistrement…"
-            : isLast
+            : isAutonomyStep
               ? "Commencer"
               : "Continuer"}
         </Button>

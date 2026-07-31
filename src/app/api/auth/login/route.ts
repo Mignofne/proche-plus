@@ -27,7 +27,12 @@ export async function POST(request: NextRequest) {
         onboardingDone: true,
         isPlatformAdmin: true,
         professional: { select: { role: true } },
-        caregiver: { select: { id: true } },
+        caregiver: {
+          select: {
+            id: true,
+            _count: { select: { patients: true } },
+          },
+        },
       },
     });
 
@@ -74,10 +79,19 @@ export async function POST(request: NextRequest) {
 
     await createSession({ userId: user.id, role });
 
+    const needsOnboarding =
+      role === "caregiver" &&
+      (!user.onboardingDone ||
+        !user.caregiver ||
+        user.caregiver._count.patients === 0);
+
     return NextResponse.json({
       role,
-      redirectTo: homePathForRole(role),
+      redirectTo: needsOnboarding
+        ? "/aidant/onboarding"
+        : homePathForRole(role),
       onboardingDone: user.onboardingDone,
+      needsOnboarding,
       user: {
         id: user.id,
         firstName: user.firstName,

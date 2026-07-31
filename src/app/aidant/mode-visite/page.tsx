@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getVisitModeData } from "@/lib/services/aidant";
+import {
+  caregiverNeedsOnboarding,
+  getVisitModeData,
+} from "@/lib/services/aidant";
 import {
   getCurrentExerciseForTheme,
   listActiveThemesForVisit,
@@ -17,6 +20,10 @@ export default async function ModeVisitePage() {
     redirect("/connexion?role=aidant");
   }
 
+  if (await caregiverNeedsOnboarding(session.userId)) {
+    redirect("/aidant/onboarding");
+  }
+
   const caregiver = await prisma.caregiver.findUnique({
     where: { userId: session.userId },
   });
@@ -27,7 +34,7 @@ export default async function ModeVisitePage() {
   );
 
   if (!patientLink) {
-    redirect("/aidant");
+    redirect("/aidant/proches");
   }
 
   // Secours prod : catalogue + activation des exercices publiés au bon niveau

@@ -116,6 +116,10 @@ async function main() {
     },
     include: { caregiver: true },
   });
+  // invitedUser volontairement sans PatientCaregiver (onboarding création)
+  if (!invitedUser.caregiver) {
+    throw new Error("Seed: caregiver invite manquant");
+  }
 
   const patient = await prisma.patient.create({
     data: {
@@ -133,47 +137,12 @@ async function main() {
     },
   });
 
-  const patientSansTx = await prisma.patient.create({
+  await prisma.autonomyLevelHistory.create({
     data: {
-      firstName: "Henri",
-      lastName: "Bernard",
-      autonomyLevel: "semi_autonome_faible",
-      autonomyLevelStatus: "provisoire",
-      autonomyLevelSource: "declare_aidant",
-      autonomyLevelSetAt: new Date(),
-      autonomyLevelReviewDueAt: new Date(
-        Date.now() - 1 * 24 * 60 * 60 * 1000
-      ),
-      girLevel: 5,
-      establishmentId: establishment.id,
-    },
-  });
-
-  await prisma.autonomyLevelHistory.createMany({
-    data: [
-      {
-        patientId: patient.id,
-        autonomyLevel: "semi_autonome_eleve",
-        source: "professionnel",
-        setByUserId: proUser.id,
-      },
-      {
-        patientId: patientSansTx.id,
-        autonomyLevel: "semi_autonome_faible",
-        source: "question_aidant",
-        setByUserId: invitedUser.id,
-      },
-    ],
-  });
-
-  await prisma.autonomyAlert.create({
-    data: {
-      patientId: patientSansTx.id,
-      type: "profil_a_confirmer",
-      audience: "professionnel",
-      proposedLevel: "semi_autonome_faible",
-      message:
-        "Nouveau profil déclaré par la famille de Henri Bernard — à confirmer",
+      patientId: patient.id,
+      autonomyLevel: "semi_autonome_eleve",
+      source: "professionnel",
+      setByUserId: proUser.id,
     },
   });
 
@@ -186,14 +155,7 @@ async function main() {
     },
   });
 
-  await prisma.patientCaregiver.create({
-    data: {
-      patientId: patientSansTx.id,
-      caregiverId: invitedUser.caregiver!.id,
-      relationship: "fils",
-      isPrimary: true,
-    },
-  });
+  // invite@demo.fr : aucun patient lié → parcours « Ajouter mon proche »
 
   const objective = await prisma.educationalObjective.create({
     data: {
@@ -319,7 +281,8 @@ async function main() {
   }
 
   console.log("Seed OK");
-  console.log("  Aidant: jean.martin@demo.fr / demo1234");
+  console.log("  Aidant: jean.martin@demo.fr / demo1234 (Marie liée)");
+  console.log("  Aidant onboarding: invite@demo.fr / demo1234 (aucun proche)");
   console.log("  Pro: pro@procheplus.demo / demo1234");
   console.log("  Admin établissement: admin@procheplus.demo / demo1234");
   console.log("  Admin produit: fondateur@procheplus.demo / demo1234");
