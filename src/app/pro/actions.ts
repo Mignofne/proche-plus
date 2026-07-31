@@ -280,7 +280,7 @@ export async function confirmAutonomyAlert(alertId: string) {
   });
 
   revalidatePath("/pro");
-  revalidatePath(/pro/patient/\);
+  revalidatePath(`/pro/patient/${alert.patientId}`);
   revalidatePath("/admin-etablissement");
 }
 
@@ -307,7 +307,7 @@ export async function adjustAutonomyAlert(
   });
 
   revalidatePath("/pro");
-  revalidatePath(/pro/patient/\);
+  revalidatePath(`/pro/patient/${alert.patientId}`);
   revalidatePath("/admin-etablissement");
 }
 
@@ -349,7 +349,7 @@ export async function activatePatientExercise(
     makeCurrent: true,
   });
 
-  revalidatePath(/pro/patient/\);
+  revalidatePath(`/pro/patient/${patientId}`);
   revalidatePath("/aidant/mode-visite");
   revalidatePath("/pro");
 }
@@ -376,7 +376,7 @@ export async function treatExerciseAlert(
     activateNext,
   });
 
-  revalidatePath(/pro/patient/\);
+  revalidatePath(`/pro/patient/${patientId}`);
   revalidatePath("/aidant/mode-visite");
   revalidatePath("/pro");
 }

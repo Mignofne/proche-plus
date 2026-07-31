@@ -277,7 +277,7 @@ export async function submitExerciseOutcome(input: {
         caregiverId: caregiver.id,
         type: actionType,
         stepLabel: pe.exercise.name,
-        note: input.note ?? Statut exercice: \,
+        note: input.note ?? `Statut exercice: ${input.outcome}`,
       },
     });
   }
