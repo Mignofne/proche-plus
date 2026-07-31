@@ -116,16 +116,35 @@ function bodySheetStyle(panel: 0 | 1 | 2 | 3): CSSProperties {
   };
 }
 
-const FACE_IMG_STYLE: CSSProperties = {
-  position: "absolute",
-  inset: 0,
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-  objectPosition: "center center",
-  pointerEvents: "none",
-  userSelect: "none",
+/**
+ * Face crops are square but subjects sit slightly off-center in-frame
+ * (panel 2 profile especially). Slight oversize + per-panel object-position
+ * pans the face into the circular sm/md Mascot frames.
+ */
+const FACE_OBJECT_POSITION: Record<0 | 1 | 2 | 3, string> = {
+  /** Front — subject slightly right in asset → pan right so face hits center */
+  0: "58% 30%",
+  1: "55% 28%",
+  /** Profile left-facing — keep snout/eye in frame */
+  2: "32% 30%",
+  3: "52% 30%",
 };
+
+function faceImgStyle(panel: 0 | 1 | 2 | 3): CSSProperties {
+  return {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    width: "122%",
+    height: "122%",
+    maxWidth: "none",
+    transform: "translate(-50%, -50%)",
+    objectFit: "cover",
+    objectPosition: FACE_OBJECT_POSITION[panel],
+    pointerEvents: "none",
+    userSelect: "none",
+  };
+}
 
 /**
  * Ours canon C-v3 — crop panneau selon la pose.
@@ -173,7 +192,7 @@ export function BearFace({
         src={resolvedSrc}
         alt={decorative ? "" : CANON_BEAR_ALT}
         draggable={false}
-        style={variant === "body" ? bodySheetStyle(panel) : FACE_IMG_STYLE}
+        style={variant === "body" ? bodySheetStyle(panel) : faceImgStyle(panel)}
       />
     </span>
   );

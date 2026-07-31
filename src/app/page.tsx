@@ -19,7 +19,7 @@ export default function HomePage() {
         <div className="flex w-full flex-col gap-4">
           <Card className="animate-fade-up flex flex-col gap-4 [animation-delay:80ms]">
             <div className="flex items-start gap-3">
-              <Mascot pose="patience" size="sm" />
+              <Mascot pose="vigilance" size="sm" />
               <div>
                 <h2 className="font-semibold">Je suis aidant</h2>
                 <p className="mt-1 text-sm text-text-muted">
