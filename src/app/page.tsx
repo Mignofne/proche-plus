@@ -48,10 +48,6 @@ export default function HomePage() {
             </ButtonLink>
           </Card>
         </div>
-
-        <p className="animate-fade-up text-center text-xs text-text-muted [animation-delay:240ms]">
-          Admin produit : menu ☰ en haut à droite
-        </p>
       </main>
     </div>
   );

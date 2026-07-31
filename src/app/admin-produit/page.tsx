@@ -104,6 +104,12 @@ export default async function AdminProduitPage() {
             </div>
           </div>
           <div className="flex gap-4 text-sm">
+            <Link
+              href="/admin-produit/community"
+              className="text-teal font-medium"
+            >
+              Community
+            </Link>
             <Link href="/admin-produit/exercices" className="text-teal font-medium">
               Catalogue exercices
             </Link>
