@@ -157,29 +157,15 @@ async function ensureThemesAndScales(prisma: PrismaClient) {
     await prisma.theme.upsert({
       where: { slug: t.slug },
       create: t,
-      update: {
-        label: t.label,
-        icon: t.icon,
-        displayOrder: t.displayOrder,
-        active: true,
-      },
+      // Ne pas écraser les éditions admin fondateur
+      update: {},
     });
   }
   for (const s of SCALES) {
     const existing = await prisma.autonomyScale.findUnique({
       where: { code: s.code },
     });
-    if (existing) {
-      await prisma.autonomyScale.update({
-        where: { id: existing.id },
-        data: {
-          label: s.label,
-          patientEnum: s.patientEnum,
-          displayOrder: s.displayOrder,
-          active: true,
-        },
-      });
-    } else {
+    if (!existing) {
       await prisma.autonomyScale.create({ data: s });
     }
   }
@@ -208,48 +194,33 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
       orderBy: { updatedAt: "desc" },
     });
 
-    const data = {
-      name: ex.name,
-      objective: ex.objective,
-      steps: JSON.stringify(ex.steps),
-      caregiverCan: JSON.stringify(ex.caregiverCan),
-      caregiverMustNot: JSON.stringify(ex.caregiverMustNot),
-      estimatedDuration: ex.estimatedDuration,
-      risks: ex.risks,
-      crossesAutonomyLevel: false,
-      alertOnFailure: ex.levelCode === "A",
-      status: "publie" as const,
-      validatedBy: "Référentiel APA (import CSV)",
-      validatedAt: new Date(),
-      // Self-repeat by default until matrice évolutive renseignée
-      onPartialExerciseId: existing?.id ?? undefined,
-    };
+    // Ne jamais écraser un exercice déjà présent (éditions admin conservées)
+    if (existing) continue;
 
-    if (existing) {
-      await prisma.exercise.update({
-        where: { id: existing.id },
-        data: {
-          ...data,
-          onPartialExerciseId: existing.id,
-          onSuccessExerciseId: existing.onSuccessExerciseId,
-          onFailureExerciseId: existing.onFailureExerciseId,
-        },
-      });
-    } else {
-      const created = await prisma.exercise.create({
-        data: {
-          themeId: theme.id,
-          autonomyScaleId: scale.id,
-          tier: ex.tier,
-          ...data,
-          onPartialExerciseId: null,
-        },
-      });
-      await prisma.exercise.update({
-        where: { id: created.id },
-        data: { onPartialExerciseId: created.id },
-      });
-    }
+    const created = await prisma.exercise.create({
+      data: {
+        themeId: theme.id,
+        autonomyScaleId: scale.id,
+        tier: ex.tier,
+        name: ex.name,
+        objective: ex.objective,
+        steps: JSON.stringify(ex.steps),
+        caregiverCan: JSON.stringify(ex.caregiverCan),
+        caregiverMustNot: JSON.stringify(ex.caregiverMustNot),
+        estimatedDuration: ex.estimatedDuration,
+        risks: ex.risks,
+        crossesAutonomyLevel: false,
+        alertOnFailure: ex.levelCode === "A",
+        status: "publie",
+        validatedBy: "Référentiel APA (import CSV)",
+        validatedAt: new Date(),
+        onPartialExerciseId: null,
+      },
+    });
+    await prisma.exercise.update({
+      where: { id: created.id },
+      data: { onPartialExerciseId: created.id },
+    });
     upserted += 1;
   }
 

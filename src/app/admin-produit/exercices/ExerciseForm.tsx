@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { saveExercise, duplicateExercise } from "../actions";
+import { saveExercise, duplicateExercise, deleteExercise } from "../actions";
 
 type Option = { id: string; label: string };
 
@@ -265,11 +265,60 @@ export function ExerciseForm({
             disabled={pending}
             onClick={() =>
               startTransition(async () => {
-                await duplicateExercise(initial.id);
+                try {
+                  await duplicateExercise(initial.id);
+                } catch (e) {
+                  if (
+                    e &&
+                    typeof e === "object" &&
+                    "digest" in e &&
+                    String((e as { digest?: string }).digest).startsWith(
+                      "NEXT_REDIRECT"
+                    )
+                  ) {
+                    throw e;
+                  }
+                  setError(e instanceof Error ? e.message : "Erreur");
+                }
               })
             }
           >
             Dupliquer
+          </Button>
+        )}
+        {initial && (
+          <Button
+            type="button"
+            variant="danger"
+            disabled={pending}
+            onClick={() => {
+              if (
+                !confirm(
+                  "Archiver cet exercice ? Il ne sera plus proposé aux aidants."
+                )
+              ) {
+                return;
+              }
+              startTransition(async () => {
+                try {
+                  await deleteExercise(initial.id);
+                } catch (e) {
+                  if (
+                    e &&
+                    typeof e === "object" &&
+                    "digest" in e &&
+                    String((e as { digest?: string }).digest).startsWith(
+                      "NEXT_REDIRECT"
+                    )
+                  ) {
+                    throw e;
+                  }
+                  setError(e instanceof Error ? e.message : "Erreur");
+                }
+              });
+            }}
+          >
+            Supprimer (archiver)
           </Button>
         )}
       </div>
