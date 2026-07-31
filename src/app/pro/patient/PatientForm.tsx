@@ -17,6 +17,7 @@ type PatientFormProps = {
     lastName: string;
     autonomyLevel: AutonomyLevel;
     girLevel: number | null;
+    autonomyLevelStatus?: string | null;
   };
 };
 
@@ -103,6 +104,12 @@ export function PatientForm({ mode, patient }: PatientFormProps) {
 
         <fieldset>
           <legend className="mb-2 font-medium">Profil d&apos;autonomie</legend>
+          {patient?.autonomyLevelStatus === "provisoire" && (
+            <p className="mb-2 rounded-xl bg-sun/30 px-3 py-2 text-sm">
+              Statut actuel : <strong>provisoire</strong> (déclaré par la
+              famille). Enregistrer confirmera ou ajustera le profil.
+            </p>
+          )}
           <div className="flex flex-col gap-2">
             {PATIENT_PROFILES.map((p) => (
               <label

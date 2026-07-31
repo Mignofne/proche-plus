@@ -10,6 +10,11 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/prisma/schema.postgresql.bak.prisma
 
 # next.js
 /.next/

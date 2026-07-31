@@ -1,4 +1,4 @@
-import { APIRequestContext, expect, Page } from "@playwright/test";
+import { APIRequestContext, Page } from "@playwright/test";
 
 export const DEMO = {
   aidant: {
@@ -40,10 +40,4 @@ export async function loginUi(
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Mot de passe").fill(password);
   await page.getByRole("button", { name: /Se connecter/i }).click();
-}
-
-export async function expectSessionCookie(request: APIRequestContext) {
-  const cookies = await request.storageState();
-  const session = cookies.cookies.find((c) => c.name === "proche_session");
-  expect(session?.value).toBeTruthy();
 }

@@ -5,6 +5,10 @@ import bcrypt from "bcryptjs";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getProfile } from "@/lib/patient-profiles";
+import {
+  resolveAutonomyAlert,
+  setPatientAutonomyLevel,
+} from "@/lib/services/autonomy";
 import type { AutonomyLevel } from "@prisma/client";
 
 async function requirePro() {
@@ -29,7 +33,7 @@ export async function upsertPatient(input: {
   autonomyLevel: AutonomyLevel;
   girLevel?: number | null;
 }) {
-  const { professional } = await requirePro();
+  const { session, professional } = await requirePro();
   const profile = getProfile(input.autonomyLevel);
   const girLevel = input.girLevel ?? profile?.girSuggest ?? null;
 
@@ -42,33 +46,87 @@ export async function upsertPatient(input: {
     });
     if (!existing) throw new Error("Patient introuvable");
 
+    const levelChanged = existing.autonomyLevel !== input.autonomyLevel;
+    const wasProvisional = existing.autonomyLevelStatus === "provisoire";
+
+    await setPatientAutonomyLevel({
+      patientId: input.id,
+      autonomyLevel: input.autonomyLevel,
+      source: "professionnel",
+      historySource: "professionnel",
+      status:
+        wasProvisional || levelChanged
+          ? levelChanged
+            ? "confirme_ajuste"
+            : "confirme"
+          : existing.autonomyLevelStatus ?? "confirme",
+      setByUserId: session.userId,
+      createConfirmAlert: false,
+      restartReviewTimer: true,
+    });
+
     await prisma.patient.update({
       where: { id: input.id },
       data: {
         firstName: input.firstName,
         lastName: input.lastName,
-        autonomyLevel: input.autonomyLevel,
         girLevel,
       },
     });
 
-    if (profile) {
-      await prisma.educationalObjective.updateMany({
-        where: { patientId: input.id, isCurrent: true },
-        data: {
-          instructions: profile.instructionExample,
-          nextStep: profile.objectiveExample,
-        },
-      });
-    }
+    // Clôturer les alertes de confirmation en attente
+    await prisma.autonomyAlert.updateMany({
+      where: {
+        patientId: input.id,
+        type: "profil_a_confirmer",
+        status: "en_attente",
+      },
+      data: {
+        status:
+          existing.autonomyLevel === input.autonomyLevel
+            ? "confirme"
+            : "ajuste",
+        resolvedAt: new Date(),
+        proposedLevel: input.autonomyLevel,
+      },
+    });
   } else {
     const patient = await prisma.patient.create({
       data: {
         firstName: input.firstName,
         lastName: input.lastName,
         autonomyLevel: input.autonomyLevel,
+        autonomyLevelStatus: "confirme",
+        autonomyLevelSource: "professionnel",
+        autonomyLevelSetAt: new Date(),
         girLevel,
         establishmentId: professional.establishmentId,
+      },
+    });
+
+    await prisma.autonomyLevelHistory.create({
+      data: {
+        patientId: patient.id,
+        autonomyLevel: input.autonomyLevel,
+        source: "professionnel",
+        setByUserId: session.userId,
+      },
+    });
+
+    const interval =
+      (
+        await prisma.establishment.findUnique({
+          where: { id: professional.establishmentId },
+          select: { autonomyReviewIntervalDays: true },
+        })
+      )?.autonomyReviewIntervalDays ?? 15;
+
+    await prisma.patient.update({
+      where: { id: patient.id },
+      data: {
+        autonomyLevelReviewDueAt: new Date(
+          Date.now() + interval * 24 * 60 * 60 * 1000
+        ),
       },
     });
 
@@ -203,6 +261,74 @@ export async function deleteCaregiverLink(linkId: string, patientId: string) {
   revalidatePath(`/pro/patient/${patientId}`);
 }
 
+export async function confirmAutonomyAlert(alertId: string) {
+  const { session, professional } = await requirePro();
+  const alert = await prisma.autonomyAlert.findFirst({
+    where: {
+      id: alertId,
+      status: "en_attente",
+      audience: "professionnel",
+      patient: { establishmentId: professional.establishmentId },
+    },
+  });
+  if (!alert) throw new Error("Alerte introuvable");
+
+  await resolveAutonomyAlert({
+    alertId,
+    status: "confirme",
+    professionalUserId: session.userId,
+  });
+
+  revalidatePath("/pro");
+  revalidatePath(/pro/patient/\);
+  revalidatePath("/admin-etablissement");
+}
+
+export async function adjustAutonomyAlert(
+  alertId: string,
+  adjustedLevel: AutonomyLevel
+) {
+  const { session, professional } = await requirePro();
+  const alert = await prisma.autonomyAlert.findFirst({
+    where: {
+      id: alertId,
+      status: "en_attente",
+      audience: "professionnel",
+      patient: { establishmentId: professional.establishmentId },
+    },
+  });
+  if (!alert) throw new Error("Alerte introuvable");
+
+  await resolveAutonomyAlert({
+    alertId,
+    status: "ajuste",
+    adjustedLevel,
+    professionalUserId: session.userId,
+  });
+
+  revalidatePath("/pro");
+  revalidatePath(/pro/patient/\);
+  revalidatePath("/admin-etablissement");
+}
+
+export async function updateEstablishmentReviewInterval(days: number) {
+  const { professional } = await requirePro();
+  if (professional.role !== "admin_etablissement") {
+    const session = await getSession();
+    if (session?.role !== "admin_etablissement") {
+      throw new Error("Réservé à l'admin établissement");
+    }
+  }
+
+  const safeDays = Math.min(90, Math.max(7, Math.round(days)));
+  await prisma.establishment.update({
+    where: { id: professional.establishmentId },
+    data: { autonomyReviewIntervalDays: safeDays },
+  });
+  revalidatePath("/admin-etablissement");
+  revalidatePath("/pro");
+}
+
 export async function activatePatientExercise(
   patientId: string,
   exerciseId: string
@@ -223,7 +349,7 @@ export async function activatePatientExercise(
     makeCurrent: true,
   });
 
-  revalidatePath(`/pro/patient/${patientId}`);
+  revalidatePath(/pro/patient/\);
   revalidatePath("/aidant/mode-visite");
   revalidatePath("/pro");
 }
@@ -250,7 +376,7 @@ export async function treatExerciseAlert(
     activateNext,
   });
 
-  revalidatePath(`/pro/patient/${patientId}`);
+  revalidatePath(/pro/patient/\);
   revalidatePath("/aidant/mode-visite");
   revalidatePath("/pro");
 }

@@ -8,6 +8,8 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
   AUTONOMY_LABELS,
+  AUTONOMY_SOURCE_LABELS,
+  AUTONOMY_STATUS_LABELS,
   CAREGIVER_ACTION_LABELS,
   GIR_LABELS,
   MESSAGE_SECTION_LABELS,
@@ -71,6 +73,10 @@ export default async function PatientDetailPage({
             },
           },
         },
+      },
+      autonomyHistory: {
+        orderBy: { setAt: "desc" },
+        take: 8,
       },
     },
   });
@@ -147,19 +153,56 @@ export default async function PatientDetailPage({
                 ? ` · ${GIR_LABELS[patient.girLevel] ?? `GIR ${patient.girLevel}`}`
                 : ""}
             </p>
+            {patient.autonomyLevelStatus && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                    patient.autonomyLevelStatus === "provisoire"
+                      ? "bg-sun/40"
+                      : "bg-teal/15"
+                  }`}
+                >
+                  {AUTONOMY_STATUS_LABELS[patient.autonomyLevelStatus]}
+                </span>
+                {patient.autonomyLevelSource && (
+                  <span className="rounded-full bg-cream-dark px-2 py-0.5 text-xs">
+                    {AUTONOMY_SOURCE_LABELS[patient.autonomyLevelSource]}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         <Card className="mb-6 border-teal/20 bg-teal/5">
-          <SectionTitle>GIR — contexte éducatif</SectionTitle>
-          <p className="mt-2">
-            {patient.girLevel
-              ? GIR_LABELS[patient.girLevel]
-              : "Non renseigné"}
+          <SectionTitle>Profil d&apos;autonomie</SectionTitle>
+          <p className="mt-2 font-medium">
+            {AUTONOMY_LABELS[patient.autonomyLevel]}
           </p>
           <p className="mt-2 text-sm text-text-muted">
-            Calibre les consignes — pas un suivi clinique dans Proche+.
+            {patient.girLevel
+              ? GIR_LABELS[patient.girLevel]
+              : "GIR non renseigné"}{" "}
+            — calibre les consignes, pas un suivi clinique dans Proche+.
           </p>
+          {patient.autonomyLevelReviewDueAt && (
+            <p className="mt-2 text-sm text-text-muted">
+              Prochaine revue aidant :{" "}
+              {new Date(patient.autonomyLevelReviewDueAt).toLocaleDateString(
+                "fr-FR"
+              )}
+            </p>
+          )}
+          {patient.autonomyHistory.length > 0 && (
+            <ul className="mt-3 space-y-1 text-sm text-text-muted">
+              {patient.autonomyHistory.map((h) => (
+                <li key={h.id}>
+                  {new Date(h.setAt).toLocaleDateString("fr-FR")} —{" "}
+                  {AUTONOMY_LABELS[h.autonomyLevel]} ({h.source})
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         <Card className="mb-6">
