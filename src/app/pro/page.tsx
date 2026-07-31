@@ -6,7 +6,8 @@ import { Card, SectionTitle } from "@/components/ui/Card";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { AUTONOMY_LABELS } from "@/lib/constants";
+import { AUTONOMY_LABELS, AUTONOMY_STATUS_LABELS } from "@/lib/constants";
+import { ProAutonomyAlerts } from "./ProAutonomyAlerts";
 
 export default async function ProDashboardPage() {
   const session = await getSession();
@@ -28,7 +29,7 @@ export default async function ProDashboardPage() {
     session.role === "admin_etablissement" ||
     professional.role === "admin_etablissement";
 
-  const [patients, questions, activeCaregivers, difficulties] =
+  const [patients, questions, activeCaregivers, autonomyAlerts] =
     await Promise.all([
       prisma.patient.findMany({
         where: { establishmentId: estId },
@@ -68,14 +69,14 @@ export default async function ProDashboardPage() {
           patients: { some: { patient: { establishmentId: estId } } },
         },
       }),
-      prisma.caregiverFeedback.count({
+      prisma.autonomyAlert.findMany({
         where: {
-          treated: false,
-          outcome: { in: ["difficile", "non_essaye"] },
-          transmission: {
-            visit: { patient: { establishmentId: estId } },
-          },
+          status: "en_attente",
+          audience: "professionnel",
+          patient: { establishmentId: estId },
         },
+        include: { patient: true },
+        orderBy: { createdAt: "desc" },
       }),
     ]);
 
@@ -120,7 +121,11 @@ export default async function ProDashboardPage() {
             { label: "Patients", value: patients.length },
             { label: "Familles activées", value: activeCaregivers },
             { label: "Questions en attente", value: questions },
-            { label: "Difficultés", value: difficulties },
+            {
+              label: "Profils à confirmer",
+              value: autonomyAlerts.filter((a) => a.type === "profil_a_confirmer")
+                .length,
+            },
           ].map((stat) => (
             <Card key={stat.label} className="animate-soft-pop">
               <p className="text-2xl font-bold text-teal">{stat.value}</p>
@@ -128,6 +133,18 @@ export default async function ProDashboardPage() {
             </Card>
           ))}
         </div>
+
+        <ProAutonomyAlerts
+          alerts={autonomyAlerts.map((a) => ({
+            id: a.id,
+            type: a.type,
+            message: a.message,
+            proposedLevel: a.proposedLevel,
+            patientId: a.patientId,
+            patientName: `${a.patient.firstName} ${a.patient.lastName}`,
+            currentLevel: a.patient.autonomyLevel,
+          }))}
+        />
 
         {isAdminEtablissement && (
           <Card className="mb-6 border-teal/30 bg-teal/5">
@@ -159,6 +176,7 @@ export default async function ProDashboardPage() {
                 (f.outcome === "difficile" || f.outcome === "non_essaye")
             );
             const hasAction = (transmission?.actions?.length ?? 0) > 0;
+            const isProvisional = patient.autonomyLevelStatus === "provisoire";
 
             return (
               <Card
@@ -172,6 +190,9 @@ export default async function ProDashboardPage() {
                   <p className="text-sm text-text-muted">
                     {AUTONOMY_LABELS[patient.autonomyLevel]}
                     {patient.girLevel ? ` · GIR ${patient.girLevel}` : ""}
+                    {patient.autonomyLevelStatus
+                      ? ` · ${AUTONOMY_STATUS_LABELS[patient.autonomyLevelStatus]}`
+                      : ""}
                   </p>
                   <p className="text-sm text-text-muted">
                     Aidant :{" "}
@@ -180,6 +201,11 @@ export default async function ProDashboardPage() {
                       : "aucun"}
                   </p>
                   <div className="mt-1 flex flex-wrap gap-2">
+                    {isProvisional && (
+                      <span className="rounded-full bg-sun/40 px-2 py-0.5 text-xs font-semibold">
+                        Provisoire
+                      </span>
+                    )}
                     {unread && (
                       <span className="rounded-full bg-sun/30 px-2 py-0.5 text-xs">
                         Non consultée

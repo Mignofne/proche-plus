@@ -6,6 +6,8 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+import { ReviewIntervalForm } from "./ReviewIntervalForm";
+
 export default async function AdminEtablissementPage() {
   const session = await getSession();
   if (
@@ -223,6 +225,13 @@ export default async function AdminEtablissementPage() {
               Ouvrir l&apos;espace pro pour inviter
             </Link>
           </Card>
+        </section>
+
+        <section>
+          <SectionTitle>5. Réglages autonomie</SectionTitle>
+          <ReviewIntervalForm
+            currentDays={professional.establishment.autonomyReviewIntervalDays}
+          />
         </section>
       </main>
     </div>

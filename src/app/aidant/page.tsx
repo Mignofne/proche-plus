@@ -6,10 +6,13 @@ import { Card, SectionTitle } from "@/components/ui/Card";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { getSession } from "@/lib/auth";
 import { getMicrocopy } from "@/lib/microcopy";
+import { prisma } from "@/lib/prisma";
 import {
   getCaregiverByUserId,
   getCaregiverTransmissions,
 } from "@/lib/services/aidant";
+import { AutonomyReviewCard } from "./AutonomyReviewCard";
+import { CaregiverAutonomyAlerts } from "./CaregiverAutonomyAlerts";
 
 export default async function AidantHomePage() {
   const session = await getSession();
@@ -24,6 +27,22 @@ export default async function AidantHomePage() {
   const patient = caregiver.patients[0]?.patient;
   const latestTransmission = transmissions[0];
   const unread = latestTransmission && !latestTransmission.readAt;
+
+  const reviewDue =
+    patient?.autonomyLevelReviewDueAt &&
+    new Date(patient.autonomyLevelReviewDueAt) <= new Date();
+
+  const autonomyAlerts = patient
+    ? await prisma.autonomyAlert.findMany({
+        where: {
+          patientId: patient.id,
+          audience: "aidant",
+          status: "en_attente",
+        },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      })
+    : [];
 
   return (
     <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
@@ -42,6 +61,22 @@ export default async function AidantHomePage() {
             )}
           </div>
         </div>
+
+        {patient && reviewDue && (
+          <AutonomyReviewCard
+            patientId={patient.id}
+            patientFirstName={patient.firstName}
+          />
+        )}
+
+        <CaregiverAutonomyAlerts
+          alerts={autonomyAlerts.map((a) => ({
+            id: a.id,
+            type: a.type,
+            message: a.message,
+            proposedLevel: a.proposedLevel,
+          }))}
+        />
 
         {unread && (
           <Card className="border-teal/30 bg-teal/5">

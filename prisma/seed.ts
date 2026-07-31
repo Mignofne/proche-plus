@@ -6,6 +6,8 @@ const prisma = new PrismaClient();
 async function main() {
   await prisma.auditLog.deleteMany();
   await prisma.clinicalNote.deleteMany();
+  await prisma.autonomyAlert.deleteMany();
+  await prisma.autonomyLevelHistory.deleteMany();
   await prisma.caregiverAction.deleteMany();
   await prisma.comprehensionCheck.deleteMany();
   await prisma.caregiverFeedback.deleteMany();
@@ -26,11 +28,17 @@ async function main() {
   const passwordHash = await bcrypt.hash("demo1234", 8);
 
   const establishment = await prisma.establishment.create({
-    data: { name: "Centre de rééducation Val-de-Marne" },
+    data: {
+      name: "Centre de rééducation Val-de-Marne",
+      autonomyReviewIntervalDays: 15,
+    },
   });
 
   await prisma.establishment.create({
-    data: { name: "Centre Loire (cloisonné — aucune donnée croisée)" },
+    data: {
+      name: "Centre Loire (cloisonné — aucune donnée croisée)",
+      autonomyReviewIntervalDays: 15,
+    },
   });
 
   const proUser = await prisma.user.create({
@@ -107,6 +115,12 @@ async function main() {
       firstName: "Marie",
       lastName: "Martin",
       autonomyLevel: "semi_autonome_eleve",
+      autonomyLevelStatus: "confirme",
+      autonomyLevelSource: "professionnel",
+      autonomyLevelSetAt: new Date(),
+      autonomyLevelReviewDueAt: new Date(
+        Date.now() - 1 * 24 * 60 * 60 * 1000
+      ),
       girLevel: 4,
       establishmentId: establishment.id,
     },
@@ -117,8 +131,42 @@ async function main() {
       firstName: "Henri",
       lastName: "Bernard",
       autonomyLevel: "semi_autonome_faible",
+      autonomyLevelStatus: "provisoire",
+      autonomyLevelSource: "declare_aidant",
+      autonomyLevelSetAt: new Date(),
+      autonomyLevelReviewDueAt: new Date(
+        Date.now() - 1 * 24 * 60 * 60 * 1000
+      ),
       girLevel: 5,
       establishmentId: establishment.id,
+    },
+  });
+
+  await prisma.autonomyLevelHistory.createMany({
+    data: [
+      {
+        patientId: patient.id,
+        autonomyLevel: "semi_autonome_eleve",
+        source: "professionnel",
+        setByUserId: proUser.id,
+      },
+      {
+        patientId: patientSansTx.id,
+        autonomyLevel: "semi_autonome_faible",
+        source: "question_aidant",
+        setByUserId: invitedUser.id,
+      },
+    ],
+  });
+
+  await prisma.autonomyAlert.create({
+    data: {
+      patientId: patientSansTx.id,
+      type: "profil_a_confirmer",
+      audience: "professionnel",
+      proposedLevel: "semi_autonome_faible",
+      message:
+        "Nouveau profil déclaré par la famille de Henri Bernard — à confirmer",
     },
   });
 

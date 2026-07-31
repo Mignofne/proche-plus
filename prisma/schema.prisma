@@ -84,14 +84,51 @@ enum MessageSection {
   a_revoir_ensemble
 }
 
+enum AutonomyLevelStatus {
+  provisoire
+  confirme
+  confirme_ajuste
+}
+
+enum AutonomyLevelSource {
+  declare_aidant
+  professionnel
+}
+
+enum AutonomyHistorySource {
+  question_aidant
+  rappel_periodique
+  signal_exercice
+  professionnel
+}
+
+enum AutonomyAlertType {
+  profil_a_confirmer
+  proposition_upgrade
+  proposition_downgrade
+}
+
+enum AutonomyAlertStatus {
+  en_attente
+  confirme
+  ajuste
+  ignore
+}
+
+enum AutonomyAlertAudience {
+  professionnel
+  aidant
+}
+
 // --- Models ---
 
 model Establishment {
-  id            String         @id @default(cuid())
-  name          String
-  createdAt     DateTime       @default(now())
-  professionals Professional[]
-  patients      Patient[]
+  id                         String         @id @default(cuid())
+  name                       String
+  autonomyReviewIntervalDays Int            @default(15)
+  createdAt                  DateTime       @default(now())
+  professionals              Professional[]
+  patients                   Patient[]
 }
 
 model User {
@@ -135,17 +172,46 @@ model Caregiver {
 }
 
 model Patient {
-  id              String              @id @default(cuid())
-  firstName       String
-  lastName        String
-  autonomyLevel   AutonomyLevel       @default(semi_autonome_faible)
-  girLevel        Int?
-  establishmentId String
-  establishment   Establishment       @relation(fields: [establishmentId], references: [id])
-  caregivers      PatientCaregiver[]
-  objectives      EducationalObjective[]
-  visits          Visit[]
-  createdAt       DateTime            @default(now())
+  id                      String               @id @default(cuid())
+  firstName               String
+  lastName                String
+  autonomyLevel           AutonomyLevel        @default(semi_autonome_faible)
+  autonomyLevelStatus     AutonomyLevelStatus?
+  autonomyLevelSource     AutonomyLevelSource?
+  autonomyLevelSetAt      DateTime?
+  autonomyLevelReviewDueAt DateTime?
+  girLevel                Int?
+  establishmentId         String
+  establishment           Establishment        @relation(fields: [establishmentId], references: [id])
+  caregivers              PatientCaregiver[]
+  objectives              EducationalObjective[]
+  visits                  Visit[]
+  autonomyHistory         AutonomyLevelHistory[]
+  autonomyAlerts          AutonomyAlert[]
+  createdAt               DateTime             @default(now())
+}
+
+model AutonomyLevelHistory {
+  id            String                @id @default(cuid())
+  patientId     String
+  patient       Patient               @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  autonomyLevel AutonomyLevel
+  source        AutonomyHistorySource
+  setByUserId   String?
+  setAt         DateTime              @default(now())
+}
+
+model AutonomyAlert {
+  id            String                @id @default(cuid())
+  patientId     String
+  patient       Patient               @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  type          AutonomyAlertType
+  status        AutonomyAlertStatus   @default(en_attente)
+  audience      AutonomyAlertAudience
+  proposedLevel AutonomyLevel?
+  message       String
+  createdAt     DateTime              @default(now())
+  resolvedAt    DateTime?
 }
 
 model PatientCaregiver {

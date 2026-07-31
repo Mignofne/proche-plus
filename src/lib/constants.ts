@@ -25,6 +25,17 @@ export const AUTONOMY_LABELS: Record<string, string> = {
   grabataire: "Grabataire",
 };
 
+export const AUTONOMY_STATUS_LABELS: Record<string, string> = {
+  provisoire: "Provisoire",
+  confirme: "Confirmé",
+  confirme_ajuste: "Confirmé (ajusté)",
+};
+
+export const AUTONOMY_SOURCE_LABELS: Record<string, string> = {
+  declare_aidant: "Déclaré par l'aidant",
+  professionnel: "Professionnel",
+};
+
 export const GIR_LABELS: Record<number, string> = {
   1: "GIR 1 — dépendance totale",
   2: "GIR 2 — dépendance sévère",

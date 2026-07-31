@@ -18,7 +18,8 @@
     "test": "playwright test",
     "test:api": "playwright test tests/api",
     "test:e2e": "playwright test tests/e2e",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "test:local": "node scripts/prepare-sqlite-for-tests.js && playwright test && node scripts/restore-postgres-schema.js"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
