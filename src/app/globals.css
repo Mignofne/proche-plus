@@ -103,6 +103,26 @@
   }
 }
 
+@keyframes cta-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(42 157 143 / 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgb(42 157 143 / 0);
+  }
+}
+
+@keyframes mist-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -1.5%, 0) scale(1.04);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .animate-mascot-float {
     animation: mascot-float 3.5s ease-in-out infinite;
@@ -116,13 +136,21 @@
   .animate-soft-pop {
     animation: soft-pop 0.35s ease-out both;
   }
+  .animate-cta-glow {
+    animation: cta-glow 2.8s ease-in-out infinite;
+  }
+  .animate-mist-drift {
+    animation: mist-drift 14s ease-in-out infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-mascot-float,
   .animate-fade-up,
   .animate-fade-in,
-  .animate-soft-pop {
+  .animate-soft-pop,
+  .animate-cta-glow,
+  .animate-mist-drift {
     animation: none;
   }
 }
