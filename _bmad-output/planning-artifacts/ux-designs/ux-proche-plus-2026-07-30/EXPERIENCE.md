@@ -45,6 +45,7 @@ Aucun établissement ne lit les données d’un autre.
 | Surface | Entrée | But |
 |---|---|---|
 | Accueil | Login / cold open | Objectif en cours + prochaines actions claires |
+| **Mes proches** | Accueil (carte dédiée) / onboarding | **Ajouter, modifier, supprimer** un proche — identité d’abord |
 | Transmission | Accueil / notif | Lire à retenir / essayer / éviter / revoir + compréhension |
 | Choix de thème | Mode visite (entrée) | Choisir ce qu’on veut travailler aujourd’hui (S’habiller, Manger, Fauteuil…) |
 | Mode visite | Après thème | Exercice adapté au niveau + consignes + actions |
@@ -53,7 +54,9 @@ Aucun établissement ne lit les données d’un autre.
 | Feedback | Post-visite / rappel | Retour simple facultatif |
 | Question | Accueil | Question ponctuelle au pro |
 | Ressources | Accueil | Bibliothèque sans solliciter le pro |
-| Onboarding | Première connexion | Comprendre / Apprendre / Pratiquer / Sécuriser + grands caractères |
+| Onboarding | Première connexion | Pédagogie → **enregistrer le proche** → **choix autonomie (1 écran, 5 situations)** → puis mode visite |
+
+**Règle d’ordre (onboarding)** : le prénom n’apparaît dans « Quelle situation décrit le mieux {prénom}… » **qu’après** saisie/confirmation par l’aidant. Jamais de nom pré-posé sans cette étape.
 
 ### Surfaces — Pro
 
@@ -181,11 +184,23 @@ Invariant : filtre `establishmentId` partout ; RLS Postgres recommandé en prod 
 
 ## Key Flows
 
+### Flow A0 — Première connexion aidant (enregistrer le proche)
+
+**Protagoniste** : un aidant qui se connecte pour la première fois (compte invite ou onboarding non terminé).
+
+1. Pédagogie courte (grands caractères + 4 messages).
+2. **Climax 1** : écran **Ajouter / confirmer mon proche** — prénom + nom **saisis ou vérifiés par l’aidant**.
+3. **Climax 2** : un seul écran, 5 situations côte à côte — titre avec **le prénom qu’il vient d’enregistrer** (pas un nom inventé).
+4. Statut autonomie **provisoire** → accès accueil ; le pro confirmera plus tard.
+5. Ensuite seulement : Mode visite / transmissions.
+
+À tout moment après : **Mes proches** → ajouter / modifier / supprimer.
+
 ### Flow A — Jean Martin (aidant), visite du dimanche
 
 **Protagoniste** : Jean, 68 ans, conjoint de Marie, peu à l’aise avec le téléphone mais motivé.
 
-1. Ouvre Proche+ → voit **une** carte claire : « Aujourd’hui : mode visite » (+ transmission non lue si besoin).
+1. Ouvre Proche+ → voit **une** carte claire : « Aujourd’hui : mode visite » (+ transmission non lue si besoin) **et** un accès visible « Gérer mes proches ».
 2. Lit la transmission (sections) → confirme compréhension (clair / doute).
 3. Lance **Mode visite** → **choisit un thème** (ex. Fauteuil) parmi la liste — même s’il n’y a qu’un thème disponible, le choix reste explicite.
 4. Voit l’exercice adapté (objectif, étapes au tutoiement, peut / ne doit pas) — ou un message « pas encore activé, parlez-en à l’équipe » si le pro n’a rien activé pour ce thème.

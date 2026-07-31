@@ -40,9 +40,9 @@ export default async function OnboardingPage() {
 
   return (
     <OnboardingClient
-      needsCreate={!hasPatients}
-      patientId={primary?.id ?? null}
-      patientFirstName={primary?.firstName ?? null}
+      existingPatientId={primary?.id ?? null}
+      existingFirstName={primary?.firstName ?? null}
+      existingLastName={primary?.lastName ?? null}
     />
   );
 }

@@ -99,6 +99,16 @@ export default async function AidantHomePage() {
           </Card>
         )}
 
+        <Card className="border-teal/20 bg-white">
+          <SectionTitle>Mes proches</SectionTitle>
+          <p className="mt-2 text-sm text-text-muted">
+            Ajouter, modifier ou supprimer la personne que vous accompagnez.
+          </p>
+          <ButtonLink href="/aidant/proches" className="mt-4" fullWidth>
+            Gérer mes proches
+          </ButtonLink>
+        </Card>
+
         <div className="grid gap-4">
           <ButtonLink href="/aidant/mode-visite" size="lg" fullWidth>
             Mode visite
@@ -113,9 +123,6 @@ export default async function AidantHomePage() {
             fullWidth
           >
             Dernière transmission
-          </ButtonLink>
-          <ButtonLink href="/aidant/proches" variant="ghost" fullWidth>
-            Mes proches
           </ButtonLink>
           <ButtonLink href="/aidant/question" variant="ghost" fullWidth>
             J&apos;ai une question
