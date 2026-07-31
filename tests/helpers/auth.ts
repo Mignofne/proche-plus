@@ -11,6 +11,11 @@ export const DEMO = {
     password: "demo1234",
     home: "/pro",
   },
+  fondateur: {
+    email: "fondateur@procheplus.demo",
+    password: "demo1234",
+    home: "/admin-produit",
+  },
 } as const;
 
 export async function loginApi(

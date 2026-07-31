@@ -17,6 +17,24 @@ test.describe("Aidant happy path", () => {
 
     await page.getByRole("link", { name: "Mode visite" }).click();
     await expect(page).toHaveURL(/\/aidant\/mode-visite/);
+    // Choix de thème obligatoire (tous les thèmes du catalogue)
+    await expect(
+      page.getByRole("heading", {
+        name: /Que souhaitez-vous travailler aujourd/i,
+      })
+    ).toBeVisible();
+    await page.getByRole("button", { name: /Fauteuil/i }).click();
+    await expect(
+      page.getByRole("heading", { name: /demi-tour/i })
+    ).toBeVisible();
+    await expect(
+      page.getByText(/aide l.équipe à adapter la prochaine visite/i)
+    ).toBeVisible();
+    // Référentiel complet : d'autres thèmes niveau C doivent être prêts
+    await page.getByRole("button", { name: /Changer de thème/i }).click();
+    await expect(
+      page.getByRole("button", { name: /S'habiller/i })
+    ).toContainText(/Exercice prêt/i);
 
     await page.goto("/aidant/question");
     await expect(page).toHaveURL(/\/aidant\/question/);

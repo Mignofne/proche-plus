@@ -17,6 +17,7 @@ import {
   STATUS_LABELS,
 } from "@/lib/constants";
 import { CaregiverManager } from "../CaregiverManager";
+import { ExerciseManager } from "../ExerciseManager";
 
 export default async function PatientDetailPage({
   params,
@@ -44,6 +45,18 @@ export default async function PatientDetailPage({
         include: { caregiver: { include: { user: true } } },
       },
       objectives: { where: { isCurrent: true } },
+      patientExercises: {
+        where: { isCurrent: true },
+        include: {
+          exercise: {
+            include: { theme: true, autonomyScale: true },
+          },
+        },
+      },
+      professionalAlerts: {
+        where: { status: "ouverte" },
+        orderBy: { createdAt: "desc" },
+      },
       visits: {
         orderBy: { date: "desc" },
         take: 5,
@@ -68,6 +81,16 @@ export default async function PatientDetailPage({
     },
   });
   if (!patient) notFound();
+
+  const catalog = await prisma.exercise.findMany({
+    where: { status: "publie" },
+    include: { theme: true, autonomyScale: true },
+    orderBy: [
+      { theme: { displayOrder: "asc" } },
+      { autonomyScale: { displayOrder: "asc" } },
+      { tier: "asc" },
+    ],
+  });
 
   const objective = patient.objectives[0];
   const latest = patient.visits.find((v) => v.transmission)?.transmission;
@@ -220,6 +243,33 @@ export default async function PatientDetailPage({
             )}
           </Card>
         )}
+
+        <ExerciseManager
+          patientId={patient.id}
+          catalog={catalog.map((ex) => ({
+            id: ex.id,
+            name: ex.name,
+            themeLabel: ex.theme.label,
+            levelCode: ex.autonomyScale.code,
+            tier: ex.tier,
+          }))}
+          current={patient.patientExercises.map((pe) => ({
+            id: pe.id,
+            exerciseId: pe.exerciseId,
+            name: pe.exercise.name,
+            themeLabel: pe.exercise.theme.label,
+            levelCode: pe.exercise.autonomyScale.code,
+            tier: pe.exercise.tier,
+            status: pe.currentStatus,
+          }))}
+          alerts={patient.professionalAlerts.map((a) => ({
+            id: a.id,
+            message: a.message,
+            type: a.type,
+            nextExerciseId: a.nextExerciseId,
+            createdAt: a.createdAt.toISOString(),
+          }))}
+        />
 
         <CaregiverManager patientId={patient.id} links={patient.caregivers} />
 

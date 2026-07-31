@@ -111,6 +111,9 @@ Comptes démo créés :
 Chaque push sur `main` déclenche un redéploiement automatique via l'intégration GitHub → Vercel.
 
 `prisma db push` s'exécute à chaque build (`vercel-build`) pour synchroniser le schéma.
+`prisma/ensure-catalog.ts` remplit le catalogue thèmes/exercices **s'il est vide** (sans écraser les patients).
+
+Le seed complet (`npm run db:seed`) reste manuel et **réinitialise** les comptes démo.
 
 ---
 

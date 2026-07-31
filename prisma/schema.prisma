@@ -120,6 +120,41 @@ enum AutonomyAlertAudience {
   aidant
 }
 
+enum ExercisePublicationStatus {
+  brouillon
+  publie
+  archive
+}
+
+enum PatientExerciseStatus {
+  propose
+  actif
+  en_cours
+  reussi
+  essai
+  echec
+  acquis
+}
+
+enum ExerciseAttemptOutcome {
+  reussi
+  essai
+  echec
+}
+
+enum ProfessionalAlertType {
+  level_change_proposed
+  regression_suspected
+  no_fallback
+}
+
+enum ProfessionalAlertStatus {
+  ouverte
+  traitee
+  ignoree
+}
+}
+
 // --- Models ---
 
 model Establishment {
@@ -158,6 +193,8 @@ model Professional {
   transmissions   Transmission[]
   questions       Question[]       @relation("QuestionProfessional")
   clinicalNotes   ClinicalNote[]
+  activatedExercises PatientExercise[]
+  treatedAlerts   ProfessionalAlert[] @relation("AlertTreatedBy")
 }
 
 model Caregiver {
@@ -172,23 +209,25 @@ model Caregiver {
 }
 
 model Patient {
-  id                      String               @id @default(cuid())
-  firstName               String
-  lastName                String
-  autonomyLevel           AutonomyLevel        @default(semi_autonome_faible)
-  autonomyLevelStatus     AutonomyLevelStatus?
-  autonomyLevelSource     AutonomyLevelSource?
-  autonomyLevelSetAt      DateTime?
+  id                       String                 @id @default(cuid())
+  firstName                String
+  lastName                 String
+  autonomyLevel            AutonomyLevel          @default(semi_autonome_faible)
+  autonomyLevelStatus      AutonomyLevelStatus?
+  autonomyLevelSource      AutonomyLevelSource?
+  autonomyLevelSetAt       DateTime?
   autonomyLevelReviewDueAt DateTime?
-  girLevel                Int?
-  establishmentId         String
-  establishment           Establishment        @relation(fields: [establishmentId], references: [id])
-  caregivers              PatientCaregiver[]
-  objectives              EducationalObjective[]
-  visits                  Visit[]
-  autonomyHistory         AutonomyLevelHistory[]
-  autonomyAlerts          AutonomyAlert[]
-  createdAt               DateTime             @default(now())
+  girLevel                 Int?
+  establishmentId          String
+  establishment            Establishment         @relation(fields: [establishmentId], references: [id])
+  caregivers               PatientCaregiver[]
+  objectives               EducationalObjective[]
+  visits                   Visit[]
+  autonomyHistory          AutonomyLevelHistory[]
+  autonomyAlerts           AutonomyAlert[]
+  patientExercises         PatientExercise[]
+  professionalAlerts       ProfessionalAlert[]
+  createdAt                DateTime               @default(now())
 }
 
 model AutonomyLevelHistory {
@@ -213,7 +252,6 @@ model AutonomyAlert {
   createdAt     DateTime              @default(now())
   resolvedAt    DateTime?
 }
-
 model PatientCaregiver {
   id          String    @id @default(cuid())
   patientId   String
@@ -354,4 +392,117 @@ model AuditLog {
   entity    String
   entityId  String?
   createdAt DateTime @default(now())
+}
+
+// --- Catalogue exercices (specs §10–12) ---
+
+model Theme {
+  id           String     @id @default(cuid())
+  slug         String     @unique
+  label        String
+  icon         String?
+  displayOrder Int        @default(0)
+  active       Boolean    @default(true)
+  exercises    Exercise[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+/// Échelle A–E administrable (distincte de l'enum Patient.autonomyLevel)
+model AutonomyScale {
+  id           String        @id @default(cuid())
+  code         String        @unique
+  label        String
+  patientEnum  AutonomyLevel
+  displayOrder Int           @default(0)
+  active       Boolean       @default(true)
+  exercises    Exercise[]
+}
+
+model Exercise {
+  id                   String                    @id @default(cuid())
+  themeId              String
+  theme                Theme                     @relation(fields: [themeId], references: [id])
+  autonomyScaleId      String
+  autonomyScale        AutonomyScale             @relation(fields: [autonomyScaleId], references: [id])
+  tier                 Int                       @default(1)
+  name                 String
+  objective            String
+  /// JSON string[] — étapes / guidance verbale
+  steps                String
+  /// JSON string[]
+  caregiverCan         String
+  /// JSON string[]
+  caregiverMustNot     String
+  estimatedDuration    String?
+  risks                String?
+  onSuccessExerciseId  String?
+  onSuccessExercise    Exercise?                 @relation("ExerciseOnSuccess", fields: [onSuccessExerciseId], references: [id])
+  successFrom          Exercise[]                @relation("ExerciseOnSuccess")
+  onPartialExerciseId  String?
+  onPartialExercise    Exercise?                 @relation("ExerciseOnPartial", fields: [onPartialExerciseId], references: [id])
+  partialFrom          Exercise[]                @relation("ExerciseOnPartial")
+  onFailureExerciseId  String?
+  onFailureExercise    Exercise?                 @relation("ExerciseOnFailure", fields: [onFailureExerciseId], references: [id])
+  failureFrom          Exercise[]                @relation("ExerciseOnFailure")
+  crossesAutonomyLevel Boolean                   @default(false)
+  alertOnFailure       Boolean                   @default(false)
+  status               ExercisePublicationStatus @default(brouillon)
+  version              Int                       @default(1)
+  validatedBy          String?
+  validatedAt          DateTime?
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+  patientExercises     PatientExercise[]
+  alerts               ProfessionalAlert[]
+
+  @@index([themeId, status])
+  @@index([autonomyScaleId])
+}
+
+model PatientExercise {
+  id            String                @id @default(cuid())
+  patientId     String
+  patient       Patient               @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  exerciseId    String
+  exercise      Exercise              @relation(fields: [exerciseId], references: [id])
+  currentStatus PatientExerciseStatus @default(propose)
+  activatedById String?
+  activatedBy   Professional?         @relation(fields: [activatedById], references: [id])
+  activatedAt   DateTime?
+  /// Contenu courant pour ce thème (un seul true par patient×thème côté app)
+  isCurrent     Boolean               @default(false)
+  history       ExerciseAttempt[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([patientId, isCurrent])
+  @@unique([patientId, exerciseId])
+}
+
+model ExerciseAttempt {
+  id                String                 @id @default(cuid())
+  patientExerciseId String
+  patientExercise   PatientExercise        @relation(fields: [patientExerciseId], references: [id], onDelete: Cascade)
+  outcome           ExerciseAttemptOutcome
+  note              String?
+  createdAt         DateTime               @default(now())
+}
+
+model ProfessionalAlert {
+  id             String                  @id @default(cuid())
+  type           ProfessionalAlertType
+  status         ProfessionalAlertStatus @default(ouverte)
+  patientId      String
+  patient        Patient                 @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  exerciseId     String?
+  exercise       Exercise?               @relation(fields: [exerciseId], references: [id])
+  nextExerciseId String?
+  message        String
+  treatedById    String?
+  treatedBy      Professional?           @relation("AlertTreatedBy", fields: [treatedById], references: [id])
+  createdAt      DateTime                @default(now())
+  treatedAt      DateTime?
+
+  @@index([patientId, status])
 }

@@ -12,9 +12,33 @@ import {
   VISIT_MODE_STEPS,
 } from "@/lib/constants";
 import { getMicrocopy } from "@/lib/microcopy";
-import { submitCaregiverVisitAction } from "@/app/aidant/actions";
+import {
+  submitCaregiverVisitAction,
+  submitExerciseOutcome,
+} from "@/app/aidant/actions";
 
-type VisitData = {
+type ThemeOption = {
+  id: string;
+  label: string;
+  icon: string | null;
+  hasExercise?: boolean;
+};
+
+type ExerciseView = {
+  patientExerciseId: string;
+  name: string;
+  objective: string;
+  steps: string[];
+  caregiverCan: string[];
+  caregiverMustNot: string[];
+  estimatedDuration: string | null;
+  themeLabel: string;
+  levelLabel: string;
+  tier: number;
+};
+
+type LegacyVisitData = {
+  mode: "legacy";
   transmissionId: string;
   patientName: string;
   autonomyLevel: string;
@@ -25,7 +49,246 @@ type VisitData = {
   aEviter: string[];
 };
 
-export function ModeVisiteClient({ data }: { data: VisitData }) {
+type ExerciseVisitData = {
+  mode: "exercise";
+  transmissionId: string | null;
+  patientName: string;
+  autonomyLevel: string;
+  themes: ThemeOption[];
+  exercisesByTheme: Record<string, ExerciseView | null>;
+  readyThemeLabels?: string[];
+};
+
+export type VisitClientData = LegacyVisitData | ExerciseVisitData;
+
+export function ModeVisiteClient({ data }: { data: VisitClientData }) {
+  if (data.mode === "exercise") {
+    return <ExerciseModeVisite data={data} />;
+  }
+  return <LegacyModeVisite data={data} />;
+}
+
+function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
+  const router = useRouter();
+  // Toujours laisser l'aidant choisir le thème (même s'il n'y en a qu'un)
+  const [themeId, setThemeId] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [done, setDone] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+
+  const exercise = themeId ? data.exercisesByTheme[themeId] : null;
+
+  function record(outcome: "reussi" | "essai" | "echec") {
+    if (!exercise) return;
+    startTransition(async () => {
+      const result = await submitExerciseOutcome({
+        patientExerciseId: exercise.patientExerciseId,
+        outcome,
+        note: note.trim() || undefined,
+        transmissionId: data.transmissionId,
+      });
+      setDone(result.message);
+    });
+  }
+
+  if (done) {
+    return (
+      <div className="mx-auto min-h-dvh max-w-lg bg-cream">
+        <AppHeader title="Visite terminée" backHref="/aidant" />
+        <main className="flex flex-col items-center gap-6 p-6 text-center">
+          <Mascot pose="celebrate" />
+          <p className="text-lg font-medium">{done}</p>
+          <Button onClick={() => router.push("/aidant")} fullWidth>
+            Retour à l&apos;accueil
+          </Button>
+        </main>
+      </div>
+    );
+  }
+
+  if (!themeId) {
+    return (
+      <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
+        <AppHeader title="Mode visite" backHref="/aidant" />
+        <main className="flex flex-col gap-4 p-4">
+          <div className="flex items-center gap-3">
+            <Mascot pose="welcome" size="sm" />
+            <div>
+              <h2 className="text-lg font-bold">
+                Que souhaitez-vous travailler aujourd&apos;hui ?
+              </h2>
+              <p className="text-sm text-text-muted">
+                Pour {data.patientName} · {AUTONOMY_LABELS[data.autonomyLevel]}
+              </p>
+            </div>
+          </div>
+          <p className="text-sm text-text-muted">
+            Les thèmes avec « Exercice prêt » sont utilisables tout de suite.
+            Les autres n&apos;ont pas encore de contenu pour ce niveau
+            d&apos;autonomie.
+          </p>
+          <div className="flex flex-col gap-3">
+            {data.themes.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setThemeId(t.id)}
+                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors ${
+                  t.hasExercise
+                    ? "border-teal/40 bg-teal/5 hover:border-teal"
+                    : "border-cream-dark bg-white hover:border-teal/30"
+                }`}
+              >
+                <span className="text-2xl" aria-hidden>
+                  {t.icon ?? "•"}
+                </span>
+                <span className="flex-1">
+                  <span className="block text-lg font-semibold">{t.label}</span>
+                  <span
+                    className={`mt-0.5 block text-sm ${
+                      t.hasExercise ? "font-medium text-teal-dark" : "text-text-muted"
+                    }`}
+                  >
+                    {t.hasExercise
+                      ? "Exercice prêt pour cette visite"
+                      : "Pas encore de contenu pour ce niveau"}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!exercise) {
+    const ready = data.readyThemeLabels?.filter(Boolean) ?? [];
+    return (
+      <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
+        <AppHeader title="Mode visite" backHref="/aidant" />
+        <main className="flex flex-col gap-4 p-4">
+          <Card>
+            <SectionTitle>Pas encore d&apos;exercice pour ce thème</SectionTitle>
+            <p className="mt-3 leading-relaxed">
+              Pour le niveau d&apos;autonomie de votre proche, aucun exercice
+              n&apos;est encore disponible sur ce thème (ou l&apos;équipe ne
+              l&apos;a pas activé).
+            </p>
+            {ready.length > 0 && (
+              <p className="mt-3 rounded-xl bg-teal/10 p-3 text-sm text-teal-dark">
+                Exercice(s) prêt(s) pour cette visite :{" "}
+                <strong>{ready.join(", ")}</strong>
+              </p>
+            )}
+          </Card>
+          <Button variant="ghost" onClick={() => setThemeId(null)} fullWidth>
+            ← Choisir un autre thème
+          </Button>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
+      <AppHeader title="Mode visite" backHref="/aidant" />
+      <main className="flex flex-col gap-4 p-4">
+        <button
+          type="button"
+          onClick={() => setThemeId(null)}
+          className="text-left text-sm text-teal"
+        >
+          ← Changer de thème
+        </button>
+
+        <div className="flex items-center gap-3">
+          <Mascot pose="encourage" size="sm" />
+          <div>
+            <p className="text-sm text-teal font-medium">
+              {exercise.themeLabel} · Niveau {exercise.levelLabel} · Palier{" "}
+              {exercise.tier}
+            </p>
+            <h2 className="text-xl font-bold leading-snug">{exercise.name}</h2>
+          </div>
+        </div>
+
+        <Card>
+          <SectionTitle>Objectif</SectionTitle>
+          <p className="mt-2 text-lg leading-snug">{exercise.objective}</p>
+          {exercise.estimatedDuration && (
+            <p className="mt-3 text-sm text-text-muted">
+              Durée indicative : {exercise.estimatedDuration}
+            </p>
+          )}
+        </Card>
+
+        <Card>
+          <SectionTitle>Étapes / guidance verbale</SectionTitle>
+          <ol className="mt-3 list-decimal space-y-3 pl-5 text-base leading-relaxed">
+            {exercise.steps.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ol>
+        </Card>
+
+        <Card>
+          <SectionTitle>Ce que vous pouvez faire</SectionTitle>
+          <ul className="mt-3 list-inside list-disc space-y-2">
+            {exercise.caregiverCan.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        </Card>
+
+        <Card className="border-terracotta/30">
+          <SectionTitle>Ce que vous ne devez pas faire</SectionTitle>
+          <ul className="mt-3 list-inside list-disc space-y-2">
+            {exercise.caregiverMustNot.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        </Card>
+
+        <div>
+          <SectionTitle>Comment ça s&apos;est passé avec votre proche ?</SectionTitle>
+          <p className="mt-1 text-sm text-text-muted">
+            Votre réponse aide l&apos;équipe à adapter la prochaine visite.
+          </p>
+        </div>
+        <div className="flex flex-col gap-3">
+          <Button onClick={() => record("reussi")} disabled={pending} fullWidth>
+            Réussi
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => record("essai")}
+            disabled={pending}
+            fullWidth
+          >
+            Essai, avec difficulté
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => record("echec")}
+            disabled={pending}
+            fullWidth
+          >
+            Échec
+          </Button>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Précision facultative…"
+            className="min-h-24 rounded-xl border border-cream-dark bg-white p-4"
+          />
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function LegacyModeVisite({ data }: { data: LegacyVisitData }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [note, setNote] = useState("");
@@ -56,10 +319,6 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
           <Mascot pose="celebrate" />
           <p className="text-lg font-medium">
             C&apos;est noté — le professionnel en sera informé.
-          </p>
-          <p className="text-sm text-text-muted">
-            Un retour facultatif pourra vous être proposé plus tard. Aucune
-            obligation.
           </p>
           <Button onClick={() => router.push("/aidant")} fullWidth>
             Retour à l&apos;accueil
@@ -118,9 +377,6 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
             <p className="mt-2 text-lg font-semibold leading-snug">
               {data.nextStep ?? "Participer à la réadaptation"}
             </p>
-            <p className="mt-4 text-sm font-semibold text-teal-dark">
-              En pratique, concrètement :
-            </p>
             <ol className="mt-3 list-decimal space-y-3 pl-5 text-base leading-relaxed">
               {data.instructionSteps.map((line, i) => (
                 <li key={i}>{line}</li>
@@ -143,9 +399,6 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
                 <li key={i}>{text}</li>
               ))}
             </ul>
-            <p className="mt-4 rounded-xl bg-teal/10 p-3 text-sm font-medium text-teal-dark">
-              {getMicrocopy("notDoingForThem")}
-            </p>
           </Card>
         )}
 
@@ -166,13 +419,12 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
         {current.id === "agir" && (
           <div className="flex flex-col gap-3">
             <p className="text-lg font-medium">{current.hint}</p>
+            <p className="text-sm text-text-muted">
+              Choisissez ce qui correspond le mieux — ce n&apos;est pas un
+              examen, juste un retour pour l&apos;équipe.
+            </p>
             {(
-              [
-                "realise_succes",
-                "essaye",
-                "doute",
-                "aide",
-              ] as const
+              ["realise_succes", "essaye", "doute", "aide"] as const
             ).map((type) => (
               <Button
                 key={type}
@@ -210,15 +462,6 @@ export function ModeVisiteClient({ data }: { data: VisitData }) {
           <Button variant="ghost" onClick={() => setStep((s) => s - 1)} fullWidth>
             ← Revoir l&apos;étape précédente
           </Button>
-        )}
-        {step > 0 && (
-          <button
-            type="button"
-            onClick={() => setStep(0)}
-            className="touch-target text-center text-sm text-teal"
-          >
-            Revoir depuis le début
-          </button>
         )}
       </main>
     </div>

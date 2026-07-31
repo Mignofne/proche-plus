@@ -1,0 +1,113 @@
+Thème,Niveau autonomie,Libellé niveau,Nom de l'exercice,Objectif de l'exercice,Détail / étapes (guidance verbale),Ce que l'aidant peut faire,Ce que l'aidant ne doit pas faire,Durée indicative,Risques / contre-indications,Statut,Validé par (expert),Date validation,Commentaires expert
+S'habiller,A,Autonome,"S'habiller seul debout, boutonnage complet",Maintenir l'autonomie complète de l'habillage debout.,"1. ""Installe-toi devant ton armoire.""
+2. ""Choisis tes vêtements.""
+3. ""Habille-toi à ton rythme, je reste disponible si besoin.""","Proposer un choix de vêtements simple, rester disponible sans intervenir.","Choisir les vêtements à sa place, presser le rythme.",10 minutes,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+S'habiller,B,"Semi-autonome, aide technique, risque faible à modéré",Enfiler son gilet en position assise,Que votre proche enfile seul son gilet en gérant son équilibre assis.,"1. ""Pose le gilet sur tes genoux, l'intérieur vers toi.""
+2. ""Passe d'abord le bras du côté le plus difficile.""
+3. ""Prends ton temps pour ramener l'autre pan derrière toi.""","Présenter le vêtement dans le bon sens, encourager verbalement.",Habiller votre proche à sa place par souci de rapidité.,3 minutes,Vérifier la stabilité assise avant de commencer si risque de bascule.,En revue,,,
+S'habiller,C,"Semi-autonome, aide humaine à proximité, risque élevé",Enfiler un pantalon assis avec soutien du buste,Participer à l'habillage du bas du corps en position assise sécurisée.,"1. ""Assieds-toi bien au fond du fauteuil.""
+2. ""Passe un pied puis l'autre dans le pantalon.""
+3. ""Appuie-toi sur l'accoudoir pour remonter le vêtement.""","Stabiliser le buste, tendre le vêtement dans le bon sens.",Réaliser seul le geste de bascule/lever sans supervision.,5 minutes,"Risque de bascule en avant, rester à portée immédiate.",Brouillon IA — à valider par l'expert APA,,,
+S'habiller,D,Dépendant pour les transferts,Participer en tendant le bras pour une manche,Conserver un geste actif malgré la dépendance pour les transferts.,"1. ""Je vais passer la manche, tends ton bras vers moi.""
+2. ""Essaie de refermer les doigts sur le tissu.""
+3. ""Aide-moi à ajuster l'épaule.""","Réaliser le geste principal, solliciter la participation active de votre proche.",Forcer un mouvement d'épaule douloureux.,5 minutes,Vérifier l'absence de douleur articulaire avant de solliciter le bras.,Brouillon IA — à valider par l'expert APA,,,
+S'habiller,E,Grabataire / alité,Participer par un geste simple pendant l'habillage au lit,"Maintenir un lien actif minime pendant les soins, même alité.","1. ""Je vais glisser ce vêtement, essaie de tourner légèrement la tête vers moi.""
+2. ""Serre ma main si tu veux que je continue.""",Solliciter un petit geste ou un contact visuel/verbal.,Mobiliser seul un membre sans les gestes appris avec l'équipe.,Selon le soin,Aucune mobilisation active sans validation de l'équipe soignante.,Brouillon IA — à valider par l'expert APA,,,
+Manger,A,Autonome,"Repas complet en autonomie, service à table",Maintenir l'autonomie complète du repas.,"1. ""Installe-toi à table.""
+2. ""Sers-toi comme tu veux.""
+3. ""Prends ton temps, je suis à côté si besoin.""","Proposer le plat, discuter pendant le repas.",Couper les aliments à sa place.,Durée du repas,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Manger,B,"Semi-autonome, aide technique, risque faible à modéré",Couper ses aliments avec un couvert adapté,Réaliser seul le geste de couper avec un appui technique.,"1. ""Prends ta fourchette d'une main, ton couteau adapté de l'autre.""
+2. ""Stabilise l'assiette si besoin.""
+3. ""Coupe un petit morceau à la fois.""","Stabiliser l'assiette, proposer le couvert adapté.",Couper systématiquement à sa place.,Durée du repas,Aucun particulier si couvert adapté validé par l'ergothérapeute.,Brouillon IA — à valider par l'expert APA,,,
+Manger,C,"Semi-autonome, aide humaine à proximité, risque élevé",Porter les aliments à la bouche avec supervision,Réaliser le geste principal du repas sous supervision rapprochée.,"1. ""Prends ta cuillère.""
+2. ""Vas-y doucement, je reste à côté.""
+3. ""Repose la cuillère entre chaque bouchée si besoin.""","Rester à proximité, intervenir en cas de fausse route.",Nourrir systématiquement à sa place sans laisser essayer.,Durée du repas,Vérifier les consignes de texture/déglutition avec l'équipe avant le repas.,Brouillon IA — à valider par l'expert APA,,,
+Manger,D,Dépendant pour les transferts,Porter la cuillère seul avec appui du poignet,Conserver le geste du repas malgré une dépendance pour les déplacements.,"1. ""Installe-toi bien en face de l'assiette.""
+2. ""Prends la cuillère, je reste juste à côté.""
+3. ""Prends ton temps.""","Stabiliser le plat si besoin, ne pas presser le rythme.",Faire manger votre proche systématiquement à sa place.,Durée du repas,Surveiller d'éventuels troubles de déglutition (à valider avec l'équipe).,En revue,,,
+Manger,E,Grabataire / alité,Participer activement pendant l'aide au repas,"Maintenir une participation active (mastication, rythme) malgré une aide complète pour porter les aliments.","1. ""Je vais te présenter la cuillère, ouvre la bouche quand tu es prêt.""
+2. ""Prends ton temps pour mâcher.""
+3. ""Dis-moi si tu veux une pause.""","Respecter le rythme, vérifier la position de la tête.",Presser le rythme ou redonner une bouchée avant que la précédente soit avalée.,Durée du repas,"Respecter strictement les consignes de texture et de position (risque de fausse route), validées par l'équipe.",Brouillon IA — à valider par l'expert APA,,,
+Se déplacer,A,Autonome,Marche autonome avec parcours varié,Maintenir la marche autonome sur un trajet plus long ou varié.,"1. ""Choisis ton trajet.""
+2. ""Marche à ton rythme.""
+3. ""Préviens-moi si tu as besoin d'une pause.""","Accompagner à distance, proposer un trajet.",Presser le pas ou tenir le bras en continu si non nécessaire.,10-15 minutes,"Aucun particulier, rester attentif à la fatigue.",Brouillon IA — à valider par l'expert APA,,,
+Se déplacer,B,"Semi-autonome, aide technique, risque faible à modéré",Marche accompagnée avec aide technique (canne / déambulateur),Que votre proche marche avec son aide technique en autonomie relative.,"1. ""Vérifie que ta canne/déambulateur est bien réglé.""
+2. ""Avance l'aide technique, puis fais un pas.""
+3. ""Regarde devant toi, pas tes pieds.""","Marcher à côté sans soutenir le bras, surveiller le sol.",Retirer l'aide technique ou porter le poids de votre proche.,5-10 minutes,"Vérifier l'absence d'obstacles au sol (tapis, câbles).",Brouillon IA — à valider par l'expert APA,,,
+Se déplacer,C,"Semi-autonome, aide humaine à proximité, risque élevé","Franchir un seuil de porte en marchant, aide humaine proche",Que votre proche franchisse un obstacle simple avec supervision rapprochée.,"1. ""Arrête-toi devant le seuil.""
+2. ""Lève bien le pied.""
+3. ""Prends ton temps pour le deuxième pas.""","Se tenir à portée de bras, guider verbalement.",Laisser votre proche seul face à l'obstacle.,5 minutes,"Risque de chute au niveau du seuil, présence humaine obligatoire.",Brouillon IA — à valider par l'expert APA,,,
+Se déplacer,D,Dépendant pour les transferts,Quelques pas avec transfert assisté au préalable,Conserver un temps de marche minimal malgré la dépendance pour les transferts.,"1. ""Je t'aide à te mettre debout.""
+2. ""Fais un pas quand tu es prêt.""
+3. ""On s'arrête dès que tu es fatigué.""","Réaliser le transfert selon la technique enseignée, rester en soutien constant.",Tenter un transfert ou une marche sans avoir appris le geste avec l'équipe.,2-3 minutes,"Ne jamais réaliser seul, toujours en présence d'un professionnel formé si transfert non maîtrisé.",Brouillon IA — à valider par l'expert APA,,,
+Se déplacer,E,Grabataire / alité,,,,,,,,Non pertinent,,,"Patient alité : la marche n'est pas applicable à ce niveau. Voir le thème ""Mobilité au lit"" pour les mobilisations adaptées."
+Fauteuil,A,Autonome,"Déplacement autonome en fauteuil, sur de plus longs trajets",Maintenir une propulsion autonome sur un trajet varié.,"1. ""Regarde où tu veux aller.""
+2. ""Propulse à ton rythme.""
+3. ""Préviens-moi si tu as besoin d'aide.""","Rester en simple observation, intervenir si sollicité.",Pousser le fauteuil sans que votre proche le demande.,10 minutes,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Fauteuil,B,"Semi-autonome, aide technique, risque faible à modéré","Propulsion autonome sur trajet court, aidant à distance",Que votre proche propulse seul son fauteuil sur un trajet court.,"1. ""Pose tes mains en haut des roues.""
+2. ""Pousse les deux mains ensemble vers l'avant.""
+3. ""Lâche la roue en fin de geste.""","Rester à distance, encourager verbalement.",Pousser le fauteuil à sa place.,5 minutes,"Vérifier le sol (pas de tapis épais, obstacles).",Brouillon IA — à valider par l'expert APA,,,
+Fauteuil,C,"Semi-autonome, aide humaine à proximité, risque élevé",Faire un demi-tour en fauteuil,Que votre proche réalise seul un changement de direction en sécurité.,"1. ""Regarde où tu veux aller.""
+2. ""Bloque la roue droite avec ta main droite.""
+3. ""Pousse uniquement sur la roue gauche.""
+4. ""Vérifie que le passage est libre avant de continuer.""","Rester à côté, rappeler la consigne si hésitation.",Pousser le fauteuil à la place de votre proche.,5 minutes,Vérifier le verrouillage des roues avant le geste.,En revue,,,
+Fauteuil,D,Dépendant pour les transferts,Participer au transfert avec assistance complète,Participer activement au transfert malgré une dépendance.,"1. ""Je vais te guider, pousse sur tes jambes quand je te le dis.""
+2. ""Prends appui sur l'accoudoir.""
+3. ""On y va ensemble, à trois temps.""",Réaliser le transfert selon la technique enseignée avec le professionnel.,Réaliser seul un transfert non maîtrisé.,5 minutes,"Toujours suivre la technique validée par l'équipe, risque de chute élevé sinon.",Brouillon IA — à valider par l'expert APA,,,
+Fauteuil,E,Grabataire / alité,"Mobilisation passive des membres en fauteuil roulant, aidé",Maintenir une mobilité passive minimale en position fauteuil/lit.,"1. ""Je vais bouger doucement ta jambe, dis-moi si ça tire.""
+2. ""On fait de petits mouvements, sans forcer.""",Réaliser les mobilisations douces apprises avec l'équipe.,Forcer une amplitude non validée par le kinésithérapeute.,5-10 minutes,Respecter strictement l'amplitude et la fréquence validées par le professionnel.,Brouillon IA — à valider par l'expert APA,,,
+Toilette / hygiène,A,Autonome,Toilette complète autonome au lavabo,Maintenir l'autonomie complète pour la toilette du visage et des mains.,"1. ""Installe-toi devant le lavabo.""
+2. ""Fais couler l'eau à la bonne température.""
+3. ""Lave-toi à ton rythme.""","Préparer le nécessaire de toilette, rester disponible.",Réaliser le geste à sa place.,10 minutes,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Toilette / hygiène,B,"Semi-autonome, aide technique, risque faible à modéré","Se laver le visage et les mains assis, avec appui technique","Que votre proche réalise sa toilette du haut du corps assis, avec aide technique.","1. ""Assieds-toi bien stable.""
+2. ""Prends le gant, mouille-le.""
+3. ""Lave ton visage puis tes mains.""","Préparer l'eau et le gant, rester à proximité.",Réaliser le geste à sa place si votre proche peut le faire seul.,5-10 minutes,Vérifier la stabilité assise.,Brouillon IA — à valider par l'expert APA,,,
+Toilette / hygiène,C,"Semi-autonome, aide humaine à proximité, risque élevé",Se laver le visage avec supervision rapprochée,Que votre proche réalise le geste avec une supervision de sécurité constante.,"1. ""Prends le gant humide.""
+2. ""Passe-le sur ton visage doucement.""
+3. ""Dis-moi si tu as besoin d'aide.""","Rester à portée de bras, stabiliser si besoin.",Laisser votre proche seul pendant le geste.,5 minutes,"Risque de perte d'équilibre assis, présence continue nécessaire.",Brouillon IA — à valider par l'expert APA,,,
+Toilette / hygiène,D,Dépendant pour les transferts,Participer par un geste simple pendant la toilette assistée,Conserver un geste actif pendant une toilette majoritairement assistée.,"1. ""Je vais laver ton dos, peux-tu tenir le gant pour ton visage ?""
+2. ""Essaie de frotter doucement.""",Solliciter la participation pour les gestes simples restants.,Solliciter un geste nécessitant un équilibre non maîtrisé.,Selon le soin,Suivre les consignes de l'équipe pour les zones à ne pas mobiliser.,Brouillon IA — à valider par l'expert APA,,,
+Toilette / hygiène,E,Grabataire / alité,Participer par un contact et une communication pendant la toilette au lit,Maintenir un lien actif et un confort pendant la toilette réalisée au lit.,"1. ""Je vais commencer par tes mains, dis-moi si l'eau est trop fraîche ou trop chaude.""
+2. ""Je continue doucement.""","Accompagner verbalement, vérifier le confort et la température.",Réaliser seul un soin d'hygiène complexe sans formation de l'équipe.,Selon le soin,Respecter le protocole d'hygiène de l'établissement.,Brouillon IA — à valider par l'expert APA,,,
+Mobilité au lit,A,Autonome,,,,,,,,Non pertinent,,,"Patient autonome, non confiné au lit : voir les thèmes ""Se déplacer"" ou ""Fauteuil"" selon la situation."
+Mobilité au lit,B,"Semi-autonome, aide technique, risque faible à modéré",Se retourner dans le lit avec appui du drap ou de la barrière,"Que votre proche se retourne seul en utilisant un appui technique (barrière, drap tendu).","1. ""Attrape la barrière avec ta main.""
+2. ""Plie tes genoux.""
+3. ""Tourne doucement en tirant sur la barrière.""","Proposer l'appui technique, encourager verbalement.",Tirer votre proche à sa place.,2-3 minutes,Vérifier que la barrière est bien fixée.,Brouillon IA — à valider par l'expert APA,,,
+Mobilité au lit,C,"Semi-autonome, aide humaine à proximité, risque élevé","Se redresser en position assise au bord du lit, aide à proximité","Que votre proche se redresse seul jusqu'à la position assise, sous supervision rapprochée.","1. ""Tourne-toi sur le côté.""
+2. ""Pousse sur ton bras pour te redresser.""
+3. ""Laisse tes jambes glisser hors du lit.""","Rester à portée de bras, stabiliser le buste si besoin.",Laisser votre proche seul pendant le geste.,3 minutes,"Risque de chute au bord du lit, présence obligatoire.",Brouillon IA — à valider par l'expert APA,,,
+Mobilité au lit,D,Dépendant pour les transferts,Participer au repositionnement avec assistance complète,Conserver un geste actif (pousser sur les jambes) pendant un repositionnement assisté.,"1. ""Je vais te tourner, pousse un peu sur tes jambes quand je te le dis.""
+2. ""Détends-toi entre les mouvements.""",Réaliser le repositionnement selon la technique enseignée.,Improviser une technique de mobilisation non apprise.,3-5 minutes,Suivre strictement la technique validée (risque pour le dos de l'aidant aussi).,Brouillon IA — à valider par l'expert APA,,,
+Mobilité au lit,E,Grabataire / alité,Changement de position régulier pour le confort,Prévenir les points d'appui prolongés et maintenir le confort de votre proche.,"1. ""Je vais tourner ton bassin doucement.""
+2. ""Je place un coussin sous ton genou.""
+3. ""Dis-moi si une position est inconfortable.""",Réaliser le changement de position selon la fréquence et la technique validées par l'équipe.,Modifier la fréquence recommandée sans en parler à l'équipe.,2-3 minutes,"Respecter strictement la technique (risque d'escarre si mal fait, risque pour le dos de l'aidant).",Brouillon IA — à valider par l'expert APA,,,
+Communication,A,Autonome,Échanger sur un sujet du quotidien,Maintenir un lien de communication riche et stimulant.,"1. ""Choisis un sujet qui te plaît.""
+2. ""Prends ton temps pour raconter.""
+3. ""Je t'écoute sans te couper la parole.""","Poser des questions ouvertes, laisser le silence si besoin.",Finir les phrases à sa place.,Libre,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Communication,B,"Semi-autonome, aide technique, risque faible à modéré",Échanger avec des phrases courtes et un support visuel si besoin,"Soutenir une communication autonome avec un léger appui (support visuel, reformulation).","1. ""Pose une question simple.""
+2. ""Laisse le temps de répondre.""
+3. ""Utilise une image ou un objet si besoin pour aider.""","Proposer un support visuel, reformuler une question.",Répondre à la place de votre proche trop vite.,Libre,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Communication,C,"Semi-autonome, aide humaine à proximité, risque élevé","Communiquer avec des phrases très courtes, une consigne à la fois",Maintenir un échange simple et rassurant malgré des difficultés de communication.,"1. ""Pose une seule question à la fois.""
+2. ""Laisse un temps de réponse plus long.""
+3. ""Valide ce que tu as compris avant de continuer.""","Reformuler, valider positivement chaque échange réussi.",Enchaîner plusieurs questions sans laisser le temps de répondre.,Libre,Veiller à ne pas fatiguer votre proche.,Brouillon IA — à valider par l'expert APA,,,
+Communication,D,Dépendant pour les transferts,Communication par gestes ou regards en complément de la parole,"Maintenir un lien même si la parole est difficile, en s'appuyant sur d'autres canaux.","1. ""Pose une question à réponse oui/non.""
+2. ""Observe le regard ou un geste de réponse.""
+3. ""Confirme ce que tu as compris.""","Utiliser le toucher, le regard, un support de communication validé par l'équipe (pictogrammes).",Interpréter une réponse sans la confirmer.,Libre,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Communication,E,Grabataire / alité,Maintenir un lien sensoriel et affectif,Préserver un lien relationnel même en l'absence de communication verbale active.,"1. ""Parle doucement en te présentant.""
+2. ""Prends sa main si le contact est apprécié.""
+3. ""Laisse des silences, pas besoin de parler en continu.""","Utiliser la voix, le toucher doux, la musique si appréciée.",Forcer une réaction ou s'inquiéter de l'absence de réponse visible.,Libre,Vérifier les préférences sensorielles avec l'équipe.,Brouillon IA — à valider par l'expert APA,,,
+Mémoire / attention,A,Autonome,Petit jeu de mémoire ou d'attention du quotidien,Stimuler la mémoire et l'attention de façon ludique et autonome.,"1. ""Propose un petit jeu (mots croisés, quiz, souvenirs).""
+2. ""Laisse-le chercher sans donner la réponse tout de suite.""
+3. ""Valorise chaque réussite.""",Proposer une activité adaptée aux goûts de votre proche.,Donner la réponse trop vite par impatience.,10-15 minutes,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Mémoire / attention,B,"Semi-autonome, aide technique, risque faible à modéré",Exercice de mémoire avec indice si besoin,Stimuler la mémoire avec un léger soutien si nécessaire.,"1. ""Pose une question simple (ex: un souvenir récent).""
+2. ""Laisse chercher.""
+3. ""Donne un indice seulement si besoin.""","Donner un indice léger, valoriser l'effort plus que le résultat.",Corriger de façon négative en cas d'erreur.,10 minutes,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Mémoire / attention,C,"Semi-autonome, aide humaine à proximité, risque élevé",Exercice d'attention courte et guidée,Maintenir une stimulation cognitive légère et rassurante.,"1. ""Propose une tâche très simple et courte (ex: trier des objets).""
+2. ""Guide étape par étape.""
+3. ""Félicite chaque étape réussie.""","Guider pas à pas, arrêter dès que la fatigue apparaît.",Insister si votre proche montre des signes de frustration.,5-10 minutes,Arrêter l'exercice en cas de signe de fatigue ou de frustration.,Brouillon IA — à valider par l'expert APA,,,
+Mémoire / attention,D,Dépendant pour les transferts,Stimulation sensorielle et de reconnaissance,Maintenir un lien cognitif simple malgré une dépendance physique importante.,"1. ""Montre une photo ou un objet familier.""
+2. ""Demande simplement : tu reconnais ?""
+3. ""Valorise toute réaction, même minime.""","Utiliser des objets/photos familiers, laisser du temps.",Multiplier les questions si votre proche semble fatigué.,5-10 minutes,Aucun particulier.,Brouillon IA — à valider par l'expert APA,,,
+Mémoire / attention,E,Grabataire / alité,"Stimulation sensorielle douce (voix, musique, toucher)",Maintenir un éveil sensoriel et relationnel léger.,"1. ""Parle doucement en donnant des nouvelles simples.""
+2. ""Propose une musique appréciée si possible.""
+3. ""Observe les réactions (mouvement des yeux, expression).""","Utiliser la voix, la musique, le toucher doux, sans attente de réponse active.",Solliciter une réponse cognitive complexe.,5-10 minutes,Vérifier les préférences sensorielles et contre-indications avec l'équipe (ex: fatigabilité).,Brouillon IA — à valider par l'expert APA,,,

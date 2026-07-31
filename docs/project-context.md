@@ -46,6 +46,14 @@ prisma/schema.prisma → Modèle données (cloisonnement RGPD)
 - Couleurs : jaune soleil, teal santé, terracotta
 - Cible : aidants nés ~1955–1970, accessibilité AA
 
+## Extension catalogue exercices (specs §10–12)
+
+- Thèmes × niveaux A–E × paliers, avec transitions Réussi / Essai / Échec
+- Activation par le professionnel (`PatientExercise`) avant affichage aidant
+- Changement de niveau : alerte pro obligatoire (jamais auto côté aidant)
+- Back-office fondateurs : `/admin-produit/exercices`
+- Référentiel source : `docs/referentiel/` + `docs/Proche+_Specs_Section10_et_suivantes.md`
+
 ## Hors périmètre MVP
 
 - IA médicale, intégration logiciels établissement, dossier patient complet

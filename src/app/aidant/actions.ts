@@ -237,3 +237,83 @@ export async function dismissCaregiverAutonomyAlert(alertId: string) {
   });
   revalidatePath("/aidant");
 }
+
+export async function submitExerciseOutcome(input: {
+  patientExerciseId: string;
+  outcome: "reussi" | "essai" | "echec";
+  note?: string;
+  transmissionId?: string | null;
+}) {
+  const { caregiver } = await requireCaregiver();
+
+  const pe = await prisma.patientExercise.findFirst({
+    where: {
+      id: input.patientExerciseId,
+      patient: {
+        caregivers: { some: { caregiverId: caregiver.id } },
+      },
+    },
+    include: { exercise: true },
+  });
+  if (!pe) throw new Error("Exercice non autorisé");
+
+  const { recordExerciseOutcome } = await import("@/lib/exercises/service");
+  const decision = await recordExerciseOutcome({
+    patientExerciseId: pe.id,
+    outcome: input.outcome,
+    note: input.note,
+  });
+
+  if (input.transmissionId) {
+    const actionType =
+      input.outcome === "reussi"
+        ? "realise_succes"
+        : input.outcome === "essai"
+          ? "essaye"
+          : "doute";
+    await prisma.caregiverAction.create({
+      data: {
+        transmissionId: input.transmissionId,
+        caregiverId: caregiver.id,
+        type: actionType,
+        stepLabel: pe.exercise.name,
+        note: input.note ?? Statut exercice: \,
+      },
+    });
+  }
+
+  // Signaux autonomie depuis les résultats d'exercices
+  if (input.outcome === "reussi" || input.outcome === "echec") {
+    await evaluateExerciseAutonomySignals({
+      patientId: pe.patientId,
+      signal: input.outcome === "reussi" ? "success" : "failure",
+    });
+  }
+
+  revalidatePath("/aidant");
+  revalidatePath("/aidant/mode-visite");
+  revalidatePath("/pro");
+  revalidatePath("/admin-etablissement");
+
+  let message = "C'est noté — le professionnel en sera informé.";
+  if (decision.kind === "advance") {
+    message =
+      "Bravo — un exercice suivant vous sera proposé à la prochaine visite.";
+  } else if (decision.kind === "fallback") {
+    message =
+      "C'est noté. Un exercice plus adapté vous sera proposé la prochaine fois.";
+  } else if (decision.kind === "alert_only") {
+    if (decision.alertType === "level_change_proposed") {
+      message =
+        "Objectif atteint ! L'équipe validera le passage au niveau suivant avant de vous proposer la suite.";
+    } else {
+      message =
+        "C'est noté. L'équipe a été alertée pour réévaluer la situation.";
+    }
+  } else {
+    message =
+      "C'est noté. On pourra réessayer le même exercice à la prochaine visite.";
+  }
+
+  return { decision, message };
+}
