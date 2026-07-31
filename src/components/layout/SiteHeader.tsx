@@ -25,6 +25,7 @@ export function SiteHeader({
   const publicNav: NavItem[] =
     variant === "public"
       ? [
+          { href: "/studio", label: "Studio posts" },
           { href: "/connexion?role=aidant", label: "Espace aidant" },
           { href: "/connexion?role=pro", label: "Espace professionnel" },
           { href: "/connexion?role=fondateur", label: "Admin produit" },

@@ -17,6 +17,22 @@ export default function HomePage() {
         </div>
 
         <div className="flex w-full flex-col gap-4">
+          <Card className="animate-fade-up flex flex-col gap-4 [animation-delay:40ms]">
+            <div className="flex items-start gap-3">
+              <Mascot pose="celebrate" size="sm" />
+              <div>
+                <h2 className="font-semibold">Studio posts</h2>
+                <p className="mt-1 text-sm text-text-muted">
+                  Compose un post et décline l’ours : « je veux qu’il soit comme
+                  ça ».
+                </p>
+              </div>
+            </div>
+            <ButtonLink href="/studio" variant="secondary" fullWidth>
+              Ouvrir le studio
+            </ButtonLink>
+          </Card>
+
           <Card className="animate-fade-up flex flex-col gap-4 [animation-delay:80ms]">
             <div className="flex items-start gap-3">
               <Mascot pose="patience" size="sm" />
