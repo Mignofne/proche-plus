@@ -147,6 +147,10 @@ const SCENE_RULES: { scene: StudioSceneId; patterns: RegExp[] }[] = [
       /\bleves?\b/,
     ],
   },
+  {
+    scene: "welcome",
+    patterns: [/\baccueil\b/, /\bdebout\b/, /\bcalme\b/, /\bdoux\b/],
+  },
 ];
 
 const MOOD_RULES: { mood: StudioMood; patterns: RegExp[] }[] = [

@@ -57,4 +57,10 @@ test.describe("Parseur description ours", () => {
     expect(r.scene).toBe("welcome");
     expect(r.matched).toBe(false);
   });
+
+  test("accueil / debout → welcome matché", () => {
+    const r = parseBearDescription("debout, regard doux et calme");
+    expect(r.scene).toBe("welcome");
+    expect(r.matched).toBe(true);
+  });
 });

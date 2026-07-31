@@ -2,7 +2,7 @@
 title: 'Studio local — création de posts style Alan + déclinaison ours'
 type: 'feature'
 created: '2026-07-31'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: '83c4c44569bd3ba4205696678711a27c98c4eb25'
 review_loop_iteration: 0
 context:
