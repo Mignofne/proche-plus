@@ -2,7 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { saveExercise, duplicateExercise, deleteExercise } from "../actions";
+import {
+  saveExercise,
+  duplicateExercise,
+  deleteExercise,
+  validateExercise,
+  unpublishExercise,
+} from "../actions";
 
 type Option = { id: string; label: string };
 
@@ -258,6 +264,61 @@ export function ExerciseForm({
         <Button type="submit" disabled={pending}>
           {initial ? "Enregistrer" : "Créer"}
         </Button>
+        {initial && initial.status === "brouillon" && (
+          <Button
+            type="button"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => {
+                try {
+                  await validateExercise(initial.id);
+                } catch (e) {
+                  if (
+                    e &&
+                    typeof e === "object" &&
+                    "digest" in e &&
+                    String((e as { digest?: string }).digest).startsWith(
+                      "NEXT_REDIRECT"
+                    )
+                  ) {
+                    throw e;
+                  }
+                  setError(e instanceof Error ? e.message : "Erreur");
+                }
+              })
+            }
+          >
+            Valider et publier
+          </Button>
+        )}
+        {initial && initial.status === "publie" && (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => {
+                try {
+                  await unpublishExercise(initial.id);
+                } catch (e) {
+                  if (
+                    e &&
+                    typeof e === "object" &&
+                    "digest" in e &&
+                    String((e as { digest?: string }).digest).startsWith(
+                      "NEXT_REDIRECT"
+                    )
+                  ) {
+                    throw e;
+                  }
+                  setError(e instanceof Error ? e.message : "Erreur");
+                }
+              })
+            }
+          >
+            Remettre en brouillon
+          </Button>
+        )}
         {initial && (
           <Button
             type="button"
@@ -286,7 +347,7 @@ export function ExerciseForm({
             Dupliquer
           </Button>
         )}
-        {initial && (
+        {initial && initial.status !== "archive" && (
           <Button
             type="button"
             variant="danger"

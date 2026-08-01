@@ -69,7 +69,21 @@ export type CatalogExercise = {
   caregiverMustNot: string[];
   estimatedDuration: string | null;
   risks: string | null;
+  /** Statut CSV → publication catalogue */
+  publish: boolean;
 };
+
+function normalizeExerciseName(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/** Validé / En revue → publié ; brouillons IA restent à valider côté admin. */
+function shouldPublishFromStatut(statut: string): boolean {
+  const s = statut.trim().toLowerCase();
+  if (!s || /^non pertinent/i.test(s)) return false;
+  if (s.startsWith("brouillon")) return false;
+  return /validé|valide|en revue/.test(s);
+}
 
 function parseSteps(text: string): string[] {
   if (!text?.trim()) return [];
@@ -98,6 +112,8 @@ export function loadReferentielFromCsv(
   }) as Record<string, string>[];
 
   const out: CatalogExercise[] = [];
+  const seen = new Set<string>();
+
   for (const r of rows) {
     const name = (r["Nom de l'exercice"] || "").trim();
     const statut = (r["Statut"] || "").trim();
@@ -109,10 +125,16 @@ export function loadReferentielFromCsv(
     const levelCode = (r["Niveau autonomie"] || "").trim();
     if (!slug || !levelCode) continue;
 
+    const tierRaw = Number.parseInt(String(r["Palier"] || "1"), 10);
+    const tier = Number.isFinite(tierRaw) && tierRaw > 0 ? tierRaw : 1;
+    const dedupeKey = `${slug}|${levelCode}|${tier}|${normalizeExerciseName(name)}`;
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+
     out.push({
       themeSlug: slug,
       levelCode,
-      tier: 1,
+      tier,
       name,
       objective: (r["Objectif de l'exercice"] || "").trim(),
       steps: parseSteps(r["Détail / étapes (guidance verbale)"] || ""),
@@ -120,6 +142,7 @@ export function loadReferentielFromCsv(
       caregiverMustNot: asList(r["Ce que l'aidant ne doit pas faire"] || ""),
       estimatedDuration: (r["Durée indicative"] || "").trim() || null,
       risks: (r["Risques / contre-indications"] || "").trim() || null,
+      publish: shouldPublishFromStatut(statut),
     });
   }
   return out;
@@ -179,24 +202,42 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
   const scaleByCode = Object.fromEntries(scales.map((s) => [s.code, s]));
 
   let upserted = 0;
+  let skippedDuplicates = 0;
+
+  // Index DB pour anti-doublon (thème × niveau × palier × nom)
+  const existingAll = await prisma.exercise.findMany({
+    select: {
+      id: true,
+      themeId: true,
+      autonomyScaleId: true,
+      tier: true,
+      name: true,
+    },
+  });
+  const existingKeys = new Set(
+    existingAll.map(
+      (e) =>
+        `${e.themeId}|${e.autonomyScaleId}|${e.tier}|${normalizeExerciseName(e.name)}`
+    )
+  );
+  // Aussi bloquer les homonymes globaux (même nom, autre cellule)
+  const existingNames = new Set(
+    existingAll.map((e) => normalizeExerciseName(e.name))
+  );
 
   for (const ex of catalog) {
     const theme = themeBySlug[ex.themeSlug];
     const scale = scaleByCode[ex.levelCode];
     if (!theme || !scale) continue;
 
-    const existing = await prisma.exercise.findFirst({
-      where: {
-        themeId: theme.id,
-        autonomyScaleId: scale.id,
-        tier: ex.tier,
-      },
-      orderBy: { updatedAt: "desc" },
-    });
+    const key = `${theme.id}|${scale.id}|${ex.tier}|${normalizeExerciseName(ex.name)}`;
+    const nameKey = normalizeExerciseName(ex.name);
+    if (existingKeys.has(key) || existingNames.has(nameKey)) {
+      skippedDuplicates += 1;
+      continue;
+    }
 
-    // Ne jamais écraser un exercice déjà présent (éditions admin conservées)
-    if (existing) continue;
-
+    const status = ex.publish ? "publie" : "brouillon";
     const created = await prisma.exercise.create({
       data: {
         themeId: theme.id,
@@ -211,9 +252,9 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
         risks: ex.risks,
         crossesAutonomyLevel: false,
         alertOnFailure: ex.levelCode === "A",
-        status: "publie",
-        validatedBy: "Référentiel APA (import CSV)",
-        validatedAt: new Date(),
+        status,
+        validatedBy: ex.publish ? "Référentiel APA (import CSV)" : null,
+        validatedAt: ex.publish ? new Date() : null,
         onPartialExerciseId: null,
       },
     });
@@ -221,10 +262,12 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
       where: { id: created.id },
       data: { onPartialExerciseId: created.id },
     });
+    existingKeys.add(key);
+    existingNames.add(nameKey);
     upserted += 1;
   }
 
-  return { upserted, catalogCount: catalog.length };
+  return { upserted, skippedDuplicates, catalogCount: catalog.length };
 }
 
 /** Active les exercices publiés (palier 1) au niveau de chaque patient suivi. */

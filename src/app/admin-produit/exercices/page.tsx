@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ThemeManager } from "./ThemeManager";
 import { ScaleManager } from "./ScaleManager";
+import { ExerciseRowActions } from "./ExerciseRowActions";
 
 const STATUS_LABEL: Record<string, string> = {
   brouillon: "Brouillon",
@@ -63,7 +64,8 @@ export default async function AdminExercicesPage({
                 Référentiel exercices
               </h1>
               <p className="text-sm text-text-muted">
-                Ajouter · modifier · supprimer thèmes, niveaux et exercices
+                Lire · modifier · valider · supprimer — thèmes, niveaux et
+                exercices
               </p>
             </div>
           </div>
@@ -164,16 +166,18 @@ export default async function AdminExercicesPage({
 
           <div className="mt-3 flex flex-col gap-2">
             {filtered.map((ex) => (
-              <Link
+              <div
                 key={ex.id}
-                href={`/admin-produit/exercices/${ex.id}`}
-                className="rounded-2xl border border-cream-dark bg-white p-4 transition-colors hover:border-teal"
+                className="rounded-2xl border border-cream-dark bg-white p-4"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="font-medium">
+                  <Link
+                    href={`/admin-produit/exercices/${ex.id}`}
+                    className="font-medium hover:text-teal"
+                  >
                     {ex.theme.label} · {ex.autonomyScale.code}/p{ex.tier} —{" "}
                     {ex.name}
-                  </p>
+                  </Link>
                   <span className="text-xs font-semibold text-teal-dark">
                     {STATUS_LABEL[ex.status] ?? ex.status}
                   </span>
@@ -181,7 +185,8 @@ export default async function AdminExercicesPage({
                 <p className="mt-1 text-sm text-text-muted line-clamp-1">
                   {ex.objective}
                 </p>
-              </Link>
+                <ExerciseRowActions id={ex.id} status={ex.status} />
+              </div>
             ))}
             {filtered.length === 0 && (
               <Card>
