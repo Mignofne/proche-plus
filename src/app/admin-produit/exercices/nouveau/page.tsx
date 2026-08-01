@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, SectionTitle } from "@/components/ui/Card";
+import { repairIncompatibleExerciseStatuses } from "@/lib/exercises/repair-exercise-status";
 import { ExerciseForm } from "../ExerciseForm";
 
 export default async function NouveauExercicePage() {
@@ -10,6 +11,8 @@ export default async function NouveauExercicePage() {
   if (!session || session.role !== "admin_produit") {
     redirect("/connexion?role=fondateur");
   }
+
+  await repairIncompatibleExerciseStatuses(prisma);
 
   const [themes, scales, exercises] = await Promise.all([
     prisma.theme.findMany({ orderBy: { displayOrder: "asc" } }),

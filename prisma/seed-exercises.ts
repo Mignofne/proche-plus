@@ -146,6 +146,16 @@ export async function seedExerciseCatalog(prisma: PrismaClient) {
  * À appeler au build Vercel et en secours côté app.
  */
 export async function ensureExerciseCatalog(prisma: PrismaClient) {
+  // Preview peut avoir écrit status=a_valider incompatible avec le client prod
+  try {
+    await prisma.$executeRawUnsafe(`
+      UPDATE "Exercise"
+      SET status = 'brouillon'
+      WHERE status::text = 'a_valider'
+    `);
+  } catch {
+    // ignore — SQLite / valeur absente
+  }
   await ensureThemesAndScales(prisma);
   const { upserted } = await syncExercisesFromReferentiel(prisma);
   await ensureDemoPatientExercises(prisma);
