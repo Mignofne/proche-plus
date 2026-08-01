@@ -43,7 +43,7 @@ export function assertChannelsForKind(
     if (!allowed.includes(ch)) {
       throw new Error(
         ch === "tiktok" && (kind === "classique" || kind === "carrousel")
-          ? "TikTok n’est pas disponible pour un post classique / carrousel — utilisez une publication vidéo."
+          ? "TikTok n’est pas disponible pour un post classique / carrousel — utilisez un post vidéo."
           : `Canal non autorisé : ${ch}`
       );
     }

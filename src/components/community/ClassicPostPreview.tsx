@@ -94,8 +94,8 @@ export function ClassicPostPreview({
             </p>
             <p className="text-[11px] text-text-muted">
               {primary === "facebook"
-                ? "Publication Facebook · aperçu"
-                : "Publication sponsorisée · aperçu"}
+                ? "Post Facebook · aperçu"
+                : "Post · aperçu"}
             </p>
           </div>
           <span className="text-lg leading-none text-text-muted" aria-hidden>
@@ -135,7 +135,7 @@ export function ClassicPostPreview({
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-text">
             <span className="font-extrabold">procheplus</span> {body}
           </p>
-          <p className="text-xs text-text-muted">#ProchePlus · aperçu fondateur</p>
+          <p className="text-xs text-text-muted">#ProchePlus · aperçu post</p>
         </div>
       </div>
     </div>

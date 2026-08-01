@@ -212,7 +212,7 @@ export function CarouselPostPreview({
             <span className="font-extrabold">procheplus</span> {body}
           </p>
           <p className="text-xs text-text-muted">
-            #ProchePlus · carrousel · aperçu fondateur
+            #ProchePlus · carrousel · aperçu post
           </p>
         </div>
       </div>

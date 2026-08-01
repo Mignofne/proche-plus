@@ -284,7 +284,7 @@ export async function schedulePublicationAction(
   const id = String(formData.get("publicationId") || "");
   const when = String(formData.get("scheduledAt") || "");
   const pub = await prisma.communityPublication.findUnique({ where: { id } });
-  if (!pub) throw new Error("Publication introuvable");
+  if (!pub) throw new Error("Post introuvable");
   if (!canTransition(pub.status, "scheduled")) {
     throw new Error(`Transition ${pub.status} -> scheduled impossible`);
   }
@@ -310,7 +310,7 @@ export async function cancelPublicationAction(
   await requireFondateur();
   const id = String(formData.get("publicationId") || "");
   const pub = await prisma.communityPublication.findUnique({ where: { id } });
-  if (!pub) throw new Error("Publication introuvable");
+  if (!pub) throw new Error("Post introuvable");
   if (!canTransition(pub.status, "cancelled")) {
     throw new Error("Annulation impossible");
   }
@@ -325,9 +325,9 @@ export async function publishManuallyAction(formData: FormData): Promise<void> {
   await requireFondateur();
   const id = String(formData.get("publicationId") || "");
   const pub = await prisma.communityPublication.findUnique({ where: { id } });
-  if (!pub) throw new Error("Publication introuvable");
+  if (!pub) throw new Error("Post introuvable");
   if (pub.status !== "ready") {
-    throw new Error("Publication manuelle uniquement depuis le statut pret (ready)");
+    throw new Error("Mise en ligne manuelle uniquement depuis le statut prêt (ready)");
   }
   assertRightsGate({
     isTestimonial: pub.isTestimonial,
@@ -362,7 +362,7 @@ export async function attachRightsAttestationAction(
   const fileUrl = String(formData.get("fileUrl") || "").trim() || null;
   const notes = String(formData.get("notes") || "").trim() || null;
   if (!publicationId || !label) {
-    throw new Error("Publication et libelle requis");
+    throw new Error("Post et libellé requis");
   }
   const att = await prisma.communityRightsAttestation.create({
     data: { label, fileUrl, notes },

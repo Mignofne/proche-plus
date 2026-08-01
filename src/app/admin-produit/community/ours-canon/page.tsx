@@ -38,7 +38,7 @@ export default function OursCanonPage() {
   return (
     <CommunityPageShell
       title="Canon ours — validation"
-      subtitle="Kit C-v3 adopté + scènes référentiel — même source que les publications Community."
+      subtitle="Kit C-v3 adopté + scènes référentiel — même source que les posts Community."
       actions={
         <div className="flex flex-wrap gap-2">
           <ButtonLink href="/admin-produit/community/studio-ours" size="sm">
@@ -49,7 +49,7 @@ export default function OursCanonPage() {
             size="sm"
             variant="ghost"
           >
-            Nouvelle publication
+            Nouveau post
           </ButtonLink>
         </div>
       }
@@ -74,8 +74,8 @@ export default function OursCanonPage() {
           Scènes référentiel (kit posts Community)
         </h2>
         <p className="text-sm text-text-muted">
-          Ces scènes alimentent l’éditeur de publications (ours en situation) —
-          source unique via <code>src/lib/community/scenes.ts</code>.
+          Ces scènes alimentent l’éditeur de posts (ours en situation) — source
+          unique via <code>src/lib/community/scenes.ts</code>.
         </p>
         {SCENE_OPTIONS.map((s) => (
           <SurfaceRaised key={s.value} className="space-y-3">

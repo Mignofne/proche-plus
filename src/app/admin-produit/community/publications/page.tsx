@@ -30,13 +30,13 @@ export default async function CommunityPublicationsPage() {
 
   return (
     <CommunityPageShell
-      title="Publications Semi"
-      subtitle="File / calendrier — rappel automatique, publish manuel uniquement"
+      title="Posts Semi"
+      subtitle="File / calendrier — rappel automatique, mise en ligne manuelle uniquement"
     >
       <SurfaceRaised className="border-teal/30 bg-teal/5">
         <SectionTitle>Aperçus fondateur (avant deploy)</SectionTitle>
         <p className="mt-2 text-sm text-text-muted">
-          Corrigez le rendu avant publication Semi / mise en prod.
+          Corrigez le rendu avant post Semi / mise en prod.
         </p>
         <div className="mt-3 flex flex-wrap gap-3">
           <ButtonLink
@@ -68,7 +68,7 @@ export default async function CommunityPublicationsPage() {
             Aperçu post vidéo
           </ButtonLink>
           <ButtonLink href="/admin-produit/community/publications/nouveau" size="sm" variant="ghost">
-            Nouveau brouillon
+            Nouveau post
           </ButtonLink>
         </div>
       </SurfaceRaised>
@@ -77,7 +77,7 @@ export default async function CommunityPublicationsPage() {
         <SectionTitle>File & calendrier</SectionTitle>
         {pubs.length === 0 ? (
           <p className="mt-2 text-sm text-text-muted">
-            Aucune publication. Créez un brouillon ou lancez{" "}
+            Aucun post. Créez un brouillon ou lancez{" "}
             <code>npm run db:seed-community</code>.
           </p>
         ) : (
@@ -122,7 +122,7 @@ export default async function CommunityPublicationsPage() {
                     <form action={publishManuallyAction}>
                       <input type="hidden" name="publicationId" value={p.id} />
                       <button type="submit" className="rounded-xl bg-teal px-3 py-1 font-semibold text-white">
-                        Publier (manuel)
+                        Mettre en ligne
                       </button>
                     </form>
                   ) : null}

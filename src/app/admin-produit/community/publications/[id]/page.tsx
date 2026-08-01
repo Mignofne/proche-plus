@@ -25,7 +25,7 @@ export default async function PublicationDetailPage({
 
   return (
     <CommunityPageShell
-      title={pub.title || "Publication"}
+      title={pub.title || "Post"}
       subtitle={`${pub.kind} · ${pub.status}`}
     >
       <SurfaceRaised>
@@ -41,7 +41,7 @@ export default async function PublicationDetailPage({
             <form action={publishManuallyAction}>
               <input type="hidden" name="publicationId" value={pub.id} />
               <button type="submit" className="touch-target rounded-2xl bg-teal px-4 py-2 font-semibold text-white">
-                Publier manuellement
+                Mettre en ligne (manuel)
               </button>
             </form>
           ) : null}

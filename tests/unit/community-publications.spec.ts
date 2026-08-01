@@ -7,7 +7,7 @@ import {
   applyTemplateVariables,
 } from "../../src/lib/community/publications";
 
-test.describe("Community publications Semi", () => {
+test.describe("Community posts Semi", () => {
   test("transitions d’états AD-5", () => {
     expect(canTransition("draft", "scheduled")).toBe(true);
     expect(canTransition("scheduled", "ready")).toBe(true);

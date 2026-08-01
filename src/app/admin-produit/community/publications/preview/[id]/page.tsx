@@ -84,8 +84,8 @@ function PreviewChrome({
     <CommunityPageShell title={title} subtitle={subtitle}>
       <SurfaceRaised className="mb-2 border-teal/20 bg-gradient-to-br from-white via-cream to-cream-dark/40">
         <p className="text-sm text-text-muted">
-          Aperçu fondateur — ours en situation + couleurs texte. Format adapté
-          au réseau cible. Corrigez avant deploy / Semi. Aucune PHI.
+          Aperçu fondateur du post — ours en situation + couleurs texte. Format
+          adapté au réseau cible. Corrigez avant deploy / Semi. Aucune PHI.
         </p>
       </SurfaceRaised>
       <div className="flex justify-center py-2">{children}</div>
@@ -280,7 +280,7 @@ export default async function PublicationPreviewPage({
   return (
     <CommunityPageShell
       title={`Aperçu — ${pub.title || pub.kind}`}
-      subtitle="Corriger avant deploy / Semi publish"
+      subtitle="Corriger avant deploy / mise en ligne du post"
     >
       <SurfaceRaised className="mb-6 text-sm text-text-muted">
         Statut : {pub.status} · Type : {pub.kind} · Canal principal : {primary} ·

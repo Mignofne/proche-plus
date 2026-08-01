@@ -1,6 +1,6 @@
 /**
  * Ours en situation — kit canon déjà validé (ours-canon / Studio Ours).
- * Source unique pour publications Community + page ours-canon.
+ * Source unique pour posts Community + page ours-canon.
  *
  * Assets : public/community-assets/ours-canon/scenes-referentiel/
  * Thèmes : REFERENTIEL_THEMES (mascot-gen) — mêmes 8 scènes.

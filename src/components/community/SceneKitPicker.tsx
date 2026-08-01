@@ -29,7 +29,7 @@ export function SceneKitPicker({
         >
           Canon ours
         </a>{" "}
-        / Studio Ours — ours en situation, pas médaillon.
+        / Studio Ours — pour les posts en situation, pas médaillon.
       </p>
       <input type="hidden" name={name} value={selected} />
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

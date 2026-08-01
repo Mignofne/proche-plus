@@ -18,7 +18,7 @@ export default async function NouvellePublicationPage() {
 
   return (
     <CommunityPageShell
-      title="Nouvelle publication"
+      title="Nouveau post"
       subtitle="Classique, carrousel ou vidéo — format adapté au réseau (IG / Threads / Facebook / TikTok)"
     >
       <SurfaceRaised>
@@ -48,7 +48,7 @@ export default async function NouvellePublicationPage() {
             name="body"
             required
             rows={5}
-            placeholder="Légende / sous-texte du post"
+            placeholder="Légende du post"
             className="w-full rounded-2xl border border-cream-dark px-4 py-3"
           />
 

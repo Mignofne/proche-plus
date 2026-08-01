@@ -24,10 +24,10 @@ const SECTIONS = [
   },
   {
     href: "/admin-produit/community/publications",
-    title: "Publications Semi",
-    description: "File, calendrier et éditeur des publications sociales.",
-    emptyMessage: "Aucune publication planifiée.",
-    ctaLabel: "Créer une publication",
+    title: "Posts Semi",
+    description: "File, calendrier et éditeur des posts sociaux.",
+    emptyMessage: "Aucun post planifié.",
+    ctaLabel: "Créer un post",
   },
   {
     href: "/admin-produit/community/blog",
@@ -39,14 +39,14 @@ const SECTIONS = [
   {
     href: "/admin-produit/community/comptes",
     title: "Comptes sociaux",
-    description: "Liens Instagram, Threads et TikTok du fondateur.",
+    description: "Liens Instagram, Threads, Facebook et TikTok du fondateur.",
     emptyMessage: "Aucun compte social enregistré.",
     ctaLabel: "Gérer les comptes",
   },
   {
     href: "/admin-produit/community/studio",
     title: "Studio vidéo",
-    description: "Preview Remotion in-house avant publication Semi.",
+    description: "Preview Remotion in-house avant un post Semi.",
     emptyMessage: "Composez une vidéo courte on-brand.",
     ctaLabel: "Ouvrir le studio",
   },
@@ -84,14 +84,14 @@ export default function CommunityHubPage() {
       }
     >
       <p className={cn("text-sm", COMMUNITY_UI.muted)}>
-        Pilotez bêta, contenus, publications et blog depuis un seul hub.
+        Pilotez bêta, contenus, posts sociaux et blog depuis un seul hub.
         Aucune donnée patient ou établissement ici.
       </p>
 
       <SurfaceRaised className="border-teal/25 bg-teal/5">
         <SectionTitle className="text-base">Aperçus fondateur</SectionTitle>
         <p className={cn("mt-2 text-sm", COMMUNITY_UI.muted)}>
-          Vérifiez le rendu avant deploy / publication Semi.
+          Vérifiez le rendu avant deploy / post Semi.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <ButtonLink

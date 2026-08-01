@@ -12,7 +12,7 @@ export default async function CommunityComptesPage() {
   return (
     <CommunityPageShell
       title="Comptes sociaux"
-      subtitle="Liens IG / Threads / Facebook / TikTok — aucune API de publication Meta/TikTok"
+      subtitle="Liens IG / Threads / Facebook / TikTok — aucune API Meta/TikTok (mise en ligne manuelle)"
     >
       <SurfaceRaised>
         <SectionTitle>Enregistrer un compte</SectionTitle>
