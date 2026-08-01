@@ -22,7 +22,7 @@ const COLORS = {
   terracotta: "#C67B5C",
 };
 
-/** Remotion short — texte haut colorisable + ours en situation (scène pleine) */
+/** Remotion short — texte compact en haut + scène qui remplit le cadre */
 export const ProchePlusShort: React.FC<RemotionInputProps> = ({
   title,
   body,
@@ -47,46 +47,45 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
   const titleHex = titleColor || DEFAULT_TITLE_COLOR;
   const bodyHex = subtitleColor || DEFAULT_SUBTITLE_COLOR;
 
-  const resolvedScene =
-    sceneSrc ||
-    resolveSceneSrc({ poseKey });
-
-  // staticFile attend un chemin relatif à public/
+  const resolvedScene = sceneSrc || resolveSceneSrc({ poseKey });
   const sceneStatic = resolvedScene.startsWith("/")
     ? resolvedScene.slice(1)
     : resolvedScene;
 
   const brandIn = spring({ frame, fps, config: { damping: 18, stiffness: 120 } });
   const titleIn = spring({
-    frame: frame - 10,
+    frame: frame - 8,
     fps,
     config: { damping: 16, stiffness: 100 },
   });
   const bodyIn = spring({
-    frame: frame - 22,
+    frame: frame - 16,
     fps,
     config: { damping: 18, stiffness: 90 },
   });
   const bearIn = spring({
-    frame: frame - 32,
+    frame: frame - 22,
     fps,
     config: { damping: 14, stiffness: 80 },
   });
 
-  const brandY = interpolate(brandIn, [0, 1], [24, 0]);
-  const titleY = interpolate(titleIn, [0, 1], [36, 0]);
+  const brandY = interpolate(brandIn, [0, 1], [16, 0]);
+  const titleY = interpolate(titleIn, [0, 1], [24, 0]);
   const bodyOpacity = interpolate(bodyIn, [0, 1], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const bearY = interpolate(bearIn, [0, 1], [80, 0]);
-  const bearScale = interpolate(bearIn, [0, 1], [0.92, 1]);
+  const bearOpacity = interpolate(bearIn, [0, 1], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const bearScale = interpolate(bearIn, [0, 1], [0.96, 1]);
 
-  const padX = isLandscape ? 96 : 64;
-  const padTop = isLandscape ? 48 : 72;
-  const titleSize = isLandscape ? 52 : 56;
-  const bodySize = isLandscape ? 28 : 30;
-  const sceneMaxH = isLandscape ? height * 0.55 : height * 0.48;
+  const padX = isLandscape ? 64 : 48;
+  const padTop = isLandscape ? 36 : 56;
+  const padBottom = isLandscape ? 28 : 32;
+  const titleSize = isLandscape ? 44 : 48;
+  const bodySize = isLandscape ? 24 : 26;
 
   return (
     <AbsoluteFill
@@ -108,23 +107,29 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
 
       <AbsoluteFill
         style={{
-          padding: `${padTop}px ${padX}px ${isLandscape ? 40 : 48}px`,
+          padding: `${padTop}px ${padX}px ${padBottom}px`,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
           alignItems: "center",
+          gap: isLandscape ? 16 : 20,
         }}
       >
-        <div style={{ width: "100%", textAlign: "center" }}>
+        <div
+          style={{
+            width: "100%",
+            textAlign: "center",
+            flexShrink: 0,
+          }}
+        >
           <div
             style={{
               opacity: brandIn,
               transform: `translateY(${brandY}px)`,
               color: accentColor,
-              fontSize: isLandscape ? 28 : 32,
+              fontSize: isLandscape ? 24 : 28,
               fontWeight: 800,
               letterSpacing: "-0.02em",
-              marginBottom: 20,
+              marginBottom: 10,
             }}
           >
             Proche+
@@ -136,10 +141,10 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
               color: titleHex,
               fontSize: titleSize,
               fontWeight: 800,
-              lineHeight: 1.15,
+              lineHeight: 1.12,
               letterSpacing: "-0.03em",
               margin: "0 auto",
-              maxWidth: "94%",
+              maxWidth: "96%",
             }}
           >
             {title}
@@ -149,11 +154,11 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
               opacity: bodyOpacity,
               color: bodyHex,
               fontSize: bodySize,
-              lineHeight: 1.4,
-              marginTop: 20,
+              lineHeight: 1.35,
+              marginTop: 12,
               marginLeft: "auto",
               marginRight: "auto",
-              maxWidth: "88%",
+              maxWidth: "92%",
               fontWeight: 600,
             }}
           >
@@ -164,30 +169,28 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
         {bearEnabled ? (
           <div
             style={{
+              flex: 1,
+              minHeight: 0,
+              width: "100%",
               display: "flex",
               justifyContent: "center",
               alignItems: "flex-end",
-              opacity: bearIn,
-              transform: `translateY(${bearY}px) scale(${bearScale})`,
-              width: "100%",
-              maxHeight: sceneMaxH,
+              opacity: bearOpacity,
+              transform: `scale(${bearScale})`,
             }}
           >
             <Img
               src={staticFile(sceneStatic)}
               style={{
-                width: "auto",
-                height: "auto",
-                maxWidth: isLandscape ? "70%" : "92%",
-                maxHeight: sceneMaxH,
+                width: "100%",
+                height: "100%",
+                maxWidth: "100%",
                 objectFit: "contain",
-                objectPosition: "bottom",
+                objectPosition: "bottom center",
               }}
             />
           </div>
-        ) : (
-          <div style={{ height: 24 }} />
-        )}
+        ) : null}
       </AbsoluteFill>
     </AbsoluteFill>
   );
