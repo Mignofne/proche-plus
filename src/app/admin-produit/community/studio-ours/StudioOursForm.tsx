@@ -106,10 +106,11 @@ export function StudioOursForm({
       </SurfaceRaised>
 
       <SurfaceRaised>
-        <SectionTitle>Composer une scène</SectionTitle>
+        <SectionTitle>Brief de scène</SectionTitle>
         <p className="mt-2 text-sm text-text-muted">
-          Situation + émotion + lieu → prompt verrouillé (canon C-v3). Phase 1 =
-          provider mock (aperçu prompt + placeholder).
+          Situation + émotion + lieu → <strong>prompt verrouillé</strong>{" "}
+          (identité ours C-v3). En Phase 1, le bouton compose le prompt ; il
+          n’illustre pas encore la scène (placeholder = planche identité).
         </p>
 
         <div className="mt-4 space-y-4">
@@ -213,33 +214,38 @@ export function StudioOursForm({
           ) : null}
 
           <Button type="button" onClick={onGenerate} disabled={pending}>
-            {pending ? "Génération…" : "Générer"}
+            {pending ? "Composition du prompt…" : "Composer le prompt"}
           </Button>
         </div>
       </SurfaceRaised>
 
       {last ? (
         <SurfaceRaised className="space-y-3">
-          <SectionTitle>Résultat</SectionTitle>
+          <SectionTitle>
+            {last.provider === "mock"
+              ? "Résultat — prompt verrouillé"
+              : "Résultat"}
+          </SectionTitle>
           {providerNote ? (
-            <p className="text-sm text-text-muted">{providerNote}</p>
+            <p
+              role="status"
+              className="rounded-2xl border border-teal/30 bg-teal/10 px-4 py-3 text-sm text-teal-dark"
+            >
+              {providerNote}
+            </p>
           ) : null}
-          {last.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={last.imageUrl}
-              alt="Aperçu génération (placeholder mock = canon C-v3)"
-              className="w-full max-w-md rounded-2xl border border-cream-dark bg-cream object-contain"
-            />
-          ) : null}
-          <details open className="rounded-2xl border border-cream-dark bg-cream/40 p-4">
-            <summary className="cursor-pointer text-sm font-semibold text-teal-dark">
-              Aperçu prompt (positif)
-            </summary>
+
+          <div className="rounded-2xl border border-cream-dark bg-cream/40 p-4">
+            <h3 className="text-sm font-semibold text-teal-dark">
+              {last.provider === "mock"
+                ? "Prompt positif (livrable Phase 1)"
+                : "Prompt positif"}
+            </h3>
             <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs text-text">
               {last.promptPositive}
             </pre>
-          </details>
+          </div>
+
           <details className="rounded-2xl border border-cream-dark bg-cream/40 p-4">
             <summary className="cursor-pointer text-sm font-semibold text-teal-dark">
               Prompt négatif
@@ -248,6 +254,39 @@ export function StudioOursForm({
               {last.promptNegative}
             </pre>
           </details>
+
+          {last.imageUrl ? (
+            last.provider === "mock" ? (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-text-muted">
+                  Placeholder visuel — planche canon C-v3
+                </p>
+                <p className="text-xs text-text-muted">
+                  Ce n’est pas une illustration de votre situation. L’image de
+                  scène arrivera quand un provider réel sera branché.
+                </p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={last.imageUrl}
+                  alt="Placeholder : planche identité canon C-v3, pas la scène demandée"
+                  className="w-full max-w-md rounded-2xl border border-cream-dark bg-cream object-contain"
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-teal-dark">
+                  Illustration générée
+                </p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={last.imageUrl}
+                  alt="Illustration de la scène générée"
+                  className="w-full max-w-md rounded-2xl border border-cream-dark bg-cream object-contain"
+                />
+              </div>
+            )
+          ) : null}
+
           <p className="text-xs text-text-muted">
             id <code>{last.id}</code> · provider <code>{last.provider}</code> ·{" "}
             {last.identityVersion}
@@ -258,6 +297,10 @@ export function StudioOursForm({
       {history.length > 0 ? (
         <SurfaceRaised>
           <SectionTitle>Historique récent</SectionTitle>
+          <p className="mt-1 text-xs text-text-muted">
+            En Phase 1 (mock), chaque entrée = prompt enregistré ; l’aperçu
+            image reste la planche identité.
+          </p>
           <ul className="mt-3 space-y-2 text-sm">
             {history.map((h) => {
               const situation = h.brief?.situation ?? "";

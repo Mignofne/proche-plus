@@ -97,8 +97,10 @@ export async function generateOursSceneAction(
 
     const providerNote =
       result.provider === "mock"
-        ? "Mock : prompt verrouillé enregistré. Local/Remote rendront l’image réelle plus tard. Placeholder = sheet C-v3."
-        : `Généré via provider « ${result.provider} ».`;
+        ? result.imageUrl
+          ? "Mode mock (Phase 1) : le vrai livrable est le prompt ci-dessous. L’image est la planche canon C-v3 (placeholder), pas votre scène."
+          : "Mode mock (Phase 1) : le vrai livrable est le prompt ci-dessous. Pas d’illustration de scène pour l’instant."
+        : `Illustration générée via provider « ${result.provider} ».`;
 
     return { ok: true, record, providerNote };
   } catch (err) {
