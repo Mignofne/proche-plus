@@ -3,8 +3,8 @@ import { CommunityPageShell } from "@/components/community/CommunityPageShell";
 import { SurfaceRaised } from "@/components/community/SurfaceRaised";
 import { SectionTitle } from "@/components/ui/Card";
 import { TextColorFields } from "@/components/community/TextColorFields";
+import { SceneKitPicker } from "@/components/community/SceneKitPicker";
 import { createPublicationAction } from "../../actions";
-import { SCENE_OPTIONS } from "@/lib/community/scenes";
 
 const ALL_CHANNELS = ["instagram", "threads", "facebook", "tiktok"] as const;
 
@@ -54,22 +54,7 @@ export default async function NouvellePublicationPage() {
 
           <TextColorFields />
 
-          <label className="block text-sm">
-            <span className="mb-1 block font-semibold">
-              Scène ours (en situation)
-            </span>
-            <select
-              name="sceneKey"
-              className="w-full rounded-2xl border border-cream-dark px-4 py-3"
-              defaultValue="scene-communication"
-            >
-              {SCENE_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SceneKitPicker />
 
           <textarea
             name="slidesJson"
@@ -99,28 +84,18 @@ export default async function NouvellePublicationPage() {
             className="w-full rounded-2xl border border-cream-dark px-4 py-3"
             defaultValue=""
           >
-            <option value="">Scénario ours (optionnel)</option>
+            <option value="">Scénario CAP-9 (optionnel)</option>
             {scenarios.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.title}
               </option>
             ))}
           </select>
-          <select
-            name="poseKey"
-            className="w-full rounded-2xl border border-cream-dark px-4 py-3"
-            defaultValue="encourage"
-          >
-            <option value="accueil">Pose / scène liée — accueil</option>
-            <option value="encourage">Pose / scène liée — encouragement</option>
-            <option value="patience">Pose / scène liée — patience</option>
-            <option value="celebration">Pose / scène liée — célébration</option>
-            <option value="vigilance">Pose / scène liée — vigilance</option>
-            <option value="curiosite">Pose / scène liée — curiosité</option>
-          </select>
+          {/* poseKey conservé en secours résolution scène (kit prioritaire) */}
+          <input type="hidden" name="poseKey" value="encourage" />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="bearEnabled" defaultChecked />
-            Inclure l’ours en situation
+            Inclure l’ours en situation (kit référentiel)
           </label>
           <fieldset className="text-sm">
             <legend className="font-semibold">

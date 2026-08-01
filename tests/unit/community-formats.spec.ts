@@ -54,11 +54,17 @@ test.describe("Community formats & scènes", () => {
     );
   });
 
-  test("résolution scène en situation", () => {
+  test("résolution scène en situation (kit ours-canon)", () => {
     expect(resolveSceneKey({ sceneKey: "scene-repas" })).toBe("scene-repas");
     expect(resolveSceneKey({ poseKey: "encourage" })).toBe("scene-cognitif");
+    expect(resolveSceneKey({ themeSlug: "fauteuil" })).toBe(
+      "scene-fauteuil-freins"
+    );
     expect(resolveSceneSrc({ sceneKey: "scene-habillage" })).toContain(
-      "scene-habillage.png"
+      "scenes-referentiel/scene-habillage.png"
+    );
+    expect(resolveSceneSrc({ sceneKey: "declinaison-fauteuil" })).toContain(
+      "declinaison-fauteuil.png"
     );
   });
 });

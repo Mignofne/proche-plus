@@ -9,6 +9,7 @@ import {
   BEAR_SCENARIO_SEED,
   POSE_PACK,
 } from "../src/lib/community/illustrations";
+import { SCENE_OPTIONS } from "../src/lib/community/scenes";
 import { HEALTH_DISCLAIMER_BODY } from "../src/lib/community/health-disclaimer";
 
 const prisma = new PrismaClient();
@@ -76,6 +77,27 @@ async function main() {
           provenance: "provenance.json v1.0.0 — AD-11 kit-only MVP",
           isPosePack: true,
           poseKey: p.key,
+        },
+      });
+    }
+  }
+
+  // Kit scènes référentiel (ours en situation) — même source que Community posts
+  for (const scene of SCENE_OPTIONS) {
+    const existing = await prisma.communityMediaAsset.findFirst({
+      where: { url: scene.src },
+    });
+    if (!existing) {
+      await prisma.communityMediaAsset.create({
+        data: {
+          label: `Scène référentiel — ${scene.label}`,
+          url: scene.src,
+          mimeType: "image/png",
+          license: "Proche+ kit interne curaté (canon C-v3)",
+          source: "community-assets/ours-canon/scenes-referentiel",
+          provenance: "ours-canon C-v3 [ADOPTED] — scènes fondateur",
+          isPosePack: false,
+          poseKey: scene.value,
         },
       });
     }

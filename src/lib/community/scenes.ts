@@ -1,7 +1,32 @@
 /**
- * Ours en situation — scènes référentiel curatées (pas de médaillon).
+ * Ours en situation — kit canon déjà validé (ours-canon / Studio Ours).
+ * Source unique pour publications Community + page ours-canon.
+ *
  * Assets : public/community-assets/ours-canon/scenes-referentiel/
+ * Thèmes : REFERENTIEL_THEMES (mascot-gen) — mêmes 8 scènes.
  */
+
+import {
+  CANON_IMAGE_PATH,
+  REFERENTIEL_THEMES,
+  type ReferentielThemeSlug,
+} from "@/lib/community/mascot-gen/constants";
+
+export { CANON_IMAGE_PATH };
+
+const SCENE_BASE = "/community-assets/ours-canon/scenes-referentiel";
+
+/** Mapping thème référentiel → fichier scène (kit validé fondateur) */
+const THEME_SCENE_FILE: Record<ReferentielThemeSlug, string> = {
+  habillage: "scene-habillage.png",
+  repas: "scene-repas.png",
+  deplacement: "scene-deplacement.png",
+  fauteuil: "scene-fauteuil-freins.png",
+  toilette: "scene-toilette.png",
+  mobilite_lit: "scene-mobilite-lit.png",
+  communication: "scene-communication.png",
+  cognitif: "scene-cognitif.png",
+};
 
 export const SCENE_KEYS = [
   "scene-habillage",
@@ -12,28 +37,46 @@ export const SCENE_KEYS = [
   "scene-mobilite-lit",
   "scene-communication",
   "scene-cognitif",
+  /** Preuve cohérence validée (hors protocole 8, mais kit canon) */
+  "declinaison-fauteuil",
 ] as const;
 
 export type SceneKey = (typeof SCENE_KEYS)[number];
 
-export const SCENE_OPTIONS: ReadonlyArray<{
+export type SceneOption = {
   value: SceneKey;
   label: string;
-}> = [
-  { value: "scene-communication", label: "Communication / écoute" },
-  { value: "scene-cognitif", label: "Mémoire / attention" },
-  { value: "scene-habillage", label: "Habillage" },
-  { value: "scene-repas", label: "Repas" },
-  { value: "scene-deplacement", label: "Déplacement" },
-  { value: "scene-fauteuil-freins", label: "Fauteuil" },
-  { value: "scene-toilette", label: "Toilette / hygiène" },
-  { value: "scene-mobilite-lit", label: "Mobilité au lit" },
-];
+  src: string;
+  /** Slug thème référentiel exercices, si applicable */
+  themeSlug?: ReferentielThemeSlug;
+};
 
-const SCENE_BASE = "/community-assets/ours-canon/scenes-referentiel";
+/** Liste unique — utilisée par éditeur pubs + page ours-canon */
+export const SCENE_OPTIONS: readonly SceneOption[] = [
+  ...REFERENTIEL_THEMES.map((t) => {
+    const file = THEME_SCENE_FILE[t.slug];
+    const value = file.replace(/\.png$/, "") as SceneKey;
+    return {
+      value,
+      label: t.label,
+      src: `${SCENE_BASE}/${file}`,
+      themeSlug: t.slug,
+    };
+  }),
+  {
+    value: "declinaison-fauteuil",
+    label: "Fauteuil (déclinaison validée)",
+    src: "/community-assets/ours-canon/declinaison-fauteuil.png",
+  },
+] as const;
 
-/** Chemin public d’une scène (avec ou sans préfixe scene-) */
+const SCENE_BY_KEY = Object.fromEntries(
+  SCENE_OPTIONS.map((s) => [s.value, s])
+) as Record<SceneKey, SceneOption>;
+
+/** Chemin public d’une scène kit */
 export function sceneImagePath(sceneKey: string): string {
+  if (isSceneKey(sceneKey)) return SCENE_BY_KEY[sceneKey].src;
   const key = sceneKey.startsWith("scene-") ? sceneKey : `scene-${sceneKey}`;
   return `${SCENE_BASE}/${key}.png`;
 }
@@ -51,14 +94,12 @@ const POSE_TO_SCENE: Record<string, SceneKey> = {
 };
 
 const THEME_TO_SCENE: Record<string, SceneKey> = {
-  habillage: "scene-habillage",
-  repas: "scene-repas",
-  deplacement: "scene-deplacement",
-  fauteuil: "scene-fauteuil-freins",
-  toilette: "scene-toilette",
-  mobilite_lit: "scene-mobilite-lit",
-  communication: "scene-communication",
-  cognitif: "scene-cognitif",
+  ...Object.fromEntries(
+    REFERENTIEL_THEMES.map((t) => {
+      const file = THEME_SCENE_FILE[t.slug];
+      return [t.slug, file.replace(/\.png$/, "")];
+    })
+  ),
   "mode-visite": "scene-communication",
   "benefices-aidants": "scene-cognitif",
   "exercices-continuite": "scene-habillage",
@@ -67,14 +108,16 @@ const THEME_TO_SCENE: Record<string, SceneKey> = {
   "vision-mission": "scene-cognitif",
   "temoignages-anonymises": "scene-communication",
   "beta-invitation": "scene-habillage",
-};
+} as Record<string, SceneKey>;
 
-export function isSceneKey(value: string | null | undefined): value is SceneKey {
+export function isSceneKey(
+  value: string | null | undefined
+): value is SceneKey {
   return !!value && (SCENE_KEYS as readonly string[]).includes(value);
 }
 
 /**
- * Résout la scène à afficher (priorité : explicite → imageSrc → thème → pose → défaut).
+ * Résout la scène kit (priorité : explicite → imageSrc kit → thème → pose → défaut).
  */
 export function resolveSceneKey(params: {
   sceneKey?: string | null;
@@ -85,7 +128,11 @@ export function resolveSceneKey(params: {
   if (isSceneKey(params.sceneKey)) return params.sceneKey;
 
   if (params.imageSrc) {
-    const match = params.imageSrc.match(/scenes-referentiel\/(scene-[\w-]+)\.png/);
+    const bySrc = SCENE_OPTIONS.find((s) => s.src === params.imageSrc);
+    if (bySrc) return bySrc.value;
+    const match = params.imageSrc.match(
+      /(?:scenes-referentiel\/)?(scene-[\w-]+|declinaison-fauteuil)\.png/
+    );
     if (match && isSceneKey(match[1])) return match[1];
   }
 
@@ -106,7 +153,12 @@ export function resolveSceneSrc(params: {
   themeSlug?: string | null;
   poseKey?: string | null;
 }): string {
-  if (params.imageSrc?.startsWith("/") || params.imageSrc?.startsWith("http")) {
+  // imageSrc hors kit (ex. média licence-ok / future gen Studio) uniquement si URL explicite
+  if (
+    params.imageSrc &&
+    (params.imageSrc.startsWith("/") || params.imageSrc.startsWith("http")) &&
+    !params.sceneKey
+  ) {
     return params.imageSrc;
   }
   return sceneImagePath(resolveSceneKey(params));
