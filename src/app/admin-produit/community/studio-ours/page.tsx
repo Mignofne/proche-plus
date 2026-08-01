@@ -9,7 +9,7 @@ export default async function StudioOursPage() {
   return (
     <CommunityPageShell
       title="Studio Ours"
-      subtitle="Génération illustrée guidée — situation · émotion · lieu (Phase 1 mock)"
+      subtitle="Phase 1 : composition du prompt verrouillé — l’illustration de scène viendra ensuite"
       actions={
         <>
           <ButtonLink

@@ -19,3 +19,11 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-fix-studio-ours-vercel-fs.md`
   summary: Chemins ok:false (blocked/failed) n’ajoutent pas le record à l’historique client local
   evidence: Comportement pré-existant de StudioOursForm ; incohérence mineure vs refresh serveur.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-studio-ours-mock-ux.md`
+  summary: Bouton copier/télécharger le prompt Phase 1 absent
+  evidence: Le prompt est le livrable mais reste dans un `<pre>` sans action d’export.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-studio-ours-mock-ux.md`
+  summary: Brancher un provider réel (remote/local) pour illustrer les scènes
+  evidence: Phase 1 mock volontaire ; fondateur attend une image de scène, pas la planche C-v3.
