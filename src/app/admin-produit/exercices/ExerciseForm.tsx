@@ -204,8 +204,8 @@ export function ExerciseForm({
             defaultValue={initial?.status ?? "brouillon"}
             className="mt-1 w-full rounded-xl border border-cream-dark bg-white p-3"
           >
-            <option value="brouillon">Brouillon</option>
-            <option value="a_valider">À valider</option>
+            <option value="brouillon">À valider</option>
+            <option value="a_valider">À valider (legacy)</option>
             <option value="publie">Publié</option>
             <option value="archive">Archivé</option>
           </select>

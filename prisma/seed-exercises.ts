@@ -70,7 +70,7 @@ export type CatalogExercise = {
   estimatedDuration: string | null;
   risks: string | null;
   /** Statut catalogue Prisma dérivé du CSV */
-  status: "brouillon" | "a_valider" | "publie";
+  status: "brouillon" | "publie";
 };
 
 function normalizeExerciseName(name: string): string {
@@ -80,15 +80,16 @@ function normalizeExerciseName(name: string): string {
 /**
  * CSV → statut catalogue :
  * - Validé / En revue → publie
- * - À valider → a_valider
- * - Brouillon… → brouillon
+ * - À valider / Brouillon… → brouillon (badge admin « À valider » via tier/UI ;
+ *   on n'écrit plus l'enum `a_valider` depuis le CSV tant que prod n'est pas
+ *   déployée avec le client Prisma compatible — évite les crashs RSC).
  */
 function statusFromCsvStatut(
   statut: string
-): "brouillon" | "a_valider" | "publie" | null {
+): "brouillon" | "publie" | null {
   const s = statut.trim().toLowerCase();
   if (!s || /^non pertinent/i.test(s)) return null;
-  if (/^à valider|^a valider/.test(s)) return "a_valider";
+  if (/^à valider|^a valider/.test(s)) return "brouillon";
   if (s.startsWith("brouillon")) return "brouillon";
   if (/validé|valide|en revue/.test(s)) return "publie";
   return "brouillon";
@@ -224,7 +225,6 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
   const scaleByCode = Object.fromEntries(scales.map((s) => [s.code, s]));
 
   let upserted = 0;
-  let statusPatched = 0;
   let skippedDuplicates = 0;
 
   // Index DB pour anti-doublon (thème × niveau × palier × nom)
@@ -258,18 +258,7 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
     const existing = byKey.get(key) || byName.get(nameKey);
 
     if (existing) {
-      // Remonter brouillon → a_valider pour les ajouts CSV « À valider »
-      // sans toucher publie/archive ni les validations admin.
-      if (existing.status === "brouillon" && ex.status === "a_valider") {
-        await prisma.exercise.update({
-          where: { id: existing.id },
-          data: { status: "a_valider" },
-        });
-        existing.status = "a_valider";
-        statusPatched += 1;
-      } else {
-        skippedDuplicates += 1;
-      }
+      skippedDuplicates += 1;
       continue;
     }
 
@@ -311,7 +300,6 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
 
   return {
     upserted,
-    statusPatched,
     skippedDuplicates,
     catalogCount: catalog.length,
   };

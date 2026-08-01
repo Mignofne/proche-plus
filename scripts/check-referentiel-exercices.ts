@@ -17,11 +17,11 @@ if (uniq.size !== 50) {
 
 const byStatus = {
   publie: cat.filter((c) => c.status === "publie").length,
-  a_valider: cat.filter((c) => c.status === "a_valider").length,
   brouillon: cat.filter((c) => c.status === "brouillon").length,
 };
-if (byStatus.a_valider !== 12) {
-  console.error("Expected 12 a_valider, got", byStatus.a_valider);
+// 12 ajouts « À valider » → brouillon en base (badge admin À valider)
+if (byStatus.brouillon !== 12) {
+  console.error("Expected 12 brouillon (À valider), got", byStatus.brouillon);
   process.exit(1);
 }
 console.log(JSON.stringify({ ok: true, count: 50, ...byStatus }, null, 2));
