@@ -19,7 +19,7 @@ export default async function NouvellePublicationPage() {
   return (
     <CommunityPageShell
       title="Nouveau post"
-      subtitle="Contenu → situation ours (Studio Ours) → réseaux → format adapté"
+      subtitle="Contenu → situation ours → réseaux → format adapté"
     >
       <SurfaceRaised>
         <SectionTitle>Éditeur</SectionTitle>

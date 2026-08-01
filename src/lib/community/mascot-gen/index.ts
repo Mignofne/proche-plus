@@ -20,3 +20,4 @@ export {
   RemoteImageGenerationProvider,
 } from "./providers";
 export { saveGeneration, listGenerations, getGeneration } from "./history";
+export { isStudioOursEnabled } from "./studio-flag";

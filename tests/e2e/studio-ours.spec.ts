@@ -28,6 +28,10 @@ test.describe("Studio Ours — E2E fondateur", () => {
 
   test("fondateur voit le brief et les garde-fous", async ({ page }) => {
     await loginFondateur(page);
+    await page.goto("/admin-produit/community");
+    await expect(
+      page.getByRole("link", { name: /Ouvrir Studio Ours/i })
+    ).toBeVisible();
     await page.goto("/admin-produit/community/studio-ours");
     await expect(
       page.getByRole("heading", { name: /Studio Ours/i })

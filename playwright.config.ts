@@ -27,14 +27,15 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        // Mock : E2E Studio Ours déterministe (remote = Pollinations flaky/lent)
-        command: `MASCOT_GEN_PROVIDER=mock npx next dev --turbo --port ${port}`,
+        // Mock + flag : E2E Studio Ours (sinon masqué sans OPENAI_API_KEY)
+        command: `MASCOT_GEN_PROVIDER=mock MASCOT_GEN_STUDIO_ENABLED=true npx next dev --turbo --port ${port}`,
         url: baseURL,
         reuseExistingServer: false,
         timeout: 180_000,
         env: {
           ...process.env,
           MASCOT_GEN_PROVIDER: "mock",
+          MASCOT_GEN_STUDIO_ENABLED: "true",
         },
       },
 });
