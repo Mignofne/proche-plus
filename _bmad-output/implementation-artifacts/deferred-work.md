@@ -24,6 +24,10 @@
   summary: Bouton copier/télécharger le prompt Phase 1 absent
   evidence: Le prompt est le livrable mais reste dans un `<pre>` sans action d’export.
 
-- source_spec: `_bmad-output/implementation-artifacts/spec-studio-ours-mock-ux.md`
-  summary: Brancher un provider réel (remote/local) pour illustrer les scènes
-  evidence: Phase 1 mock volontaire ; fondateur attend une image de scène, pas la planche C-v3.
+- source_spec: `_bmad-output/implementation-artifacts/spec-studio-ours-remote-gen.md`
+  summary: Fidélité C-v3 du free tier Pollinations limitée — OpenAI + Blob recommandés en prod
+  evidence: Sans OPENAI_API_KEY le remote utilise Pollinations ; identité approximative vs sheet validé.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-studio-ours-remote-gen.md`
+  summary: Images /tmp éphémères sur Vercel sans BLOB_READ_WRITE_TOKEN
+  evidence: image-store écrit sous /tmp ; cold start → 404 sur l’API image.

@@ -14,6 +14,7 @@ import {
   validateSceneBrief,
 } from "@/lib/community/mascot-gen/safeguards";
 import type {
+  MascotGenProviderId,
   MascotGenerationRecord,
   SceneBrief,
 } from "@/lib/community/mascot-gen/types";
@@ -47,9 +48,12 @@ function Chip({
 
 export function StudioOursForm({
   initialHistory,
+  providerId = "remote",
 }: {
   initialHistory: MascotGenerationRecord[];
+  providerId?: MascotGenProviderId;
 }) {
+  const isMock = providerId === "mock";
   const [situation, setSituation] = useState("");
   const [emotion, setEmotion] = useState<string>("rassurant");
   const [emotionCustom, setEmotionCustom] = useState("");
@@ -108,9 +112,19 @@ export function StudioOursForm({
       <SurfaceRaised>
         <SectionTitle>Brief de scène</SectionTitle>
         <p className="mt-2 text-sm text-text-muted">
-          Situation + émotion + lieu → <strong>prompt verrouillé</strong>{" "}
-          (identité ours C-v3). En Phase 1, le bouton compose le prompt ; il
-          n’illustre pas encore la scène (placeholder = planche identité).
+          {isMock ? (
+            <>
+              Situation + émotion + lieu → <strong>prompt verrouillé</strong>{" "}
+              (identité ours C-v3). Mode mock : placeholder planche identité,
+              pas d’illustration de scène.
+            </>
+          ) : (
+            <>
+              Situation + émotion + lieu → une <strong>nouvelle illustration</strong>{" "}
+              de l’ours Proche+ (identité C-v3). Compagnons = autres ours
+              uniquement — jamais d’humains.
+            </>
+          )}
         </p>
 
         <div className="mt-4 space-y-4">
@@ -214,7 +228,13 @@ export function StudioOursForm({
           ) : null}
 
           <Button type="button" onClick={onGenerate} disabled={pending}>
-            {pending ? "Composition du prompt…" : "Composer le prompt"}
+            {pending
+              ? isMock
+                ? "Composition du prompt…"
+                : "Génération de la scène…"
+              : isMock
+                ? "Composer le prompt"
+                : "Générer la scène"}
           </Button>
         </div>
       </SurfaceRaised>
@@ -262,8 +282,9 @@ export function StudioOursForm({
                   Placeholder visuel — planche canon C-v3
                 </p>
                 <p className="text-xs text-text-muted">
-                  Ce n’est pas une illustration de votre situation. L’image de
-                  scène arrivera quand un provider réel sera branché.
+                  Ce n’est pas une illustration de votre situation. Passez{" "}
+                  <code>MASCOT_GEN_PROVIDER=remote</code> (défaut) pour générer
+                  une vraie scène.
                 </p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -297,32 +318,50 @@ export function StudioOursForm({
       {history.length > 0 ? (
         <SurfaceRaised>
           <SectionTitle>Historique récent</SectionTitle>
-          <p className="mt-1 text-xs text-text-muted">
-            En Phase 1 (mock), chaque entrée = prompt enregistré ; l’aperçu
-            image reste la planche identité.
-          </p>
+          {isMock ? (
+            <p className="mt-1 text-xs text-text-muted">
+              Mode mock : chaque entrée = prompt enregistré ; l’aperçu image
+              reste la planche identité.
+            </p>
+          ) : null}
           <ul className="mt-3 space-y-2 text-sm">
             {history.map((h) => {
               const situation = h.brief?.situation ?? "";
+              const thumb =
+                h.imageUrl &&
+                h.provider !== "mock" &&
+                !h.imageUrl.includes("canon-c-v3")
+                  ? h.imageUrl
+                  : null;
               return (
                 <li
                   key={h.id}
-                  className="rounded-2xl border border-cream-dark px-3 py-2"
+                  className="flex gap-3 rounded-2xl border border-cream-dark px-3 py-2"
                 >
-                  <span className="font-medium text-teal-dark">
-                    {h.status ?? "unknown"}
-                  </span>
-                  {" · "}
-                  <span className="text-text-muted">
-                    {situation.slice(0, 80) || "(sans situation)"}
-                    {situation.length > 80 ? "…" : ""}
-                  </span>
-                  <span className="block text-xs text-text-muted">
-                    {h.createdAt
-                      ? new Date(h.createdAt).toLocaleString("fr-FR")
-                      : "—"}{" "}
-                    · {h.provider ?? "—"}
-                  </span>
+                  {thumb ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={thumb}
+                      alt=""
+                      className="h-14 w-14 shrink-0 rounded-xl object-cover bg-cream"
+                    />
+                  ) : null}
+                  <div className="min-w-0 flex-1">
+                    <span className="font-medium text-teal-dark">
+                      {h.status ?? "unknown"}
+                    </span>
+                    {" · "}
+                    <span className="text-text-muted">
+                      {situation.slice(0, 80) || "(sans situation)"}
+                      {situation.length > 80 ? "…" : ""}
+                    </span>
+                    <span className="block text-xs text-text-muted">
+                      {h.createdAt
+                        ? new Date(h.createdAt).toLocaleString("fr-FR")
+                        : "—"}{" "}
+                      · {h.provider ?? "—"}
+                    </span>
+                  </div>
                 </li>
               );
             })}

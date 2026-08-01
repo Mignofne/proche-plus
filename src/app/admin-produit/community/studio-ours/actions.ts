@@ -59,7 +59,7 @@ export async function generateOursSceneAction(
 
   const built = buildPromptFromBrief(brief);
   const provider = resolveMascotGenProvider();
-  const sceneId = `studio-${Date.now()}`;
+  const sceneId = `studio-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   try {
     const available = await provider.isAvailable();
@@ -95,17 +95,30 @@ export async function generateOursSceneAction(
 
     revalidatePath("/admin-produit/community/studio-ours");
 
+    const backend =
+      typeof result.meta?.backend === "string" ? result.meta.backend : null;
     const providerNote =
       result.provider === "mock"
         ? result.imageUrl
-          ? "Mode mock (Phase 1) : le vrai livrable est le prompt ci-dessous. L’image est la planche canon C-v3 (placeholder), pas votre scène."
-          : "Mode mock (Phase 1) : le vrai livrable est le prompt ci-dessous. Pas d’illustration de scène pour l’instant."
-        : `Illustration générée via provider « ${result.provider} ».`;
+          ? "Mode mock : l’image est la planche canon C-v3 (placeholder), pas votre scène."
+          : "Mode mock : pas d’illustration de scène."
+        : backend === "pollinations"
+          ? "Scène générée (free tier). Pour coller davantage au canon C-v3, ajoutez OPENAI_API_KEY sur Vercel."
+          : backend === "openai"
+            ? "Scène générée via OpenAI à partir de la référence identité C-v3."
+            : `Illustration générée via provider « ${result.provider} »${
+                backend ? ` (${backend})` : ""
+              }.`;
 
     return { ok: true, record, providerNote };
   } catch (err) {
+    const raw = err instanceof Error ? err.message : "Échec de génération";
     const message =
-      err instanceof Error ? err.message : "Échec de génération";
+      raw.length > 220
+        ? `${raw.slice(0, 200)}…`
+        : raw.includes("API key") || raw.includes("Authorization")
+          ? "Génération impossible : clé API / autorisation provider."
+          : raw;
     try {
       await saveGeneration({
         provider: provider.id,
