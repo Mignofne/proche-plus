@@ -15,6 +15,12 @@ import {
 import { validateEditableTags } from "@/lib/community/themes";
 import { blogArticleSchema } from "@/lib/community/blog";
 import { HEALTH_DISCLAIMER_BODY } from "@/lib/community/health-disclaimer";
+import {
+  isSceneKey,
+  normalizeHexColor,
+  DEFAULT_TITLE_COLOR,
+  DEFAULT_SUBTITLE_COLOR,
+} from "@/lib/community/scenes";
 import type {
   CommunityPublicationKind,
   CommunitySocialChannel,
@@ -181,10 +187,16 @@ export async function createPublicationAction(
     throw new Error("Carrousel : renseignez slidesJson (overlayText par slide)");
   }
 
-  const titleColor = String(formData.get("titleColor") || "").trim() || null;
-  const subtitleColor =
-    String(formData.get("subtitleColor") || "").trim() || null;
-  const sceneKey = String(formData.get("sceneKey") || "").trim() || null;
+  const titleColorRaw = String(formData.get("titleColor") || "").trim();
+  const subtitleColorRaw = String(formData.get("subtitleColor") || "").trim();
+  const titleColor = titleColorRaw
+    ? normalizeHexColor(titleColorRaw, DEFAULT_TITLE_COLOR)
+    : null;
+  const subtitleColor = subtitleColorRaw
+    ? normalizeHexColor(subtitleColorRaw, DEFAULT_SUBTITLE_COLOR)
+    : null;
+  const sceneKeyRaw = String(formData.get("sceneKey") || "").trim();
+  const sceneKey = isSceneKey(sceneKeyRaw) ? sceneKeyRaw : null;
 
   const accounts =
     accountIds.length > 0
