@@ -2,8 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { CommunityPageShell } from "@/components/community/CommunityPageShell";
 import { SurfaceRaised } from "@/components/community/SurfaceRaised";
 import { SectionTitle } from "@/components/ui/Card";
+import { TextColorFields } from "@/components/community/TextColorFields";
+import { OursSituationFields } from "@/components/community/OursSituationFields";
 import { createPublicationAction } from "../../actions";
-import { channelsAllowedForKind } from "@/lib/community/publications";
+
+const ALL_CHANNELS = ["instagram", "threads", "facebook", "tiktok"] as const;
 
 export default async function NouvellePublicationPage() {
   const [themes, accounts, media, scenarios] = await Promise.all([
@@ -13,71 +16,103 @@ export default async function NouvellePublicationPage() {
     prisma.communityBearScenario.findMany(),
   ]);
 
-  const classiqueChannels = channelsAllowedForKind("classique");
-
   return (
     <CommunityPageShell
-      title="Nouvelle publication"
-      subtitle="Classique, carrousel ou vidéo — règles canaux Semi"
+      title="Nouveau post"
+      subtitle="Contenu → situation ours (Studio Ours) → réseaux → format adapté"
     >
       <SurfaceRaised>
         <SectionTitle>Éditeur</SectionTitle>
         <form action={createPublicationAction} className="mt-3 space-y-3">
-          <select name="kind" className="w-full rounded-2xl border border-cream-dark px-4 py-3" defaultValue="classique">
-            <option value="classique">Classique — image unique (IG / Threads)</option>
-            <option value="carrousel">Carrousel — plusieurs slides + texte sur image (IG / Threads)</option>
-            <option value="video">Vidéo (TikTok + IG / Threads)</option>
+          <select
+            name="kind"
+            className="w-full rounded-2xl border border-cream-dark px-4 py-3"
+            defaultValue="classique"
+          >
+            <option value="classique">
+              Classique — image unique (IG / Threads / Facebook)
+            </option>
+            <option value="carrousel">
+              Carrousel — scènes + texte (IG / Threads / Facebook)
+            </option>
+            <option value="video">
+              Vidéo (TikTok + IG / Threads / Facebook)
+            </option>
           </select>
-          <input name="title" placeholder="Titre interne" className="w-full rounded-2xl border border-cream-dark px-4 py-3" />
-          <textarea name="body" required rows={5} placeholder="Légende / texte du post" className="w-full rounded-2xl border border-cream-dark px-4 py-3" />
+          <input
+            name="title"
+            placeholder="Titre (sur l’image)"
+            className="w-full rounded-2xl border border-cream-dark px-4 py-3"
+          />
+          <textarea
+            name="body"
+            required
+            rows={5}
+            placeholder="Légende du post"
+            className="w-full rounded-2xl border border-cream-dark px-4 py-3"
+          />
+
+          <TextColorFields />
+
+          <OursSituationFields />
+
           <textarea
             name="slidesJson"
             rows={4}
-            placeholder='Carrousel (optionnel) — JSON slides : [{"overlayText":"…","poseKey":"encourage","accent":"teal"}]'
+            placeholder='Carrousel — JSON : [{"overlayText":"…","subtitle":"…","sceneKey":"scene-cognitif","textColor":"#5B6BC0","subtitleColor":"#8B7BB5","accent":"teal"}]'
             className="w-full rounded-2xl border border-cream-dark px-4 py-3 font-mono text-xs"
           />
-          <input name="tags" placeholder="Tags (#Aidants …)" className="w-full rounded-2xl border border-cream-dark px-4 py-3" />
-          <select name="themeId" className="w-full rounded-2xl border border-cream-dark px-4 py-3" defaultValue="">
-            <option value="">Thème (optionnel)</option>
+          <input
+            name="tags"
+            placeholder="Tags (#Aidants …)"
+            className="w-full rounded-2xl border border-cream-dark px-4 py-3"
+          />
+          <select
+            name="themeId"
+            className="w-full rounded-2xl border border-cream-dark px-4 py-3"
+            defaultValue=""
+          >
+            <option value="">Thème éditorial Community (optionnel)</option>
             {themes.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.label}
               </option>
             ))}
           </select>
-          <select name="bearScenarioId" className="w-full rounded-2xl border border-cream-dark px-4 py-3" defaultValue="">
-            <option value="">Scénario ours (optionnel)</option>
+          <select
+            name="bearScenarioId"
+            className="w-full rounded-2xl border border-cream-dark px-4 py-3"
+            defaultValue=""
+          >
+            <option value="">Scénario CAP-9 (optionnel)</option>
             {scenarios.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.title}
               </option>
             ))}
           </select>
-          <select name="poseKey" className="w-full rounded-2xl border border-cream-dark px-4 py-3" defaultValue="encourage">
-            <option value="accueil">Pose accueil</option>
-            <option value="encourage">Pose encouragement</option>
-            <option value="patience">Pose patience</option>
-            <option value="celebration">Pose célébration</option>
-            <option value="vigilance">Pose vigilance</option>
-            <option value="curiosite">Pose curiosité</option>
-          </select>
+          <input type="hidden" name="poseKey" value="encourage" />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="bearEnabled" defaultChecked />
-            Inclure l’ours
+            Inclure l’ours en situation
           </label>
           <fieldset className="text-sm">
-            <legend className="font-semibold">Canaux (classique = pas TikTok)</legend>
-            {(["instagram", "threads", "tiktok"] as const).map((ch) => (
+            <legend className="font-semibold">
+              Réseaux de diffusion (le premier coché pilote le format d’aperçu)
+            </legend>
+            {ALL_CHANNELS.map((ch) => (
               <label key={ch} className="mr-4 inline-flex items-center gap-1">
                 <input
                   type="checkbox"
                   name="channels"
                   value={ch}
-                  defaultChecked={classiqueChannels.includes(ch)}
-                  disabled={ch === "tiktok"}
+                  defaultChecked={ch === "instagram"}
                 />
                 {ch}
-                {ch === "tiktok" ? " (vidéo seulement)" : ""}
+                {ch === "tiktok"
+                  ? " (vidéo seulement)"
+                  : ""}
+                {ch === "facebook" ? " (format fil / 16:9 vidéo)" : ""}
               </label>
             ))}
           </fieldset>
@@ -110,7 +145,10 @@ export default async function NouvellePublicationPage() {
             <input type="checkbox" name="isAttributable" />
             Citation / portrait attribuable (CAP-11)
           </label>
-          <button type="submit" className="touch-target rounded-2xl bg-teal px-6 py-3 font-semibold text-white">
+          <button
+            type="submit"
+            className="touch-target rounded-2xl bg-teal px-6 py-3 font-semibold text-white"
+          >
             Enregistrer brouillon
           </button>
         </form>

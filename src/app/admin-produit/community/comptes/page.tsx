@@ -12,7 +12,7 @@ export default async function CommunityComptesPage() {
   return (
     <CommunityPageShell
       title="Comptes sociaux"
-      subtitle="Liens IG / Threads / TikTok — aucune API de publication Meta/TikTok"
+      subtitle="Liens IG / Threads / Facebook / TikTok — aucune API Meta/TikTok (mise en ligne manuelle)"
     >
       <SurfaceRaised>
         <SectionTitle>Enregistrer un compte</SectionTitle>
@@ -20,6 +20,7 @@ export default async function CommunityComptesPage() {
           <select name="channel" className="rounded-2xl border border-cream-dark px-4 py-3" required>
             <option value="instagram">Instagram</option>
             <option value="threads">Threads</option>
+            <option value="facebook">Facebook</option>
             <option value="tiktok">TikTok</option>
           </select>
           <input name="label" required placeholder="Libellé" className="rounded-2xl border border-cream-dark px-4 py-3" />
@@ -30,7 +31,7 @@ export default async function CommunityComptesPage() {
         </form>
         <ul className="mt-4 space-y-2 text-sm">
           {accounts.length === 0 ? (
-            <li className="text-text-muted">Aucun compte — ajoutez IG, Threads ou TikTok.</li>
+            <li className="text-text-muted">Aucun compte — ajoutez IG, Threads, Facebook ou TikTok.</li>
           ) : (
             accounts.map((a) => (
               <li key={a.id} className="rounded-xl bg-cream px-3 py-2">

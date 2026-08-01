@@ -1,12 +1,16 @@
 import { CommunityPageShell } from "@/components/community/CommunityPageShell";
 import { SurfaceRaised } from "@/components/community/SurfaceRaised";
 import { ButtonLink } from "@/components/ui/Button";
+import {
+  CANON_IMAGE_PATH,
+  SCENE_OPTIONS,
+} from "@/lib/community/scenes";
 
 const CONCEPTS = [
   {
     id: "C-v3",
     title: "C-v3 — Canon (sans nœud, fleurs mexicaines, pattes d’oie)",
-    src: "/community-assets/ours-canon/canon-c-v3.png",
+    src: CANON_IMAGE_PATH,
   },
   {
     id: "C-v2",
@@ -30,61 +34,24 @@ const CONCEPTS = [
   },
 ] as const;
 
-const SCENES = [
-  {
-    id: "habillage",
-    title: "S'habiller",
-    src: "/community-assets/ours-canon/scenes-referentiel/scene-habillage.png",
-  },
-  {
-    id: "repas",
-    title: "Manger",
-    src: "/community-assets/ours-canon/scenes-referentiel/scene-repas.png",
-  },
-  {
-    id: "deplacement",
-    title: "Se déplacer",
-    src: "/community-assets/ours-canon/scenes-referentiel/scene-deplacement.png",
-  },
-  {
-    id: "fauteuil-freins",
-    title: "Fauteuil (freins)",
-    src: "/community-assets/ours-canon/scenes-referentiel/scene-fauteuil-freins.png",
-  },
-  {
-    id: "toilette",
-    title: "Toilette / hygiène",
-    src: "/community-assets/ours-canon/scenes-referentiel/scene-toilette.png",
-  },
-  {
-    id: "mobilite-lit",
-    title: "Mobilité au lit",
-    src: "/community-assets/ours-canon/scenes-referentiel/scene-mobilite-lit.png",
-  },
-  {
-    id: "communication",
-    title: "Communication",
-    src: "/community-assets/ours-canon/scenes-referentiel/scene-communication.png",
-  },
-  {
-    id: "cognitif",
-    title: "Mémoire / attention",
-    src: "/community-assets/ours-canon/scenes-referentiel/scene-cognitif.png",
-  },
-] as const;
-
 export default function OursCanonPage() {
   return (
     <CommunityPageShell
       title="Canon ours — validation"
-      subtitle="Choisis A, B ou C et dis ce qu’il faut corriger (mono-sourcil, mèche, tenue, ton)."
+      subtitle="Kit C-v3 adopté + scènes référentiel — même source que les posts Community."
       actions={
-        <ButtonLink
-          href="/admin-produit/community/studio-ours"
-          size="sm"
-        >
-          Studio Ours
-        </ButtonLink>
+        <div className="flex flex-wrap gap-2">
+          <ButtonLink href="/admin-produit/community/studio-ours" size="sm">
+            Studio Ours
+          </ButtonLink>
+          <ButtonLink
+            href="/admin-produit/community/publications/nouveau"
+            size="sm"
+            variant="ghost"
+          >
+            Nouveau post
+          </ButtonLink>
+        </div>
       }
     >
       <div className="grid gap-8">
@@ -103,18 +70,24 @@ export default function OursCanonPage() {
           </SurfaceRaised>
         ))}
 
-        <h2 className="text-xl font-bold text-teal-dark">Scènes référentiel</h2>
-        {SCENES.map((s) => (
-          <SurfaceRaised key={s.id} className="space-y-3">
-            <h3 className="text-lg font-bold text-teal-dark">{s.title}</h3>
+        <h2 className="text-xl font-bold text-teal-dark">
+          Scènes référentiel (kit posts Community)
+        </h2>
+        <p className="text-sm text-text-muted">
+          Ces scènes alimentent l’éditeur de posts (ours en situation) — source
+          unique via <code>src/lib/community/scenes.ts</code>.
+        </p>
+        {SCENE_OPTIONS.map((s) => (
+          <SurfaceRaised key={s.value} className="space-y-3">
+            <h3 className="text-lg font-bold text-teal-dark">{s.label}</h3>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={s.src}
-              alt={s.title}
+              alt={s.label}
               className="w-full max-w-xl rounded-2xl border border-cream-dark bg-cream object-contain"
             />
             <p className="text-sm text-text-muted">
-              Fichier : <code>{s.src}</code>
+              Clé : <code>{s.value}</code> · Fichier : <code>{s.src}</code>
             </p>
           </SurfaceRaised>
         ))}

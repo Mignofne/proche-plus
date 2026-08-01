@@ -7,32 +7,35 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import {
-  BearFace,
-  CANON_BEAR_STATIC_FILE,
-  toMascotPose,
-} from "@/components/mascot/BearFace";
 import type { RemotionInputProps } from "@/lib/community/video/remotion";
+import {
+  DEFAULT_SUBTITLE_COLOR,
+  DEFAULT_TITLE_COLOR,
+  resolveSceneSrc,
+} from "@/lib/community/scenes";
 
 const COLORS = {
   cream: "#FAF7F2",
-  creamDark: "#F0EBE3",
+  peach: "#F8E8DF",
   teal: "#2A9D8F",
   sun: "#F5C842",
   terracotta: "#C67B5C",
-  text: "#2D2A26",
-  textMuted: "#5C5650",
 };
 
+/** Remotion short — texte haut colorisable + ours en situation (scène pleine) */
 export const ProchePlusShort: React.FC<RemotionInputProps> = ({
   title,
   body,
   poseKey,
   accent,
+  titleColor,
+  subtitleColor,
+  sceneSrc,
+  bearEnabled = true,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const mascotPose = toMascotPose(poseKey);
+  const { fps, width, height } = useVideoConfig();
+  const isLandscape = width > height;
 
   const accentColor =
     accent === "sun"
@@ -40,6 +43,18 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
       : accent === "terracotta"
         ? COLORS.terracotta
         : COLORS.teal;
+
+  const titleHex = titleColor || DEFAULT_TITLE_COLOR;
+  const bodyHex = subtitleColor || DEFAULT_SUBTITLE_COLOR;
+
+  const resolvedScene =
+    sceneSrc ||
+    resolveSceneSrc({ poseKey });
+
+  // staticFile attend un chemin relatif à public/
+  const sceneStatic = resolvedScene.startsWith("/")
+    ? resolvedScene.slice(1)
+    : resolvedScene;
 
   const brandIn = spring({ frame, fps, config: { damping: 18, stiffness: 120 } });
   const titleIn = spring({
@@ -65,65 +80,51 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
     extrapolateRight: "clamp",
   });
   const bearY = interpolate(bearIn, [0, 1], [80, 0]);
-  const bearScale = interpolate(bearIn, [0, 1], [0.88, 1]);
-  const orbPulse = interpolate(frame, [0, 90], [0.92, 1.08], {
-    extrapolateRight: "clamp",
-  });
+  const bearScale = interpolate(bearIn, [0, 1], [0.92, 1]);
+
+  const padX = isLandscape ? 96 : 64;
+  const padTop = isLandscape ? 48 : 72;
+  const titleSize = isLandscape ? 52 : 56;
+  const bodySize = isLandscape ? 28 : 30;
+  const sceneMaxH = isLandscape ? height * 0.55 : height * 0.48;
 
   return (
     <AbsoluteFill
       style={{
         fontFamily: "Nunito, system-ui, sans-serif",
-        background: `
-          radial-gradient(ellipse 90% 55% at 85% 8%, ${accentColor}33, transparent 55%),
-          radial-gradient(ellipse 70% 45% at 8% 92%, ${COLORS.sun}28, transparent 50%),
-          linear-gradient(168deg, ${COLORS.cream} 0%, ${COLORS.creamDark} 48%, #EDE6DB 100%)
-        `,
+        background: COLORS.peach,
       }}
     >
       <div
         style={{
           position: "absolute",
-          top: 120,
-          right: 80,
-          width: 220,
-          height: 220,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${accentColor}40 0%, transparent 70%)`,
-          transform: `scale(${orbPulse})`,
-          opacity: 0.9,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: 280,
-          left: -40,
-          width: 280,
-          height: 280,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${COLORS.sun}30 0%, transparent 68%)`,
+          inset: 0,
+          background: `
+            radial-gradient(ellipse 70% 40% at 90% 0%, ${accentColor}22, transparent 55%),
+            radial-gradient(ellipse 50% 35% at 0% 100%, ${COLORS.sun}18, transparent 50%)
+          `,
         }}
       />
 
       <AbsoluteFill
         style={{
-          padding: "72px 64px 56px",
+          padding: `${padTop}px ${padX}px ${isLandscape ? 40 : 48}px`,
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <div>
+        <div style={{ width: "100%", textAlign: "center" }}>
           <div
             style={{
               opacity: brandIn,
               transform: `translateY(${brandY}px)`,
               color: accentColor,
-              fontSize: 34,
+              fontSize: isLandscape ? 28 : 32,
               fontWeight: 800,
               letterSpacing: "-0.02em",
-              marginBottom: 28,
+              marginBottom: 20,
             }}
           >
             Proche+
@@ -132,13 +133,13 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
             style={{
               opacity: titleIn,
               transform: `translateY(${titleY}px)`,
-              color: COLORS.text,
-              fontSize: 64,
+              color: titleHex,
+              fontSize: titleSize,
               fontWeight: 800,
-              lineHeight: 1.12,
+              lineHeight: 1.15,
               letterSpacing: "-0.03em",
-              margin: 0,
-              maxWidth: "92%",
+              margin: "0 auto",
+              maxWidth: "94%",
             }}
           >
             {title}
@@ -146,10 +147,12 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
           <p
             style={{
               opacity: bodyOpacity,
-              color: COLORS.textMuted,
-              fontSize: 32,
-              lineHeight: 1.45,
-              marginTop: 28,
+              color: bodyHex,
+              fontSize: bodySize,
+              lineHeight: 1.4,
+              marginTop: 20,
+              marginLeft: "auto",
+              marginRight: "auto",
               maxWidth: "88%",
               fontWeight: 600,
             }}
@@ -158,42 +161,33 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
           </p>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-            opacity: bearIn,
-            transform: `translateY(${bearY}px) scale(${bearScale})`,
-          }}
-        >
+        {bearEnabled ? (
           <div
             style={{
-              width: 360,
-              height: 360,
-              borderRadius: "50%",
-              background:
-                "linear-gradient(180deg, rgba(245,200,66,0.22), rgba(240,235,227,1) 45%, rgba(198,123,92,0.2))",
-              boxShadow: "0 18px 28px rgba(107,68,35,0.18)",
-              padding: 18,
               display: "flex",
-              alignItems: "center",
               justifyContent: "center",
+              alignItems: "flex-end",
+              opacity: bearIn,
+              transform: `translateY(${bearY}px) scale(${bearScale})`,
+              width: "100%",
+              maxHeight: sceneMaxH,
             }}
           >
-            <BearFace
-              pose={mascotPose}
-              variant="body"
-              src={staticFile(CANON_BEAR_STATIC_FILE)}
-              Image={Img}
+            <Img
+              src={staticFile(sceneStatic)}
               style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
+                width: "auto",
+                height: "auto",
+                maxWidth: isLandscape ? "70%" : "92%",
+                maxHeight: sceneMaxH,
+                objectFit: "contain",
+                objectPosition: "bottom",
               }}
             />
           </div>
-        </div>
+        ) : (
+          <div style={{ height: 24 }} />
+        )}
       </AbsoluteFill>
     </AbsoluteFill>
   );

@@ -1,43 +1,76 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Mascot } from "@/components/mascot/Mascot";
-import { toMascotPose } from "@/components/mascot/BearFace";
 import { COMMUNITY_BRAND } from "@/lib/community/ui-tokens";
+import {
+  formatForChannelKind,
+  channelLabels,
+  resolvePrimaryChannel,
+  type CommunityFormatSpec,
+} from "@/lib/community/formats";
+import { normalizeHexColor } from "@/lib/community/scenes";
+import type { CommunitySocialChannel } from "@prisma/client";
+import { SituationPostArt } from "./SituationPostArt";
 
 export type CarouselSlide = {
   overlayText: string;
-  /** Clé Community ou pose Mascot */
+  /** Sous-titre optionnel sur la slide */
+  subtitle?: string | null;
   poseKey?: string | null;
-  /** @deprecated préférez poseKey */
+  /** @deprecated préférez poseKey / sceneKey */
   poseSrc?: string | null;
+  /** Image scène explicite */
+  imageSrc?: string | null;
+  sceneKey?: string | null;
   bearEnabled?: boolean;
   accent?: "teal" | "sun" | "terracotta";
+  /** Couleur du texte overlay (titre) */
+  textColor?: string | null;
+  subtitleColor?: string | null;
 };
 
-const ACCENT = {
-  teal: COMMUNITY_BRAND.teal,
-  sun: COMMUNITY_BRAND.sun,
-  terracotta: COMMUNITY_BRAND.terracotta,
-} as const;
+const ACCENT_INDEX: Record<NonNullable<CarouselSlide["accent"]>, number> = {
+  teal: 1,
+  sun: 0,
+  terracotta: 2,
+};
 
-/** Aperçu carrousel — mascotte produit + texte overlay par slide */
+/** Aperçu carrousel — scène en situation + couleurs par slide + format réseau */
 export function CarouselPostPreview({
   body,
   title,
   slides,
-  channelLabel = "Instagram / Threads",
+  channel,
+  channels,
+  channelLabel,
+  titleColor,
+  subtitleColor,
+  themeSlug,
+  format: formatOverride,
 }: {
   body: string;
   title?: string | null;
   slides: CarouselSlide[];
+  channel?: CommunitySocialChannel | string | null;
+  channels?: Array<CommunitySocialChannel | string>;
   channelLabel?: string;
+  titleColor?: string | null;
+  subtitleColor?: string | null;
+  themeSlug?: string | null;
+  format?: CommunityFormatSpec;
 }) {
   const [index, setIndex] = useState(0);
   const total = slides.length;
   const slide = slides[index] ?? slides[0];
-  const accent = ACCENT[slide?.accent ?? "teal"];
-  const mascotPose = toMascotPose(slide?.poseKey);
+  const primary = resolvePrimaryChannel([channel, ...(channels ?? [])]);
+  const format = formatOverride ?? formatForChannelKind(primary, "carrousel");
+  const label =
+    channelLabel ??
+    channelLabels(
+      (channels?.length
+        ? channels
+        : [primary]) as CommunitySocialChannel[]
+    );
 
   const go = useCallback(
     (dir: -1 | 1) => {
@@ -51,10 +84,13 @@ export function CarouselPostPreview({
     return <p className="text-sm text-text-muted">Aucun slide carrousel.</p>;
   }
 
+  const slideTitleColor = slide.textColor || titleColor;
+  const slideSubtitleColor = slide.subtitleColor || subtitleColor;
+
   return (
     <div className="mx-auto w-full max-w-sm animate-fade-up">
       <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
-        Aperçu carrousel — {channelLabel}
+        Aperçu carrousel — {label} · {format.label}
       </p>
 
       <div
@@ -78,40 +114,26 @@ export function CarouselPostPreview({
             <p className="truncate text-sm font-extrabold text-text">procheplus</p>
             <p className="text-[11px] text-text-muted">
               Carrousel · {index + 1}/{total}
+              {primary === "facebook" ? " · Facebook" : ""}
             </p>
           </div>
         </div>
 
-        <div
-          className="relative aspect-square overflow-hidden"
-          style={{
-            background: `
-              radial-gradient(ellipse 75% 55% at 82% 14%, ${accent}33, transparent 55%),
-              radial-gradient(ellipse 65% 45% at 10% 90%, rgba(245,200,66,0.16), transparent 50%),
-              linear-gradient(165deg, ${COMMUNITY_BRAND.cream} 0%, #F3EDE4 45%, ${COMMUNITY_BRAND.creamDark} 100%)
-            `,
-          }}
-        >
-          <div
-            key={index}
-            className="absolute inset-0 flex animate-soft-pop items-center justify-center"
-          >
-            {slide.bearEnabled !== false ? (
-              <Mascot
-                pose={mascotPose}
-                size="xl"
-                className="relative z-[1] -translate-y-4 drop-shadow-[0_12px_24px_rgba(107,68,35,0.18)]"
-              />
-            ) : null}
-
-            <div className="absolute inset-x-0 bottom-0 z-[2] bg-gradient-to-t from-[#2D2A26]/80 via-[#2D2A26]/35 to-transparent px-5 pb-5 pt-20">
-              <p
-                className="text-[1.15rem] font-extrabold leading-snug tracking-tight text-white"
-                style={{ textShadow: "0 1px 8px rgba(0,0,0,0.25)" }}
-              >
-                {slide.overlayText}
-              </p>
-            </div>
+        <div className="relative">
+          <div key={index}>
+            <SituationPostArt
+              title={slide.overlayText}
+              subtitle={slide.subtitle}
+              titleColor={slideTitleColor}
+              subtitleColor={slideSubtitleColor}
+              sceneKey={slide.sceneKey}
+              imageSrc={slide.imageSrc}
+              poseKey={slide.poseKey}
+              themeSlug={themeSlug}
+              bearEnabled={slide.bearEnabled !== false}
+              format={format}
+              accentIndex={ACCENT_INDEX[slide.accent ?? "teal"]}
+            />
           </div>
 
           {total > 1 ? (
@@ -144,7 +166,10 @@ export function CarouselPostPreview({
                   onClick={() => setIndex(i)}
                   className="h-0.5 flex-1 rounded-full transition-opacity"
                   style={{
-                    background: i === index ? "#fff" : "rgba(255,255,255,0.4)",
+                    background:
+                      i === index
+                        ? "rgba(45,42,38,0.85)"
+                        : "rgba(45,42,38,0.25)",
                   }}
                   aria-label={`Aller au slide ${i + 1}`}
                 />
@@ -174,13 +199,20 @@ export function CarouselPostPreview({
             </div>
           </div>
           {title ? (
-            <p className="text-sm font-bold text-teal-dark">{title}</p>
+            <p
+              className="text-sm font-bold"
+              style={{
+                color: normalizeHexColor(titleColor, COMMUNITY_BRAND.tealDark),
+              }}
+            >
+              {title}
+            </p>
           ) : null}
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-text">
             <span className="font-extrabold">procheplus</span> {body}
           </p>
           <p className="text-xs text-text-muted">
-            #ProchePlus · carrousel · aperçu fondateur
+            #ProchePlus · carrousel · aperçu post
           </p>
         </div>
       </div>

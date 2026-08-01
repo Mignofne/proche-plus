@@ -25,50 +25,46 @@ export default async function CommunityPublicationsPage() {
     include: { theme: true, targets: { include: { account: true } } },
   });
 
-  const sampleClassic = pubs.find((p) => p.kind === "classique");
-  const sampleVideo = pubs.find((p) => p.kind === "video");
-
   return (
     <CommunityPageShell
-      title="Publications Semi"
-      subtitle="File / calendrier — rappel automatique, publish manuel uniquement"
+      title="Posts Semi"
+      subtitle="File / calendrier — rappel automatique, mise en ligne manuelle uniquement"
     >
       <SurfaceRaised className="border-teal/30 bg-teal/5">
-        <SectionTitle>Aperçus fondateur (avant deploy)</SectionTitle>
+        <SectionTitle>Aperçus posts (avant deploy)</SectionTitle>
         <p className="mt-2 text-sm text-text-muted">
-          Corrigez le rendu avant publication Semi / mise en prod.
+          Démos kit ours en situation + couleurs + format réseau — toujours à jour.
         </p>
         <div className="mt-3 flex flex-wrap gap-3">
           <ButtonLink
-            href={
-              sampleClassic
-                ? `/admin-produit/community/publications/preview/${sampleClassic.id}`
-                : "/admin-produit/community/publications/preview/demo-classique"
-            }
+            href="/admin-produit/community/publications/preview/demo-classique"
             size="sm"
           >
-            Aperçu post classique
+            Classique
           </ButtonLink>
           <ButtonLink
             href="/admin-produit/community/publications/preview/demo-carrousel"
             size="sm"
             variant="secondary"
           >
-            Aperçu carrousel
+            Carrousel
           </ButtonLink>
           <ButtonLink
-            href={
-              sampleVideo
-                ? `/admin-produit/community/publications/preview/${sampleVideo.id}`
-                : "/admin-produit/community/publications/preview/demo-video"
-            }
+            href="/admin-produit/community/publications/preview/demo-video"
             size="sm"
             variant="secondary"
           >
-            Aperçu post vidéo
+            Vidéo
+          </ButtonLink>
+          <ButtonLink
+            href="/admin-produit/community/publications/preview/demo-facebook"
+            size="sm"
+            variant="secondary"
+          >
+            Facebook
           </ButtonLink>
           <ButtonLink href="/admin-produit/community/publications/nouveau" size="sm" variant="ghost">
-            Nouveau brouillon
+            Nouveau post
           </ButtonLink>
         </div>
       </SurfaceRaised>
@@ -77,7 +73,7 @@ export default async function CommunityPublicationsPage() {
         <SectionTitle>File & calendrier</SectionTitle>
         {pubs.length === 0 ? (
           <p className="mt-2 text-sm text-text-muted">
-            Aucune publication. Créez un brouillon ou lancez{" "}
+            Aucun post. Créez un brouillon ou lancez{" "}
             <code>npm run db:seed-community</code>.
           </p>
         ) : (
@@ -122,7 +118,7 @@ export default async function CommunityPublicationsPage() {
                     <form action={publishManuallyAction}>
                       <input type="hidden" name="publicationId" value={p.id} />
                       <button type="submit" className="rounded-xl bg-teal px-3 py-1 font-semibold text-white">
-                        Publier (manuel)
+                        Mettre en ligne
                       </button>
                     </form>
                   ) : null}

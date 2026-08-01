@@ -1,6 +1,7 @@
 /**
  * Scénarios ours CAP-9 + pose pack (AD-11 kit-only).
- * Source visuelle = mascotte produit (`BearFace` / `Mascot`), pas des cercles génériques.
+ * Posts Community : ours en situation via scènes-referentiel (pas médaillon).
+ * Pose pack / BearFace restent utiles pour UI app et fallbacks.
  */
 
 import type { MascotPose } from "@/components/mascot/BearFace";
@@ -196,5 +197,5 @@ export const EDITORIAL_GUARDS_FR = [
   "Aucun geste médical ou de soin mis en scène.",
   "Aucune PHI, code GIR ou personne identifiable sans attestation CAP-11.",
   "Pas d’appel à un générateur d’images (fal / Replicate) — kit curaté uniquement.",
-  "Source visuelle = mascotte produit (BearFace / Mascot).",
+  "Posts Semi : ours en situation (scènes-referentiel), pas médaillon circulaire.",
 ] as const;

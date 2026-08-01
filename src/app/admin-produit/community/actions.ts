@@ -15,6 +15,15 @@ import {
 import { validateEditableTags } from "@/lib/community/themes";
 import { blogArticleSchema } from "@/lib/community/blog";
 import { HEALTH_DISCLAIMER_BODY } from "@/lib/community/health-disclaimer";
+import {
+  isSceneKey,
+  normalizeHexColor,
+  mapSceneBriefToSceneKey,
+  DEFAULT_TITLE_COLOR,
+  DEFAULT_SUBTITLE_COLOR,
+} from "@/lib/community/scenes";
+import { validateSceneBrief } from "@/lib/community/mascot-gen/safeguards";
+import type { SceneBrief } from "@/lib/community/mascot-gen/types";
 import type {
   CommunityPublicationKind,
   CommunitySocialChannel,
@@ -129,7 +138,7 @@ export async function createSocialAccountAction(
   const channel = String(formData.get("channel") || "") as CommunitySocialChannel;
   const label = String(formData.get("label") || "").trim();
   const url = String(formData.get("url") || "").trim();
-  if (!["instagram", "threads", "tiktok"].includes(channel)) {
+  if (!["instagram", "threads", "tiktok", "facebook"].includes(channel)) {
     throw new Error("Canal invalide");
   }
   if (!label || !url) throw new Error("Libelle et URL requis");
@@ -181,6 +190,59 @@ export async function createPublicationAction(
     throw new Error("Carrousel : renseignez slidesJson (overlayText par slide)");
   }
 
+  const titleColorRaw = String(formData.get("titleColor") || "").trim();
+  const subtitleColorRaw = String(formData.get("subtitleColor") || "").trim();
+  const titleColor = titleColorRaw
+    ? normalizeHexColor(titleColorRaw, DEFAULT_TITLE_COLOR)
+    : null;
+  const subtitleColor = subtitleColorRaw
+    ? normalizeHexColor(subtitleColorRaw, DEFAULT_SUBTITLE_COLOR)
+    : null;
+  const bearEnabled = formData.get("bearEnabled") === "on";
+  const situation = String(formData.get("situation") || "").trim();
+  const emotion = String(formData.get("emotion") || "").trim();
+  const emotionCustom = String(formData.get("emotionCustom") || "").trim();
+  const lieu = String(formData.get("lieu") || "").trim();
+  const lieuCustom = String(formData.get("lieuCustom") || "").trim();
+  const referentielThemeSlug = String(
+    formData.get("referentielThemeSlug") || ""
+  ).trim();
+
+  let sceneBriefJson: string | null = null;
+  let sceneKey: string | null = isSceneKey(
+    String(formData.get("sceneKey") || "").trim()
+  )
+    ? String(formData.get("sceneKey") || "").trim()
+    : null;
+
+  if (bearEnabled) {
+    const brief: SceneBrief = {
+      situation,
+      emotion: emotion || "rassurant",
+      emotionCustom: emotion === "custom" ? emotionCustom : null,
+      lieu: lieu || "salon",
+      lieuCustom: lieu === "custom" ? lieuCustom : null,
+      themeSlug: referentielThemeSlug || null,
+    };
+    const briefCheck = validateSceneBrief(brief);
+    if (!briefCheck.ok) {
+      throw new Error(briefCheck.message);
+    }
+    sceneBriefJson = JSON.stringify(brief);
+    sceneKey = mapSceneBriefToSceneKey(
+      brief,
+      isSceneKey(sceneKey) ? sceneKey : "scene-communication"
+    );
+  }
+
+  const accounts =
+    accountIds.length > 0
+      ? await prisma.communitySocialAccount.findMany({
+          where: { id: { in: accountIds } },
+        })
+      : [];
+  const accountById = Object.fromEntries(accounts.map((a) => [a.id, a]));
+
   const pub = await prisma.communityPublication.create({
     data: {
       kind,
@@ -190,16 +252,30 @@ export async function createPublicationAction(
       tagsJson: JSON.stringify(tagsRaw),
       themeId: String(formData.get("themeId") || "") || null,
       bearScenarioId: String(formData.get("bearScenarioId") || "") || null,
-      bearEnabled: formData.get("bearEnabled") !== "off",
+      bearEnabled,
       poseKey: String(formData.get("poseKey") || "") || null,
+      titleColor,
+      subtitleColor,
+      sceneKey,
+      sceneBriefJson,
+      channelsJson: JSON.stringify(channels),
       slidesJson,
       isTestimonial: formData.get("isTestimonial") === "on",
       isAttributable: formData.get("isAttributable") === "on",
-      remotionComposition: kind === "video" ? "ProchePlusShort" : null,
+      remotionComposition:
+        kind === "video"
+          ? channels[0] === "facebook"
+            ? "ProchePlusShortFacebook"
+            : "ProchePlusShort"
+          : null,
       targets: {
         create: accountIds.map((accountId, i) => ({
           accountId,
-          channel: channels[i] || channels[0] || "instagram",
+          channel:
+            accountById[accountId]?.channel ||
+            channels[i] ||
+            channels[0] ||
+            "instagram",
         })),
       },
       assets: {
@@ -246,7 +322,7 @@ export async function schedulePublicationAction(
   const id = String(formData.get("publicationId") || "");
   const when = String(formData.get("scheduledAt") || "");
   const pub = await prisma.communityPublication.findUnique({ where: { id } });
-  if (!pub) throw new Error("Publication introuvable");
+  if (!pub) throw new Error("Post introuvable");
   if (!canTransition(pub.status, "scheduled")) {
     throw new Error(`Transition ${pub.status} -> scheduled impossible`);
   }
@@ -272,7 +348,7 @@ export async function cancelPublicationAction(
   await requireFondateur();
   const id = String(formData.get("publicationId") || "");
   const pub = await prisma.communityPublication.findUnique({ where: { id } });
-  if (!pub) throw new Error("Publication introuvable");
+  if (!pub) throw new Error("Post introuvable");
   if (!canTransition(pub.status, "cancelled")) {
     throw new Error("Annulation impossible");
   }
@@ -287,9 +363,9 @@ export async function publishManuallyAction(formData: FormData): Promise<void> {
   await requireFondateur();
   const id = String(formData.get("publicationId") || "");
   const pub = await prisma.communityPublication.findUnique({ where: { id } });
-  if (!pub) throw new Error("Publication introuvable");
+  if (!pub) throw new Error("Post introuvable");
   if (pub.status !== "ready") {
-    throw new Error("Publication manuelle uniquement depuis le statut pret (ready)");
+    throw new Error("Mise en ligne manuelle uniquement depuis le statut prêt (ready)");
   }
   assertRightsGate({
     isTestimonial: pub.isTestimonial,
@@ -324,7 +400,7 @@ export async function attachRightsAttestationAction(
   const fileUrl = String(formData.get("fileUrl") || "").trim() || null;
   const notes = String(formData.get("notes") || "").trim() || null;
   if (!publicationId || !label) {
-    throw new Error("Publication et libelle requis");
+    throw new Error("Post et libellé requis");
   }
   const att = await prisma.communityRightsAttestation.create({
     data: { label, fileUrl, notes },

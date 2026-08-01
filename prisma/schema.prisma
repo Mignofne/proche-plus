@@ -552,6 +552,7 @@ enum CommunitySocialChannel {
   instagram
   threads
   tiktok
+  facebook
 }
 
 enum CommunityGeoFormat {
@@ -732,7 +733,17 @@ model CommunityPublication {
   bearScenario      CommunityBearScenario?     @relation(fields: [bearScenarioId], references: [id])
   bearEnabled       Boolean                    @default(true)
   poseKey           String?
-  /// Carrousel CAP-2 : JSON slides[{ overlayText, poseKey?, imageSrc?, accent? }]
+  /// Couleur texte titre / overlay (hex, ex. #5B6BC0)
+  titleColor        String?
+  /// Couleur sous-titre / corps overlay (hex)
+  subtitleColor     String?
+  /// Clé scène référentiel (ex. scene-communication) — ours en situation
+  sceneKey          String?
+  /// Brief Studio Ours JSON { situation, emotion, lieu, themeSlug?, … }
+  sceneBriefJson    String?
+  /// Canaux cibles cochés à la création (JSON string[]) — pilote le format d’aperçu
+  channelsJson      String                     @default("[]")
+  /// Carrousel CAP-2 : JSON slides[{ overlayText, poseKey?, imageSrc?, sceneKey?, textColor?, subtitleColor?, accent? }]
   slidesJson        String?
   scheduledAt       DateTime?
   publishedAt       DateTime?

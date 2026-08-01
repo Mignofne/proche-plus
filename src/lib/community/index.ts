@@ -27,3 +27,22 @@ export {
   assertRightsGate,
   applyTemplateVariables,
 } from "./publications";
+export {
+  formatForChannelKind,
+  channelLabel,
+  channelLabels,
+  resolvePrimaryChannel,
+} from "./formats";
+export {
+  resolveSceneKey,
+  resolveSceneSrc,
+  sceneImagePath,
+  mapSceneBriefToSceneKey,
+  SCENE_OPTIONS,
+  SCENE_KEYS,
+  CANON_IMAGE_PATH,
+  DEFAULT_TITLE_COLOR,
+  DEFAULT_SUBTITLE_COLOR,
+  TEXT_COLOR_PRESETS,
+  normalizeHexColor,
+} from "./scenes";

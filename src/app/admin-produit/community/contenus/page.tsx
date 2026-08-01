@@ -153,7 +153,7 @@ export default async function CommunityContenusPage() {
       </SurfaceRaised>
 
       <Link href="/admin-produit/community/publications" className="text-teal text-sm">
-        → Publications Semi
+        → Posts Semi
       </Link>
     </CommunityPageShell>
   );

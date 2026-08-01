@@ -1,33 +1,74 @@
 "use client";
 
-import { Mascot } from "@/components/mascot/Mascot";
-import { toMascotPose } from "@/components/mascot/BearFace";
 import { COMMUNITY_BRAND } from "@/lib/community/ui-tokens";
+import {
+  formatForChannelKind,
+  channelLabels,
+  resolvePrimaryChannel,
+  type CommunityFormatSpec,
+} from "@/lib/community/formats";
+import { normalizeHexColor } from "@/lib/community/scenes";
+import type { CommunitySocialChannel } from "@prisma/client";
+import { SituationPostArt } from "./SituationPostArt";
 
-/** Aperçu post classique IG/Threads — ours = mascotte produit */
+/** Aperçu post classique — ours en situation + couleurs texte + format réseau */
 export function ClassicPostPreview({
   body,
   title,
+  subtitle,
   poseKey,
   poseSrc: _poseSrc,
   bearEnabled = true,
-  channelLabel = "Instagram / Threads",
+  channel,
+  channels,
+  channelLabel,
+  titleColor,
+  subtitleColor,
+  sceneKey,
+  imageSrc,
+  themeSlug,
+  format: formatOverride,
 }: {
   body: string;
   title?: string | null;
-  /** Clé Community ou pose Mascot (accueil/welcome, encourage, …) */
+  /** Sous-titre sur l’image (sinon extrait court du body) */
+  subtitle?: string | null;
   poseKey?: string | null;
-  /** @deprecated préférez poseKey — mascotte produit inline */
+  /** @deprecated */
   poseSrc?: string | null;
   bearEnabled?: boolean;
+  channel?: CommunitySocialChannel | string | null;
+  channels?: Array<CommunitySocialChannel | string>;
   channelLabel?: string;
+  titleColor?: string | null;
+  subtitleColor?: string | null;
+  sceneKey?: string | null;
+  imageSrc?: string | null;
+  themeSlug?: string | null;
+  format?: CommunityFormatSpec;
 }) {
-  const mascotPose = toMascotPose(poseKey);
+  const primary = resolvePrimaryChannel([
+    channel,
+    ...(channels ?? []),
+  ]);
+  const format = formatOverride ?? formatForChannelKind(primary, "classique");
+  const label =
+    channelLabel ??
+    channelLabels(
+      (channels?.length
+        ? channels
+        : [primary]) as CommunitySocialChannel[]
+    );
+  const overlaySubtitle = subtitle ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-sm animate-fade-up">
+    <div
+      className={`mx-auto w-full animate-fade-up ${
+        format.key === "fb-landscape" ? "max-w-md" : "max-w-sm"
+      }`}
+    >
       <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
-        Aperçu classique — {channelLabel}
+        Aperçu classique — {label} · {format.label}
       </p>
 
       <div
@@ -52,7 +93,9 @@ export function ClassicPostPreview({
               procheplus
             </p>
             <p className="text-[11px] text-text-muted">
-              Publication sponsorisée · aperçu
+              {primary === "facebook"
+                ? "Post Facebook · aperçu"
+                : "Post · aperçu"}
             </p>
           </div>
           <span className="text-lg leading-none text-text-muted" aria-hidden>
@@ -60,44 +103,18 @@ export function ClassicPostPreview({
           </span>
         </div>
 
-        <div
-          className="relative flex aspect-square items-center justify-center overflow-hidden animate-soft-pop"
-          style={{
-            background: `
-              radial-gradient(ellipse 80% 60% at 78% 18%, rgba(42,157,143,0.22), transparent 55%),
-              radial-gradient(ellipse 70% 50% at 12% 88%, rgba(245,200,66,0.18), transparent 50%),
-              linear-gradient(165deg, ${COMMUNITY_BRAND.cream} 0%, #F3EDE4 42%, ${COMMUNITY_BRAND.creamDark} 100%)
-            `,
-          }}
-        >
-          <div
-            className="pointer-events-none absolute inset-0 opacity-[0.04]"
-            style={{
-              backgroundImage:
-                "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-            }}
-            aria-hidden
-          />
-
-          {bearEnabled ? (
-            <Mascot
-              pose={mascotPose}
-              size="xl"
-              animated
-              className="relative z-[1] drop-shadow-[0_12px_24px_rgba(107,68,35,0.18)]"
-            />
-          ) : (
-            <div className="text-sm text-text-muted">Sans ours</div>
-          )}
-
-          {title ? (
-            <div className="absolute inset-x-0 bottom-0 z-[2] bg-gradient-to-t from-[#2D2A26]/75 via-[#2D2A26]/25 to-transparent px-4 pb-4 pt-16">
-              <p className="text-lg font-extrabold leading-snug tracking-tight text-white drop-shadow-sm">
-                {title}
-              </p>
-            </div>
-          ) : null}
-        </div>
+        <SituationPostArt
+          title={title}
+          subtitle={overlaySubtitle}
+          titleColor={titleColor}
+          subtitleColor={subtitleColor}
+          sceneKey={sceneKey}
+          imageSrc={imageSrc}
+          poseKey={poseKey}
+          themeSlug={themeSlug}
+          bearEnabled={bearEnabled}
+          format={format}
+        />
 
         <div className="space-y-2.5 px-4 py-3.5">
           <div className="flex gap-4 text-text" aria-hidden>
@@ -106,12 +123,19 @@ export function ClassicPostPreview({
             <ShareIcon />
           </div>
           {title ? (
-            <p className="text-sm font-bold text-teal-dark">{title}</p>
+            <p
+              className="text-sm font-bold"
+              style={{
+                color: normalizeHexColor(titleColor, COMMUNITY_BRAND.tealDark),
+              }}
+            >
+              {title}
+            </p>
           ) : null}
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-text">
             <span className="font-extrabold">procheplus</span> {body}
           </p>
-          <p className="text-xs text-text-muted">#ProchePlus · aperçu fondateur</p>
+          <p className="text-xs text-text-muted">#ProchePlus · aperçu post</p>
         </div>
       </div>
     </div>

@@ -38,8 +38,8 @@ export async function GET(req: Request) {
       await prisma.communityFounderNotification.create({
         data: {
           publicationId: pub.id,
-          title: "Publication bloquée (CAP-11)",
-          body: `La publication « ${pub.title || pub.id} » nécessite une attestation ou une anonymisation.`,
+          title: "Post bloqué (CAP-11)",
+          body: `Le post « ${pub.title || pub.id} » nécessite une attestation ou une anonymisation.`,
         },
       });
       continue;
@@ -54,8 +54,8 @@ export async function GET(req: Request) {
     await prisma.communityFounderNotification.create({
       data: {
         publicationId: pub.id,
-        title: "Publication prête à publier",
-        body: `« ${pub.title || "Sans titre"} » est prête. Publiez manuellement depuis Community — aucune API Meta/TikTok.`,
+        title: "Post prêt à mettre en ligne",
+        body: `« ${pub.title || "Sans titre"} » est prêt. Mettez-le en ligne manuellement depuis Community — aucune API Meta/TikTok.`,
       },
     });
     processed += 1;
