@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { parseJsonStringArray } from "@/lib/exercises/mapping";
+import { repairIncompatibleExerciseStatuses } from "@/lib/exercises/repair-exercise-status";
 import { ExerciseForm } from "../ExerciseForm";
 
 export default async function EditExercicePage({
@@ -16,6 +17,8 @@ export default async function EditExercicePage({
   if (!session || session.role !== "admin_produit") {
     redirect("/connexion?role=fondateur");
   }
+
+  await repairIncompatibleExerciseStatuses(prisma);
 
   const exercise = await prisma.exercise.findUnique({
     where: { id },

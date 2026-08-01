@@ -7,6 +7,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ThemeManager } from "./ThemeManager";
 import { ScaleManager } from "./ScaleManager";
+import { repairIncompatibleExerciseStatuses } from "@/lib/exercises/repair-exercise-status";
 
 const STATUS_LABEL: Record<string, string> = {
   brouillon: "Brouillon",
@@ -28,6 +29,8 @@ export default async function AdminExercicesPage({
   const themeFilter = sp.theme || "";
   const statusFilter = sp.status || "";
   const q = (sp.q || "").trim().toLowerCase();
+
+  await repairIncompatibleExerciseStatuses(prisma);
 
   const [themes, exercises, scales] = await Promise.all([
     prisma.theme.findMany({ orderBy: { displayOrder: "asc" } }),
