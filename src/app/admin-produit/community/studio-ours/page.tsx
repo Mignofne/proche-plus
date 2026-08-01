@@ -4,7 +4,13 @@ import { listGenerations } from "@/lib/community/mascot-gen";
 import { StudioOursForm } from "./StudioOursForm";
 
 export default async function StudioOursPage() {
-  const history = await listGenerations(12);
+  // Best-effort : listGenerations ne throw jamais, garde-fou supplémentaire.
+  let history: Awaited<ReturnType<typeof listGenerations>> = [];
+  try {
+    history = await listGenerations(12);
+  } catch {
+    history = [];
+  }
 
   return (
     <CommunityPageShell
