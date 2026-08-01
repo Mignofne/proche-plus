@@ -259,23 +259,30 @@ export function StudioOursForm({
         <SurfaceRaised>
           <SectionTitle>Historique récent</SectionTitle>
           <ul className="mt-3 space-y-2 text-sm">
-            {history.map((h) => (
-              <li
-                key={h.id}
-                className="rounded-2xl border border-cream-dark px-3 py-2"
-              >
-                <span className="font-medium text-teal-dark">{h.status}</span>
-                {" · "}
-                <span className="text-text-muted">
-                  {h.brief.situation.slice(0, 80)}
-                  {h.brief.situation.length > 80 ? "…" : ""}
-                </span>
-                <span className="block text-xs text-text-muted">
-                  {new Date(h.createdAt).toLocaleString("fr-FR")} ·{" "}
-                  {h.provider}
-                </span>
-              </li>
-            ))}
+            {history.map((h) => {
+              const situation = h.brief?.situation ?? "";
+              return (
+                <li
+                  key={h.id}
+                  className="rounded-2xl border border-cream-dark px-3 py-2"
+                >
+                  <span className="font-medium text-teal-dark">
+                    {h.status ?? "unknown"}
+                  </span>
+                  {" · "}
+                  <span className="text-text-muted">
+                    {situation.slice(0, 80) || "(sans situation)"}
+                    {situation.length > 80 ? "…" : ""}
+                  </span>
+                  <span className="block text-xs text-text-muted">
+                    {h.createdAt
+                      ? new Date(h.createdAt).toLocaleString("fr-FR")
+                      : "—"}{" "}
+                    · {h.provider ?? "—"}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </SurfaceRaised>
       ) : null}

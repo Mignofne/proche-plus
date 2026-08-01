@@ -104,17 +104,21 @@ export async function generateOursSceneAction(
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Échec de génération";
-    await saveGeneration({
-      provider: provider.id,
-      status: "failed",
-      identityVersion: built.identityVersion,
-      brief,
-      promptPositive: built.positive,
-      promptNegative: built.negative,
-      width: DEFAULT_FORMAT.width,
-      height: DEFAULT_FORMAT.height,
-      blockReason: message,
-    });
+    try {
+      await saveGeneration({
+        provider: provider.id,
+        status: "failed",
+        identityVersion: built.identityVersion,
+        brief,
+        promptPositive: built.positive,
+        promptNegative: built.negative,
+        width: DEFAULT_FORMAT.width,
+        height: DEFAULT_FORMAT.height,
+        blockReason: message,
+      });
+    } catch {
+      // Historique best-effort — ne pas masquer l’erreur métier
+    }
     return { ok: false, message };
   }
 }
