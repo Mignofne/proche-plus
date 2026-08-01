@@ -2,7 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { saveExercise, duplicateExercise, deleteExercise } from "../actions";
+import {
+  saveExercise,
+  duplicateExercise,
+  deleteExercise,
+  validateExercise,
+  unpublishExercise,
+} from "../actions";
 
 type Option = { id: string; label: string };
 
@@ -32,7 +38,7 @@ export function ExerciseForm({
     onFailureExerciseId: string;
     crossesAutonomyLevel: boolean;
     alertOnFailure: boolean;
-    status: "brouillon" | "publie" | "archive";
+    status: "brouillon" | "a_valider" | "publie" | "archive";
   };
 }) {
   const [pending, startTransition] = useTransition();
@@ -69,6 +75,7 @@ export function ExerciseForm({
           alertOnFailure: formData.get("alertOnFailure") === "on",
           status: String(formData.get("status")) as
             | "brouillon"
+            | "a_valider"
             | "publie"
             | "archive",
         });
@@ -197,7 +204,8 @@ export function ExerciseForm({
             defaultValue={initial?.status ?? "brouillon"}
             className="mt-1 w-full rounded-xl border border-cream-dark bg-white p-3"
           >
-            <option value="brouillon">Brouillon</option>
+            <option value="brouillon">À valider</option>
+            <option value="a_valider">À valider (legacy)</option>
             <option value="publie">Publié</option>
             <option value="archive">Archivé</option>
           </select>
@@ -258,6 +266,63 @@ export function ExerciseForm({
         <Button type="submit" disabled={pending}>
           {initial ? "Enregistrer" : "Créer"}
         </Button>
+        {initial &&
+          (initial.status === "brouillon" ||
+            initial.status === "a_valider") && (
+          <Button
+            type="button"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => {
+                try {
+                  await validateExercise(initial.id);
+                } catch (e) {
+                  if (
+                    e &&
+                    typeof e === "object" &&
+                    "digest" in e &&
+                    String((e as { digest?: string }).digest).startsWith(
+                      "NEXT_REDIRECT"
+                    )
+                  ) {
+                    throw e;
+                  }
+                  setError(e instanceof Error ? e.message : "Erreur");
+                }
+              })
+            }
+          >
+            Valider et publier
+          </Button>
+        )}
+        {initial && initial.status === "publie" && (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={pending}
+            onClick={() =>
+              startTransition(async () => {
+                try {
+                  await unpublishExercise(initial.id);
+                } catch (e) {
+                  if (
+                    e &&
+                    typeof e === "object" &&
+                    "digest" in e &&
+                    String((e as { digest?: string }).digest).startsWith(
+                      "NEXT_REDIRECT"
+                    )
+                  ) {
+                    throw e;
+                  }
+                  setError(e instanceof Error ? e.message : "Erreur");
+                }
+              })
+            }
+          >
+            Remettre en brouillon
+          </Button>
+        )}
         {initial && (
           <Button
             type="button"
@@ -286,7 +351,7 @@ export function ExerciseForm({
             Dupliquer
           </Button>
         )}
-        {initial && (
+        {initial && initial.status !== "archive" && (
           <Button
             type="button"
             variant="danger"

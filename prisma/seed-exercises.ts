@@ -69,7 +69,31 @@ export type CatalogExercise = {
   caregiverMustNot: string[];
   estimatedDuration: string | null;
   risks: string | null;
+  /** Statut catalogue Prisma dérivé du CSV */
+  status: "brouillon" | "publie";
 };
+
+function normalizeExerciseName(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * CSV → statut catalogue :
+ * - Validé / En revue → publie
+ * - À valider / Brouillon… → brouillon (badge admin « À valider » via tier/UI ;
+ *   on n'écrit plus l'enum `a_valider` depuis le CSV tant que prod n'est pas
+ *   déployée avec le client Prisma compatible — évite les crashs RSC).
+ */
+function statusFromCsvStatut(
+  statut: string
+): "brouillon" | "publie" | null {
+  const s = statut.trim().toLowerCase();
+  if (!s || /^non pertinent/i.test(s)) return null;
+  if (/^à valider|^a valider/.test(s)) return "brouillon";
+  if (s.startsWith("brouillon")) return "brouillon";
+  if (/validé|valide|en revue/.test(s)) return "publie";
+  return "brouillon";
+}
 
 function parseSteps(text: string): string[] {
   if (!text?.trim()) return [];
@@ -98,6 +122,8 @@ export function loadReferentielFromCsv(
   }) as Record<string, string>[];
 
   const out: CatalogExercise[] = [];
+  const seen = new Set<string>();
+
   for (const r of rows) {
     const name = (r["Nom de l'exercice"] || "").trim();
     const statut = (r["Statut"] || "").trim();
@@ -109,10 +135,19 @@ export function loadReferentielFromCsv(
     const levelCode = (r["Niveau autonomie"] || "").trim();
     if (!slug || !levelCode) continue;
 
+    const tierRaw = Number.parseInt(String(r["Palier"] || "1"), 10);
+    const tier = Number.isFinite(tierRaw) && tierRaw > 0 ? tierRaw : 1;
+    const mapped = statusFromCsvStatut(statut);
+    if (!mapped) continue;
+
+    const dedupeKey = `${slug}|${levelCode}|${tier}|${normalizeExerciseName(name)}`;
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+
     out.push({
       themeSlug: slug,
       levelCode,
-      tier: 1,
+      tier,
       name,
       objective: (r["Objectif de l'exercice"] || "").trim(),
       steps: parseSteps(r["Détail / étapes (guidance verbale)"] || ""),
@@ -120,6 +155,7 @@ export function loadReferentielFromCsv(
       caregiverMustNot: asList(r["Ce que l'aidant ne doit pas faire"] || ""),
       estimatedDuration: (r["Durée indicative"] || "").trim() || null,
       risks: (r["Risques / contre-indications"] || "").trim() || null,
+      status: mapped,
     });
   }
   return out;
@@ -146,6 +182,16 @@ export async function seedExerciseCatalog(prisma: PrismaClient) {
  * À appeler au build Vercel et en secours côté app.
  */
 export async function ensureExerciseCatalog(prisma: PrismaClient) {
+  // Preview peut avoir écrit status=a_valider incompatible avec le client prod
+  try {
+    await prisma.$executeRawUnsafe(`
+      UPDATE "Exercise"
+      SET status = 'brouillon'
+      WHERE status::text = 'a_valider'
+    `);
+  } catch {
+    // ignore — SQLite / valeur absente
+  }
   await ensureThemesAndScales(prisma);
   const { upserted } = await syncExercisesFromReferentiel(prisma);
   await ensureDemoPatientExercises(prisma);
@@ -179,23 +225,42 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
   const scaleByCode = Object.fromEntries(scales.map((s) => [s.code, s]));
 
   let upserted = 0;
+  let skippedDuplicates = 0;
+
+  // Index DB pour anti-doublon (thème × niveau × palier × nom)
+  const existingAll = await prisma.exercise.findMany({
+    select: {
+      id: true,
+      themeId: true,
+      autonomyScaleId: true,
+      tier: true,
+      name: true,
+      status: true,
+    },
+  });
+  const byKey = new Map(
+    existingAll.map((e) => [
+      `${e.themeId}|${e.autonomyScaleId}|${e.tier}|${normalizeExerciseName(e.name)}`,
+      e,
+    ])
+  );
+  const byName = new Map(
+    existingAll.map((e) => [normalizeExerciseName(e.name), e])
+  );
 
   for (const ex of catalog) {
     const theme = themeBySlug[ex.themeSlug];
     const scale = scaleByCode[ex.levelCode];
     if (!theme || !scale) continue;
 
-    const existing = await prisma.exercise.findFirst({
-      where: {
-        themeId: theme.id,
-        autonomyScaleId: scale.id,
-        tier: ex.tier,
-      },
-      orderBy: { updatedAt: "desc" },
-    });
+    const key = `${theme.id}|${scale.id}|${ex.tier}|${normalizeExerciseName(ex.name)}`;
+    const nameKey = normalizeExerciseName(ex.name);
+    const existing = byKey.get(key) || byName.get(nameKey);
 
-    // Ne jamais écraser un exercice déjà présent (éditions admin conservées)
-    if (existing) continue;
+    if (existing) {
+      skippedDuplicates += 1;
+      continue;
+    }
 
     const created = await prisma.exercise.create({
       data: {
@@ -211,9 +276,9 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
         risks: ex.risks,
         crossesAutonomyLevel: false,
         alertOnFailure: ex.levelCode === "A",
-        status: "publie",
-        validatedBy: "Référentiel APA (import CSV)",
-        validatedAt: new Date(),
+        status: ex.status,
+        validatedBy: ex.status === "publie" ? "Référentiel APA (import CSV)" : null,
+        validatedAt: ex.status === "publie" ? new Date() : null,
         onPartialExerciseId: null,
       },
     });
@@ -221,10 +286,23 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
       where: { id: created.id },
       data: { onPartialExerciseId: created.id },
     });
+    byKey.set(key, {
+      id: created.id,
+      themeId: theme.id,
+      autonomyScaleId: scale.id,
+      tier: ex.tier,
+      name: ex.name,
+      status: ex.status,
+    });
+    byName.set(nameKey, byKey.get(key)!);
     upserted += 1;
   }
 
-  return { upserted, catalogCount: catalog.length };
+  return {
+    upserted,
+    skippedDuplicates,
+    catalogCount: catalog.length,
+  };
 }
 
 /** Active les exercices publiés (palier 1) au niveau de chaque patient suivi. */

@@ -7,9 +7,12 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ThemeManager } from "./ThemeManager";
 import { ScaleManager } from "./ScaleManager";
+import { ExerciseRowActions } from "./ExerciseRowActions";
+import { repairIncompatibleExerciseStatuses } from "@/lib/exercises/repair-exercise-status";
 
 const STATUS_LABEL: Record<string, string> = {
-  brouillon: "Brouillon",
+  brouillon: "À valider",
+  a_valider: "À valider",
   publie: "Publié",
   archive: "Archivé",
 };
@@ -28,6 +31,8 @@ export default async function AdminExercicesPage({
   const themeFilter = sp.theme || "";
   const statusFilter = sp.status || "";
   const q = (sp.q || "").trim().toLowerCase();
+
+  await repairIncompatibleExerciseStatuses(prisma);
 
   const [themes, exercises, scales] = await Promise.all([
     prisma.theme.findMany({ orderBy: { displayOrder: "asc" } }),
@@ -63,7 +68,8 @@ export default async function AdminExercicesPage({
                 Référentiel exercices
               </h1>
               <p className="text-sm text-text-muted">
-                Ajouter · modifier · supprimer thèmes, niveaux et exercices
+                Lire · modifier · valider · supprimer — thèmes, niveaux et
+                exercices
               </p>
             </div>
           </div>
@@ -150,8 +156,9 @@ export default async function AdminExercicesPage({
               className="rounded-xl border border-cream-dark bg-white px-3 py-2 text-sm"
             >
               <option value="">Tous les statuts</option>
+              <option value="brouillon">À valider</option>
+              <option value="a_valider">À valider (legacy)</option>
               <option value="publie">Publié</option>
-              <option value="brouillon">Brouillon</option>
               <option value="archive">Archivé</option>
             </select>
             <button
@@ -164,16 +171,18 @@ export default async function AdminExercicesPage({
 
           <div className="mt-3 flex flex-col gap-2">
             {filtered.map((ex) => (
-              <Link
+              <div
                 key={ex.id}
-                href={`/admin-produit/exercices/${ex.id}`}
-                className="rounded-2xl border border-cream-dark bg-white p-4 transition-colors hover:border-teal"
+                className="rounded-2xl border border-cream-dark bg-white p-4"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="font-medium">
+                  <Link
+                    href={`/admin-produit/exercices/${ex.id}`}
+                    className="font-medium hover:text-teal"
+                  >
                     {ex.theme.label} · {ex.autonomyScale.code}/p{ex.tier} —{" "}
                     {ex.name}
-                  </p>
+                  </Link>
                   <span className="text-xs font-semibold text-teal-dark">
                     {STATUS_LABEL[ex.status] ?? ex.status}
                   </span>
@@ -181,7 +190,8 @@ export default async function AdminExercicesPage({
                 <p className="mt-1 text-sm text-text-muted line-clamp-1">
                   {ex.objective}
                 </p>
-              </Link>
+                <ExerciseRowActions id={ex.id} status={ex.status} />
+              </div>
             ))}
             {filtered.length === 0 && (
               <Card>

@@ -323,6 +323,62 @@ export async function duplicateExercise(exerciseId: string) {
   redirect(`/admin-produit/exercices/${copy.id}`);
 }
 
+/** Publie / valide un exercice (brouillon ou à valider → catalogue aidant). */
+export async function validateExercise(exerciseId: string) {
+  await requireFondateur();
+  const exercise = await prisma.exercise.findUnique({ where: { id: exerciseId } });
+  if (!exercise) throw new Error("Exercice introuvable");
+  if (exercise.status === "archive") {
+    throw new Error("Impossible de valider un exercice archivé — restaurez-le d'abord.");
+  }
+  if (exercise.status !== "brouillon" && exercise.status !== "a_valider") {
+    throw new Error("Seuls les exercices brouillon ou à valider peuvent être publiés.");
+  }
+  if (!exercise.name.trim() || !exercise.objective.trim()) {
+    throw new Error("Nom et objectif sont obligatoires avant validation");
+  }
+
+  await prisma.exercise.update({
+    where: { id: exerciseId },
+    data: {
+      status: "publie",
+      validatedBy: "Admin produit",
+      validatedAt: new Date(),
+    },
+  });
+  await prisma.auditLog.create({
+    data: {
+      action: "exercise.validate",
+      entity: "Exercise",
+      entityId: exerciseId,
+    },
+  });
+  revalidateCatalog(exerciseId);
+  redirect(`/admin-produit/exercices/${exerciseId}`);
+}
+
+/** Remet un exercice publié en brouillon (relecture). */
+export async function unpublishExercise(exerciseId: string) {
+  await requireFondateur();
+  await prisma.exercise.update({
+    where: { id: exerciseId },
+    data: {
+      status: "brouillon",
+      validatedBy: null,
+      validatedAt: null,
+    },
+  });
+  await prisma.auditLog.create({
+    data: {
+      action: "exercise.unpublish",
+      entity: "Exercise",
+      entityId: exerciseId,
+    },
+  });
+  revalidateCatalog(exerciseId);
+  redirect(`/admin-produit/exercices/${exerciseId}`);
+}
+
 /** Suppression douce = archivage. Bloquée si transition active d'un publié. */
 export async function deleteExercise(exerciseId: string) {
   await requireFondateur();

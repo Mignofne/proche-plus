@@ -4,7 +4,7 @@ Proche+ — Référentiel exercices × niveau d'autonomie × thème
 
 Objectif de ce document
 
-Ce classeur sert de base de travail à compléter et valider avec un enseignant en activité physique adaptée (APA), en lien avec l'équipe de rééducation pour les aspects médicaux. Il liste toutes les combinaisons Thème × Niveau d'autonomie attendues dans Proche+, avec 3 exemples déjà rédigés à titre d'illustration du format attendu.
+Ce classeur sert de base de travail à compléter et valider avec un enseignant en activité physique adaptée (APA), en lien avec l'équipe de rééducation (dont ergo) pour les aspects médicaux. Le fichier `Referentiel_Exercices.csv` contient **50 exercices nommés** (thème × niveau A–E × palier), plus des lignes « Non pertinent » le cas échéant. Côté produit, l’admin `/admin-produit/exercices` permet de **lire, modifier, valider (publier) ou supprimer (archiver)** chaque fiche.
 
 
 
@@ -12,13 +12,11 @@ Comment l'utiliser
 
 1. Ouvrir l'onglet 'Référentiel'.
 
-2. Les colonnes 'Thème' et 'Niveau autonomie' sont déjà remplies pour toutes les combinaisons à couvrir.
+2. Les colonnes 'Thème', 'Niveau autonomie' et 'Palier' identifient chaque fiche. Le palier 1 couvre la grille de base ; le palier 2 ajoute des progressions dans le même niveau.
 
-3. Les cellules surlignées en jaune sont celles à compléter par l'expert (nom de l'exercice, objectif, étapes, etc.).
+3. Toute nouvelle ligne doit avoir un **nom unique** (anti-doublon à l'import).
 
-4. Les 3 lignes en vert (Fauteuil/C, S'habiller/B, Manger/D) sont des exemples déjà rédigés — à valider ou ajuster par l'expert.
-
-5. La colonne 'Statut' permet de suivre l'avancement ligne par ligne : à compléter / en revue / validé.
+4. La colonne 'Statut' pilote l'import : `En revue` / `Validé` → publié catalogue ; `À valider` / `Brouillon IA…` → brouillon côté DB (affiché « À valider » dans l'admin) ; `Non pertinent` → ignoré.
 
 6. Si une combinaison Thème × Niveau n'a pas de sens cliniquement (ex: transfert autonome pour un patient alité), l'expert peut indiquer 'Non pertinent' en Statut plutôt que de forcer un contenu.
 
