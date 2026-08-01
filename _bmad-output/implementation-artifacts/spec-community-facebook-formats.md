@@ -2,7 +2,7 @@
 title: 'Community — Facebook, formats par réseau, ours en situation, couleurs texte'
 type: 'feature'
 created: '2026-08-01'
-status: 'in-review'
+status: 'done'
 baseline_commit: '557566d'
 review_loop_iteration: 0
 context:
