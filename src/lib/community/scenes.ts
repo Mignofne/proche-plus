@@ -164,6 +164,51 @@ export function resolveSceneSrc(params: {
   return sceneImagePath(resolveSceneKey(params));
 }
 
+/** Mots-clés situation → scène kit (quand pas de thème référentiel) */
+const SITUATION_KEYWORDS: Array<{ re: RegExp; scene: SceneKey }> = [
+  { re: /\b(fauteuil|frein|roulant)\b/i, scene: "scene-fauteuil-freins" },
+  { re: /\b(repas|manger|boire|cuisine|table)\b/i, scene: "scene-repas" },
+  { re: /\b(habill|vetement|bouton|chaussure)\b/i, scene: "scene-habillage" },
+  { re: /\b(lit|couche|mobilite.?au.?lit|se relever)\b/i, scene: "scene-mobilite-lit" },
+  { re: /\b(toilette|hygiene|lavabo|bain|douche)\b/i, scene: "scene-toilette" },
+  {
+    re: /\b(deplac|march|couloir|transfert|se lever)\b/i,
+    scene: "scene-deplacement",
+  },
+  {
+    re: /\b(memor|attention|cognitif|cartes?|jeu)\b/i,
+    scene: "scene-cognitif",
+  },
+  {
+    re: /\b(parl|ecout|communic|discut|visite)\b/i,
+    scene: "scene-communication",
+  },
+];
+
+/**
+ * Mappe un brief Studio Ours → scène kit référentiel.
+ * Priorité : thème référentiel → mots-clés situation → fallback.
+ */
+export function mapSceneBriefToSceneKey(
+  brief: {
+    situation?: string | null;
+    themeSlug?: string | null;
+    lieu?: string | null;
+  },
+  fallback: SceneKey = "scene-communication"
+): SceneKey {
+  if (brief.themeSlug && THEME_TO_SCENE[brief.themeSlug]) {
+    return THEME_TO_SCENE[brief.themeSlug];
+  }
+
+  const haystack = [brief.situation ?? "", brief.lieu ?? ""].join(" ");
+  for (const { re, scene } of SITUATION_KEYWORDS) {
+    if (re.test(haystack)) return scene;
+  }
+
+  return fallback;
+}
+
 /** Couleurs texte par défaut — style réf. Alan (bleu / lavande) */
 export const DEFAULT_TITLE_COLOR = "#5B6BC0";
 export const DEFAULT_SUBTITLE_COLOR = "#8B7BB5";

@@ -739,6 +739,8 @@ model CommunityPublication {
   subtitleColor     String?
   /// Clé scène référentiel (ex. scene-communication) — ours en situation
   sceneKey          String?
+  /// Brief Studio Ours JSON { situation, emotion, lieu, themeSlug?, … }
+  sceneBriefJson    String?
   /// Canaux cibles cochés à la création (JSON string[]) — pilote le format d’aperçu
   channelsJson      String                     @default("[]")
   /// Carrousel CAP-2 : JSON slides[{ overlayText, poseKey?, imageSrc?, sceneKey?, textColor?, subtitleColor?, accent? }]

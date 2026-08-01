@@ -280,14 +280,52 @@ export default async function PublicationPreviewPage({
     targetChannels.length > 0 ? targetChannels : [primary]
   ) as CommunitySocialChannel[];
 
+  const overlaySubtitle = pub.body
+    .replace(/#\w+/g, "")
+    .trim()
+    .split(/(?<=[.!?])\s+/)[0]
+    ?.slice(0, 120);
+
+  let sceneBrief: {
+    situation?: string;
+    emotion?: string;
+    lieu?: string;
+    themeSlug?: string | null;
+  } | null = null;
+  if (pub.sceneBriefJson) {
+    try {
+      sceneBrief = JSON.parse(pub.sceneBriefJson) as {
+        situation?: string;
+        emotion?: string;
+        lieu?: string;
+        themeSlug?: string | null;
+      };
+    } catch {
+      sceneBrief = null;
+    }
+  }
+
   return (
     <CommunityPageShell
       title={`Aperçu — ${pub.title || pub.kind}`}
       subtitle="Corriger avant deploy / mise en ligne du post"
     >
-      <SurfaceRaised className="mb-6 text-sm text-text-muted">
-        Statut : {pub.status} · Type : {pub.kind} · Canal principal : {primary} ·
-        Ours en situation · Aucune PHI.
+      <SurfaceRaised className="mb-6 space-y-2 text-sm text-text-muted">
+        <p>
+          Statut : {pub.status} · Type : {pub.kind} · Canal principal : {primary}{" "}
+          · Ours en situation · Aucune PHI.
+        </p>
+        {sceneBrief?.situation ? (
+          <p className="rounded-xl bg-cream px-3 py-2 text-text">
+            <span className="font-semibold text-teal-dark">Brief ours :</span>{" "}
+            {sceneBrief.situation}
+            {sceneBrief.emotion ? ` · ${sceneBrief.emotion}` : ""}
+            {sceneBrief.lieu ? ` · ${sceneBrief.lieu}` : ""}
+            {pub.sceneKey ? (
+              <span className="text-text-muted"> · scène {pub.sceneKey}</span>
+            ) : null}
+          </p>
+        ) : null}
       </SurfaceRaised>
       {pub.kind === "video" ? (
         <VideoPostPreview
@@ -318,6 +356,7 @@ export default async function PublicationPreviewPage({
               : [
                   {
                     overlayText: pub.title || "Proche+",
+                    subtitle: overlaySubtitle,
                     poseKey: pub.poseKey || "encourage",
                     sceneKey: pub.sceneKey,
                     textColor: pub.titleColor,
@@ -330,6 +369,7 @@ export default async function PublicationPreviewPage({
       ) : (
         <ClassicPostPreview
           title={pub.title}
+          subtitle={overlaySubtitle}
           body={pub.body}
           poseKey={pub.poseKey}
           bearEnabled={pub.bearEnabled}

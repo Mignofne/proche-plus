@@ -37,6 +37,7 @@ export {
   resolveSceneKey,
   resolveSceneSrc,
   sceneImagePath,
+  mapSceneBriefToSceneKey,
   SCENE_OPTIONS,
   SCENE_KEYS,
   CANON_IMAGE_PATH,

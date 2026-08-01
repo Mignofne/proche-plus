@@ -18,9 +18,12 @@ import { HEALTH_DISCLAIMER_BODY } from "@/lib/community/health-disclaimer";
 import {
   isSceneKey,
   normalizeHexColor,
+  mapSceneBriefToSceneKey,
   DEFAULT_TITLE_COLOR,
   DEFAULT_SUBTITLE_COLOR,
 } from "@/lib/community/scenes";
+import { validateSceneBrief } from "@/lib/community/mascot-gen/safeguards";
+import type { SceneBrief } from "@/lib/community/mascot-gen/types";
 import type {
   CommunityPublicationKind,
   CommunitySocialChannel,
@@ -195,8 +198,42 @@ export async function createPublicationAction(
   const subtitleColor = subtitleColorRaw
     ? normalizeHexColor(subtitleColorRaw, DEFAULT_SUBTITLE_COLOR)
     : null;
-  const sceneKeyRaw = String(formData.get("sceneKey") || "").trim();
-  const sceneKey = isSceneKey(sceneKeyRaw) ? sceneKeyRaw : null;
+  const bearEnabled = formData.get("bearEnabled") === "on";
+  const situation = String(formData.get("situation") || "").trim();
+  const emotion = String(formData.get("emotion") || "").trim();
+  const emotionCustom = String(formData.get("emotionCustom") || "").trim();
+  const lieu = String(formData.get("lieu") || "").trim();
+  const lieuCustom = String(formData.get("lieuCustom") || "").trim();
+  const referentielThemeSlug = String(
+    formData.get("referentielThemeSlug") || ""
+  ).trim();
+
+  let sceneBriefJson: string | null = null;
+  let sceneKey: string | null = isSceneKey(
+    String(formData.get("sceneKey") || "").trim()
+  )
+    ? String(formData.get("sceneKey") || "").trim()
+    : null;
+
+  if (bearEnabled) {
+    const brief: SceneBrief = {
+      situation,
+      emotion: emotion || "rassurant",
+      emotionCustom: emotion === "custom" ? emotionCustom : null,
+      lieu: lieu || "salon",
+      lieuCustom: lieu === "custom" ? lieuCustom : null,
+      themeSlug: referentielThemeSlug || null,
+    };
+    const briefCheck = validateSceneBrief(brief);
+    if (!briefCheck.ok) {
+      throw new Error(briefCheck.message);
+    }
+    sceneBriefJson = JSON.stringify(brief);
+    sceneKey = mapSceneBriefToSceneKey(
+      brief,
+      isSceneKey(sceneKey) ? sceneKey : "scene-communication"
+    );
+  }
 
   const accounts =
     accountIds.length > 0
@@ -215,11 +252,12 @@ export async function createPublicationAction(
       tagsJson: JSON.stringify(tagsRaw),
       themeId: String(formData.get("themeId") || "") || null,
       bearScenarioId: String(formData.get("bearScenarioId") || "") || null,
-      bearEnabled: formData.get("bearEnabled") === "on",
+      bearEnabled,
       poseKey: String(formData.get("poseKey") || "") || null,
       titleColor,
       subtitleColor,
       sceneKey,
+      sceneBriefJson,
       channelsJson: JSON.stringify(channels),
       slidesJson,
       isTestimonial: formData.get("isTestimonial") === "on",

@@ -3,7 +3,7 @@ import { CommunityPageShell } from "@/components/community/CommunityPageShell";
 import { SurfaceRaised } from "@/components/community/SurfaceRaised";
 import { SectionTitle } from "@/components/ui/Card";
 import { TextColorFields } from "@/components/community/TextColorFields";
-import { SceneKitPicker } from "@/components/community/SceneKitPicker";
+import { OursSituationFields } from "@/components/community/OursSituationFields";
 import { createPublicationAction } from "../../actions";
 
 const ALL_CHANNELS = ["instagram", "threads", "facebook", "tiktok"] as const;
@@ -19,7 +19,7 @@ export default async function NouvellePublicationPage() {
   return (
     <CommunityPageShell
       title="Nouveau post"
-      subtitle="Classique, carrousel ou vidéo — format adapté au réseau (IG / Threads / Facebook / TikTok)"
+      subtitle="Contenu → situation ours (Studio Ours) → réseaux → format adapté"
     >
       <SurfaceRaised>
         <SectionTitle>Éditeur</SectionTitle>
@@ -54,7 +54,7 @@ export default async function NouvellePublicationPage() {
 
           <TextColorFields />
 
-          <SceneKitPicker />
+          <OursSituationFields />
 
           <textarea
             name="slidesJson"
@@ -72,7 +72,7 @@ export default async function NouvellePublicationPage() {
             className="w-full rounded-2xl border border-cream-dark px-4 py-3"
             defaultValue=""
           >
-            <option value="">Thème (optionnel)</option>
+            <option value="">Thème éditorial Community (optionnel)</option>
             {themes.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.label}
@@ -91,16 +91,14 @@ export default async function NouvellePublicationPage() {
               </option>
             ))}
           </select>
-          {/* poseKey conservé en secours résolution scène (kit prioritaire) */}
           <input type="hidden" name="poseKey" value="encourage" />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="bearEnabled" defaultChecked />
-            Inclure l’ours en situation (kit référentiel)
+            Inclure l’ours en situation
           </label>
           <fieldset className="text-sm">
             <legend className="font-semibold">
-              Canaux (ordre de coche : le premier canal listé ci-dessous qui est
-              coché pilote le format — décochez IG/Threads pour un aperçu Facebook)
+              Réseaux de diffusion (le premier coché pilote le format d’aperçu)
             </legend>
             {ALL_CHANNELS.map((ch) => (
               <label key={ch} className="mr-4 inline-flex items-center gap-1">
@@ -112,9 +110,9 @@ export default async function NouvellePublicationPage() {
                 />
                 {ch}
                 {ch === "tiktok"
-                  ? " (vidéo seulement — refusé si classique/carrousel)"
+                  ? " (vidéo seulement)"
                   : ""}
-                {ch === "facebook" ? " (format fil 1.91:1 / vidéo 16:9)" : ""}
+                {ch === "facebook" ? " (format fil / 16:9 vidéo)" : ""}
               </label>
             ))}
           </fieldset>

@@ -8,6 +8,7 @@ import {
   normalizeHexColor,
   resolveSceneKey,
   resolveSceneSrc,
+  mapSceneBriefToSceneKey,
   DEFAULT_TITLE_COLOR,
 } from "../../src/lib/community/scenes";
 import { channelsAllowedForKind } from "../../src/lib/community/publications";
@@ -66,5 +67,20 @@ test.describe("Community formats & scènes", () => {
     expect(resolveSceneSrc({ sceneKey: "declinaison-fauteuil" })).toContain(
       "declinaison-fauteuil.png"
     );
+  });
+
+  test("brief Studio Ours → scène kit", () => {
+    expect(
+      mapSceneBriefToSceneKey({ themeSlug: "repas", situation: "autre" })
+    ).toBe("scene-repas");
+    expect(
+      mapSceneBriefToSceneKey({
+        situation: "On exerce les freins du fauteuil",
+        lieu: "chambre",
+      })
+    ).toBe("scene-fauteuil-freins");
+    expect(
+      mapSceneBriefToSceneKey({ situation: "une discussion calme", lieu: "salon" })
+    ).toBe("scene-communication");
   });
 });
