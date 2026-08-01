@@ -13,6 +13,7 @@ import {
   type MascotGenerationRecord,
   type SceneBrief,
 } from "@/lib/community/mascot-gen";
+import { historySafeImageUrl } from "@/lib/community/mascot-gen/image-store";
 
 export type GenerateSceneResult =
   | {
@@ -79,6 +80,7 @@ export async function generateOursSceneAction(
       sceneId,
     });
 
+    const persistedUrl = historySafeImageUrl(result.imageUrl);
     const record = await saveGeneration({
       provider: result.provider,
       status: "succeeded",
@@ -88,10 +90,17 @@ export async function generateOursSceneAction(
       promptNegative: built.negative,
       width: DEFAULT_FORMAT.width,
       height: DEFAULT_FORMAT.height,
-      imageUrl: result.imageUrl ?? null,
+      // data: trop lourd pour l’historique fichier — le client garde result.imageUrl
+      imageUrl: persistedUrl,
       mimeType: result.mimeType,
       providerMeta: result.meta,
     });
+
+    // Toujours renvoyer l’URL affichable (data: / http / blob) au client
+    const clientRecord: MascotGenerationRecord = {
+      ...record,
+      imageUrl: result.imageUrl ?? record.imageUrl,
+    };
 
     revalidatePath("/admin-produit/community/studio-ours");
 
@@ -103,14 +112,14 @@ export async function generateOursSceneAction(
           ? "Mode mock : l’image est la planche canon C-v3 (placeholder), pas votre scène."
           : "Mode mock : pas d’illustration de scène."
         : backend === "pollinations"
-          ? "Scène générée (free tier). Pour coller davantage au canon C-v3, ajoutez OPENAI_API_KEY sur Vercel."
+          ? "Scène générée (free tier). Pour coller au canon C-v3 : OPENAI_API_KEY + BLOB_READ_WRITE_TOKEN sur Vercel."
           : backend === "openai"
             ? "Scène générée via OpenAI à partir de la référence identité C-v3."
             : `Illustration générée via provider « ${result.provider} »${
                 backend ? ` (${backend})` : ""
               }.`;
 
-    return { ok: true, record, providerNote };
+    return { ok: true, record: clientRecord, providerNote };
   } catch (err) {
     const raw = err instanceof Error ? err.message : "Échec de génération";
     const message =

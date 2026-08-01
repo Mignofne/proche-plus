@@ -333,7 +333,11 @@ async function generateViaPollinations(req: GenRequest): Promise<GenResult> {
     throw new Error("Pollinations a renvoyé une image vide ou invalide");
   }
   const mimeType = res.headers.get("content-type") || "image/jpeg";
-  const imageUrl = await persistGeneratedImage(bytes, mimeType, req.sceneId);
+  // Préférer Blob ; sinon URL Pollinations publique (jamais /tmp sur Vercel).
+  const publicUrl = res.url && res.url.startsWith("http") ? res.url : url;
+  const imageUrl = await persistGeneratedImage(bytes, mimeType, req.sceneId, {
+    fallbackPublicUrl: publicUrl,
+  });
   return {
     imageUrl,
     mimeType,
@@ -342,10 +346,10 @@ async function generateViaPollinations(req: GenRequest): Promise<GenResult> {
       backend: "pollinations",
       model: params.get("model"),
       seed,
-      sourceUrl: url,
+      sourceUrl: publicUrl,
       durationMs: Date.now() - started,
       identityVersion: req.identityVersion,
-      note: "Free tier — identité C-v3 approximative ; OPENAI_API_KEY améliore la fidélité.",
+      note: "Free tier — identité C-v3 approximative ; OPENAI_API_KEY + BLOB_READ_WRITE_TOKEN recommandés.",
     },
   };
 }

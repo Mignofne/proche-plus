@@ -64,6 +64,7 @@ export function StudioOursForm({
   const [last, setLast] = useState<MascotGenerationRecord | null>(null);
   const [providerNote, setProviderNote] = useState<string | null>(null);
   const [history, setHistory] = useState(initialHistory);
+  const [imageBroken, setImageBroken] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const brief: SceneBrief = useMemo(
@@ -92,6 +93,7 @@ export function StudioOursForm({
         setClientError(result.message);
         return;
       }
+      setImageBroken(false);
       setLast(result.record);
       setProviderNote(result.providerNote);
       setHistory((prev) => [result.record, ...prev].slice(0, 12));
@@ -255,16 +257,57 @@ export function StudioOursForm({
             </p>
           ) : null}
 
-          <div className="rounded-2xl border border-cream-dark bg-cream/40 p-4">
-            <h3 className="text-sm font-semibold text-teal-dark">
-              {last.provider === "mock"
-                ? "Prompt positif (livrable Phase 1)"
-                : "Prompt positif"}
-            </h3>
+          {last.imageUrl ? (
+            last.provider === "mock" ? (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-text-muted">
+                  Placeholder visuel — planche canon C-v3
+                </p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={last.imageUrl}
+                  alt="Placeholder : planche identité canon C-v3"
+                  className="w-full max-w-md rounded-2xl border border-cream-dark bg-cream object-contain"
+                />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-teal-dark">
+                  Illustration générée
+                </p>
+                {imageBroken ? (
+                  <p
+                    role="alert"
+                    className="rounded-2xl border border-terracotta/40 bg-terracotta/10 px-4 py-3 text-sm text-terracotta"
+                  >
+                    L’image n’a pas pu s’afficher (lien expiré ou stockage
+                    manquant). Relancez « Générer la scène ». En prod, ajoutez{" "}
+                    <code>BLOB_READ_WRITE_TOKEN</code> sur Vercel.
+                  </p>
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={last.imageUrl}
+                    alt="Illustration de la scène générée"
+                    className="w-full max-w-md rounded-2xl border border-cream-dark bg-cream object-contain"
+                    onError={() => setImageBroken(true)}
+                  />
+                )}
+              </div>
+            )
+          ) : null}
+
+          <details
+            className="rounded-2xl border border-cream-dark bg-cream/40 p-4"
+            open={last.provider === "mock"}
+          >
+            <summary className="cursor-pointer text-sm font-semibold text-teal-dark">
+              Prompt positif
+            </summary>
             <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs text-text">
               {last.promptPositive}
             </pre>
-          </div>
+          </details>
 
           <details className="rounded-2xl border border-cream-dark bg-cream/40 p-4">
             <summary className="cursor-pointer text-sm font-semibold text-teal-dark">
@@ -274,39 +317,6 @@ export function StudioOursForm({
               {last.promptNegative}
             </pre>
           </details>
-
-          {last.imageUrl ? (
-            last.provider === "mock" ? (
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-text-muted">
-                  Placeholder visuel — planche canon C-v3
-                </p>
-                <p className="text-xs text-text-muted">
-                  Ce n’est pas une illustration de votre situation. Passez{" "}
-                  <code>MASCOT_GEN_PROVIDER=remote</code> (défaut) pour générer
-                  une vraie scène.
-                </p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={last.imageUrl}
-                  alt="Placeholder : planche identité canon C-v3, pas la scène demandée"
-                  className="w-full max-w-md rounded-2xl border border-cream-dark bg-cream object-contain"
-                />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-teal-dark">
-                  Illustration générée
-                </p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={last.imageUrl}
-                  alt="Illustration de la scène générée"
-                  className="w-full max-w-md rounded-2xl border border-cream-dark bg-cream object-contain"
-                />
-              </div>
-            )
-          ) : null}
 
           <p className="text-xs text-text-muted">
             id <code>{last.id}</code> · provider <code>{last.provider}</code> ·{" "}
@@ -330,7 +340,8 @@ export function StudioOursForm({
               const thumb =
                 h.imageUrl &&
                 h.provider !== "mock" &&
-                !h.imageUrl.includes("canon-c-v3")
+                !h.imageUrl.includes("canon-c-v3") &&
+                !h.imageUrl.startsWith("/api/community/mascot-gen/image/")
                   ? h.imageUrl
                   : null;
               return (
