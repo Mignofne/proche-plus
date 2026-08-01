@@ -38,6 +38,31 @@ test.describe("Studio Ours — provider remote", () => {
     expect(compact.length).toBeLessThan(2000);
   });
 
+  test("persistGeneratedImage préfère fallbackPublicUrl hors Blob (pas /api tmp)", async () => {
+    const prevBlob = process.env.BLOB_READ_WRITE_TOKEN;
+    const prevVercel = process.env.VERCEL;
+    delete process.env.BLOB_READ_WRITE_TOKEN;
+    process.env.VERCEL = "1";
+    try {
+      const { persistGeneratedImage } = await import(
+        "../../src/lib/community/mascot-gen/image-store"
+      );
+      const url = await persistGeneratedImage(
+        Buffer.alloc(2048, 7),
+        "image/png",
+        "scene-x",
+        { fallbackPublicUrl: "https://image.pollinations.ai/prompt/test?seed=1" }
+      );
+      expect(url).toBe("https://image.pollinations.ai/prompt/test?seed=1");
+      expect(url.startsWith("/api/")).toBe(false);
+    } finally {
+      if (prevBlob === undefined) delete process.env.BLOB_READ_WRITE_TOKEN;
+      else process.env.BLOB_READ_WRITE_TOKEN = prevBlob;
+      if (prevVercel === undefined) delete process.env.VERCEL;
+      else process.env.VERCEL = prevVercel;
+    }
+  });
+
   test("RemoteImageGenerationProvider génère via Pollinations (fetch mock)", async () => {
     const prevUrl = process.env.MASCOT_GEN_REMOTE_URL;
     const prevOpenAi = process.env.OPENAI_API_KEY;
