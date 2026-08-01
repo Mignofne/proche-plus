@@ -12,9 +12,10 @@ export function ExerciseRowActions({
   status,
 }: {
   id: string;
-  status: "brouillon" | "publie" | "archive";
+  status: "brouillon" | "a_valider" | "publie" | "archive";
 }) {
   const [pending, startTransition] = useTransition();
+  const canValidate = status === "brouillon" || status === "a_valider";
 
   return (
     <div className="mt-2 flex flex-wrap gap-2 text-sm">
@@ -24,7 +25,7 @@ export function ExerciseRowActions({
       >
         Lire / modifier
       </Link>
-      {status === "brouillon" && (
+      {canValidate && (
         <button
           type="button"
           disabled={pending}

@@ -16,7 +16,7 @@ Comment l'utiliser
 
 3. Toute nouvelle ligne doit avoir un **nom unique** (anti-doublon à l'import).
 
-4. La colonne 'Statut' pilote l'import : `En revue` / `Validé` → publié catalogue ; `Brouillon IA…` → brouillon à valider dans l'admin ; `Non pertinent` → ignoré.
+4. La colonne 'Statut' pilote l'import : `En revue` / `Validé` → publié catalogue ; `À valider` → statut admin « À valider » ; `Brouillon IA…` → brouillon ; `Non pertinent` → ignoré.
 
 6. Si une combinaison Thème × Niveau n'a pas de sens cliniquement (ex: transfert autonome pour un patient alité), l'expert peut indiquer 'Non pertinent' en Statut plutôt que de forcer un contenu.
 

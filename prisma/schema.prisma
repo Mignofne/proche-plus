@@ -122,6 +122,7 @@ enum AutonomyAlertAudience {
 
 enum ExercisePublicationStatus {
   brouillon
+  a_valider
   publie
   archive
 }

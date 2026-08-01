@@ -69,20 +69,29 @@ export type CatalogExercise = {
   caregiverMustNot: string[];
   estimatedDuration: string | null;
   risks: string | null;
-  /** Statut CSV → publication catalogue */
-  publish: boolean;
+  /** Statut catalogue Prisma dérivé du CSV */
+  status: "brouillon" | "a_valider" | "publie";
 };
 
 function normalizeExerciseName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-/** Validé / En revue → publié ; brouillons IA restent à valider côté admin. */
-function shouldPublishFromStatut(statut: string): boolean {
+/**
+ * CSV → statut catalogue :
+ * - Validé / En revue → publie
+ * - À valider → a_valider
+ * - Brouillon… → brouillon
+ */
+function statusFromCsvStatut(
+  statut: string
+): "brouillon" | "a_valider" | "publie" | null {
   const s = statut.trim().toLowerCase();
-  if (!s || /^non pertinent/i.test(s)) return false;
-  if (s.startsWith("brouillon")) return false;
-  return /validé|valide|en revue/.test(s);
+  if (!s || /^non pertinent/i.test(s)) return null;
+  if (/^à valider|^a valider/.test(s)) return "a_valider";
+  if (s.startsWith("brouillon")) return "brouillon";
+  if (/validé|valide|en revue/.test(s)) return "publie";
+  return "brouillon";
 }
 
 function parseSteps(text: string): string[] {
@@ -127,6 +136,9 @@ export function loadReferentielFromCsv(
 
     const tierRaw = Number.parseInt(String(r["Palier"] || "1"), 10);
     const tier = Number.isFinite(tierRaw) && tierRaw > 0 ? tierRaw : 1;
+    const mapped = statusFromCsvStatut(statut);
+    if (!mapped) continue;
+
     const dedupeKey = `${slug}|${levelCode}|${tier}|${normalizeExerciseName(name)}`;
     if (seen.has(dedupeKey)) continue;
     seen.add(dedupeKey);
@@ -142,7 +154,7 @@ export function loadReferentielFromCsv(
       caregiverMustNot: asList(r["Ce que l'aidant ne doit pas faire"] || ""),
       estimatedDuration: (r["Durée indicative"] || "").trim() || null,
       risks: (r["Risques / contre-indications"] || "").trim() || null,
-      publish: shouldPublishFromStatut(statut),
+      status: mapped,
     });
   }
   return out;
@@ -202,6 +214,7 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
   const scaleByCode = Object.fromEntries(scales.map((s) => [s.code, s]));
 
   let upserted = 0;
+  let statusPatched = 0;
   let skippedDuplicates = 0;
 
   // Index DB pour anti-doublon (thème × niveau × palier × nom)
@@ -212,17 +225,17 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
       autonomyScaleId: true,
       tier: true,
       name: true,
+      status: true,
     },
   });
-  const existingKeys = new Set(
-    existingAll.map(
-      (e) =>
-        `${e.themeId}|${e.autonomyScaleId}|${e.tier}|${normalizeExerciseName(e.name)}`
-    )
+  const byKey = new Map(
+    existingAll.map((e) => [
+      `${e.themeId}|${e.autonomyScaleId}|${e.tier}|${normalizeExerciseName(e.name)}`,
+      e,
+    ])
   );
-  // Aussi bloquer les homonymes globaux (même nom, autre cellule)
-  const existingNames = new Set(
-    existingAll.map((e) => normalizeExerciseName(e.name))
+  const byName = new Map(
+    existingAll.map((e) => [normalizeExerciseName(e.name), e])
   );
 
   for (const ex of catalog) {
@@ -232,12 +245,24 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
 
     const key = `${theme.id}|${scale.id}|${ex.tier}|${normalizeExerciseName(ex.name)}`;
     const nameKey = normalizeExerciseName(ex.name);
-    if (existingKeys.has(key) || existingNames.has(nameKey)) {
-      skippedDuplicates += 1;
+    const existing = byKey.get(key) || byName.get(nameKey);
+
+    if (existing) {
+      // Remonter brouillon → a_valider pour les ajouts CSV « À valider »
+      // sans toucher publie/archive ni les validations admin.
+      if (existing.status === "brouillon" && ex.status === "a_valider") {
+        await prisma.exercise.update({
+          where: { id: existing.id },
+          data: { status: "a_valider" },
+        });
+        existing.status = "a_valider";
+        statusPatched += 1;
+      } else {
+        skippedDuplicates += 1;
+      }
       continue;
     }
 
-    const status = ex.publish ? "publie" : "brouillon";
     const created = await prisma.exercise.create({
       data: {
         themeId: theme.id,
@@ -252,9 +277,9 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
         risks: ex.risks,
         crossesAutonomyLevel: false,
         alertOnFailure: ex.levelCode === "A",
-        status,
-        validatedBy: ex.publish ? "Référentiel APA (import CSV)" : null,
-        validatedAt: ex.publish ? new Date() : null,
+        status: ex.status,
+        validatedBy: ex.status === "publie" ? "Référentiel APA (import CSV)" : null,
+        validatedAt: ex.status === "publie" ? new Date() : null,
         onPartialExerciseId: null,
       },
     });
@@ -262,12 +287,24 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
       where: { id: created.id },
       data: { onPartialExerciseId: created.id },
     });
-    existingKeys.add(key);
-    existingNames.add(nameKey);
+    byKey.set(key, {
+      id: created.id,
+      themeId: theme.id,
+      autonomyScaleId: scale.id,
+      tier: ex.tier,
+      name: ex.name,
+      status: ex.status,
+    });
+    byName.set(nameKey, byKey.get(key)!);
     upserted += 1;
   }
 
-  return { upserted, skippedDuplicates, catalogCount: catalog.length };
+  return {
+    upserted,
+    statusPatched,
+    skippedDuplicates,
+    catalogCount: catalog.length,
+  };
 }
 
 /** Active les exercices publiés (palier 1) au niveau de chaque patient suivi. */

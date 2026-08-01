@@ -323,13 +323,16 @@ export async function duplicateExercise(exerciseId: string) {
   redirect(`/admin-produit/exercices/${copy.id}`);
 }
 
-/** Publie / valide un exercice brouillon (catalogue aidant). */
+/** Publie / valide un exercice (brouillon ou à valider → catalogue aidant). */
 export async function validateExercise(exerciseId: string) {
   await requireFondateur();
   const exercise = await prisma.exercise.findUnique({ where: { id: exerciseId } });
   if (!exercise) throw new Error("Exercice introuvable");
   if (exercise.status === "archive") {
     throw new Error("Impossible de valider un exercice archivé — restaurez-le d'abord.");
+  }
+  if (exercise.status !== "brouillon" && exercise.status !== "a_valider") {
+    throw new Error("Seuls les exercices brouillon ou à valider peuvent être publiés.");
   }
   if (!exercise.name.trim() || !exercise.objective.trim()) {
     throw new Error("Nom et objectif sont obligatoires avant validation");
