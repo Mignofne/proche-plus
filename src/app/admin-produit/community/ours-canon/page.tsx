@@ -1,6 +1,7 @@
 import { CommunityPageShell } from "@/components/community/CommunityPageShell";
 import { SurfaceRaised } from "@/components/community/SurfaceRaised";
 import { ButtonLink } from "@/components/ui/Button";
+import { isStudioOursEnabled } from "@/lib/community/mascot-gen";
 import {
   CANON_IMAGE_PATH,
   SCENE_OPTIONS,
@@ -35,15 +36,18 @@ const CONCEPTS = [
 ] as const;
 
 export default function OursCanonPage() {
+  const studioOurs = isStudioOursEnabled();
   return (
     <CommunityPageShell
       title="Canon ours — validation"
       subtitle="Kit C-v3 adopté + scènes référentiel — même source que les posts Community."
       actions={
         <div className="flex flex-wrap gap-2">
-          <ButtonLink href="/admin-produit/community/studio-ours" size="sm">
-            Studio Ours
-          </ButtonLink>
+          {studioOurs ? (
+            <ButtonLink href="/admin-produit/community/studio-ours" size="sm">
+              Studio Ours
+            </ButtonLink>
+          ) : null}
           <ButtonLink
             href="/admin-produit/community/publications/nouveau"
             size="sm"

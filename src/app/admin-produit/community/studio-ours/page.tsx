@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import { CommunityPageShell } from "@/components/community/CommunityPageShell";
 import { ButtonLink } from "@/components/ui/Button";
 import {
+  isStudioOursEnabled,
   listGenerations,
   resolveMascotGenProvider,
 } from "@/lib/community/mascot-gen";
@@ -10,6 +12,10 @@ import { StudioOursForm } from "./StudioOursForm";
 export const maxDuration = 60;
 
 export default async function StudioOursPage() {
+  if (!isStudioOursEnabled()) {
+    redirect("/admin-produit/community");
+  }
+
   const history = await listGenerations(12);
   const providerId = resolveMascotGenProvider().id;
 

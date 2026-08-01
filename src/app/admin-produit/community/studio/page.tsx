@@ -4,8 +4,10 @@ import { SectionTitle } from "@/components/ui/Card";
 import { VideoPostPreview } from "@/components/community/VideoPostPreview";
 import { ButtonLink } from "@/components/ui/Button";
 import { EDITORIAL_GUARDS_FR } from "@/lib/community/illustrations";
+import { isStudioOursEnabled } from "@/lib/community/mascot-gen";
 
 export default function CommunityStudioPage() {
+  const studioOurs = isStudioOursEnabled();
   return (
     <CommunityPageShell
       title="Studio vidéo Remotion"
@@ -44,13 +46,15 @@ export default function CommunityStudioPage() {
           >
             Ouvrir l’aperçu démo vidéo
           </ButtonLink>
-          <ButtonLink
-            href="/admin-produit/community/studio-ours"
-            size="sm"
-            variant="secondary"
-          >
-            Studio Ours (illustrations)
-          </ButtonLink>
+          {studioOurs ? (
+            <ButtonLink
+              href="/admin-produit/community/studio-ours"
+              size="sm"
+              variant="secondary"
+            >
+              Studio Ours (illustrations)
+            </ButtonLink>
+          ) : null}
         </div>
       </SurfaceRaised>
     </CommunityPageShell>

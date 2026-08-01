@@ -3,6 +3,7 @@ import { SurfaceRaised } from "@/components/community/SurfaceRaised";
 import { CommunityPageShell } from "@/components/community/CommunityPageShell";
 import { ButtonLink } from "@/components/ui/Button";
 import { SectionTitle } from "@/components/ui/Card";
+import { isStudioOursEnabled } from "@/lib/community/mascot-gen";
 import { COMMUNITY_UI } from "@/lib/community/ui-tokens";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ const SECTIONS = [
       "Registre des bêta-testeurs et inbox des candidatures.",
     emptyMessage: "Les candidatures apparaîtront ici.",
     ctaLabel: "Ouvrir le programme bêta",
+    studioOurs: false,
   },
   {
     href: "/admin-produit/community/contenus",
@@ -21,6 +23,7 @@ const SECTIONS = [
     description: "Thèmes, templates, médias et ours pour vos contenus.",
     emptyMessage: "Aucun contenu éditorial pour le moment.",
     ctaLabel: "Ouvrir la bibliothèque",
+    studioOurs: false,
   },
   {
     href: "/admin-produit/community/publications",
@@ -28,6 +31,7 @@ const SECTIONS = [
     description: "File, calendrier et éditeur des posts sociaux.",
     emptyMessage: "Aucun post planifié.",
     ctaLabel: "Créer un post",
+    studioOurs: false,
   },
   {
     href: "/admin-produit/community/blog",
@@ -35,6 +39,7 @@ const SECTIONS = [
     description: "Articles publics orientés référencement et citabilité.",
     emptyMessage: "Aucun article de blog pour l’instant.",
     ctaLabel: "Préparer un article",
+    studioOurs: false,
   },
   {
     href: "/admin-produit/community/comptes",
@@ -42,6 +47,7 @@ const SECTIONS = [
     description: "Liens Instagram, Threads, Facebook et TikTok du fondateur.",
     emptyMessage: "Aucun compte social enregistré.",
     ctaLabel: "Gérer les comptes",
+    studioOurs: false,
   },
   {
     href: "/admin-produit/community/studio",
@@ -49,14 +55,16 @@ const SECTIONS = [
     description: "Preview Remotion in-house avant un post Semi.",
     emptyMessage: "Composez une vidéo courte on-brand.",
     ctaLabel: "Ouvrir le studio",
+    studioOurs: false,
   },
   {
     href: "/admin-produit/community/studio-ours",
     title: "Studio Ours",
     description:
       "Générer une scène illustrée (situation · émotion · lieu) — canon C-v3.",
-    emptyMessage: "Phase 1 mock : compose le prompt verrouillé.",
+    emptyMessage: "Nécessite OPENAI_API_KEY sur Vercel.",
     ctaLabel: "Ouvrir Studio Ours",
+    studioOurs: true,
   },
   {
     href: "/admin-produit/community/ours-canon",
@@ -64,10 +72,13 @@ const SECTIONS = [
     description: "Sheet C-v3 et scènes référentiel pour validation fondateur.",
     emptyMessage: "Consultez le canon avant de générer.",
     ctaLabel: "Voir le canon",
+    studioOurs: false,
   },
 ] as const;
 
 export default function CommunityHubPage() {
+  const studioOurs = isStudioOursEnabled();
+  const sections = SECTIONS.filter((s) => !s.studioOurs || studioOurs);
   return (
     <CommunityPageShell
       title="Community"
@@ -125,7 +136,7 @@ export default function CommunityHubPage() {
       </SurfaceRaised>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <SurfaceRaised key={section.href} className="flex flex-col">
             <SectionTitle className="text-base">{section.title}</SectionTitle>
             <p className={cn("mt-2 flex-1 text-sm", COMMUNITY_UI.muted)}>

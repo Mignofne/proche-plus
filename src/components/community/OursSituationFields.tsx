@@ -81,17 +81,10 @@ export function OursSituationFields({
   return (
     <fieldset className="space-y-4 rounded-2xl border border-cream-dark/80 p-3 text-sm">
       <legend className="px-1 font-semibold">
-        Situation de l’ours (Studio Ours)
+        Situation de l’ours
       </legend>
       <p className="text-xs text-text-muted">
-        Mêmes questions que{" "}
-        <a
-          href="/admin-produit/community/studio-ours"
-          className="font-semibold text-teal underline"
-        >
-          Studio Ours
-        </a>
-        . On mappe vers une scène du kit référentiel (génération IA plus tard).
+        Situation · émotion · lieu — on mappe vers une scène du kit référentiel.
       </p>
 
       <input type="hidden" name="situation" value={situation} />
