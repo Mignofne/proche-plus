@@ -89,9 +89,9 @@ export default function CommunityHubPage() {
       </p>
 
       <SurfaceRaised className="border-teal/25 bg-teal/5">
-        <SectionTitle className="text-base">Aperçus fondateur</SectionTitle>
+        <SectionTitle className="text-base">Aperçus posts</SectionTitle>
         <p className={cn("mt-2 text-sm", COMMUNITY_UI.muted)}>
-          Vérifiez le rendu avant deploy / post Semi.
+          Démos à jour : ours en situation, couleurs texte, format par réseau.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <ButtonLink
@@ -113,6 +113,13 @@ export default function CommunityHubPage() {
             variant="secondary"
           >
             Vidéo
+          </ButtonLink>
+          <ButtonLink
+            href="/admin-produit/community/publications/preview/demo-facebook"
+            size="sm"
+            variant="secondary"
+          >
+            Facebook
           </ButtonLink>
         </div>
       </SurfaceRaised>

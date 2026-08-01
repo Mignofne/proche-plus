@@ -11,6 +11,7 @@ import type { CommunitySocialChannel } from "@prisma/client";
 
 const DEMO_CLASSIC = {
   title: "Un petit pas compte",
+  subtitle: "Pas besoin de tout faire d’un coup — on avance tranquillement.",
   body: "Pas besoin de tout faire d’un coup. On avance tranquillement, ensemble. #ProchePlus #Aidants",
   poseKey: "encourage",
   titleColor: "#5B6BC0",
@@ -84,8 +85,8 @@ function PreviewChrome({
     <CommunityPageShell title={title} subtitle={subtitle}>
       <SurfaceRaised className="mb-2 border-teal/20 bg-gradient-to-br from-white via-cream to-cream-dark/40">
         <p className="text-sm text-text-muted">
-          Aperçu fondateur du post — ours en situation + couleurs texte. Format
-          adapté au réseau cible. Corrigez avant deploy / Semi. Aucune PHI.
+          Aperçu post — ours en situation (kit référentiel) + couleurs texte.
+          Format adapté au réseau. Corrigez avant deploy / Semi. Aucune PHI.
         </p>
       </SurfaceRaised>
       <div className="flex justify-center py-2">{children}</div>
@@ -141,6 +142,7 @@ export default async function PublicationPreviewPage({
       >
         <ClassicPostPreview
           title={DEMO_CLASSIC.title}
+          subtitle={DEMO_CLASSIC.subtitle}
           body={DEMO_CLASSIC.body}
           poseKey={DEMO_CLASSIC.poseKey}
           titleColor={DEMO_CLASSIC.titleColor}
@@ -160,6 +162,7 @@ export default async function PublicationPreviewPage({
       >
         <ClassicPostPreview
           title={DEMO_CLASSIC.title}
+          subtitle={DEMO_CLASSIC.subtitle}
           body={DEMO_CLASSIC.body}
           poseKey={DEMO_CLASSIC.poseKey}
           titleColor={DEMO_CLASSIC.titleColor}

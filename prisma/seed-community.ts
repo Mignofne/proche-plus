@@ -158,44 +158,189 @@ async function main() {
     update: {},
   });
 
-  const classicExisting = await prisma.communityPublication.findFirst({
+  await prisma.communityPublication.upsert({
     where: { id: "seed-pub-classique" },
+    create: {
+      id: "seed-pub-classique",
+      kind: "classique",
+      status: "draft",
+      title: "Un petit pas compte",
+      body: "Pas besoin de tout faire d’un coup. On avance tranquillement, ensemble. #ProchePlus #Aidants",
+      tagsJson: JSON.stringify(["#ProchePlus", "#Aidants", "#UnPetitPas"]),
+      themeId: themeBySlug["benefices-aidants"]?.id,
+      bearEnabled: true,
+      poseKey: "encourage",
+      sceneKey: "scene-cognitif",
+      titleColor: "#5B6BC0",
+      subtitleColor: "#8B7BB5",
+      channelsJson: JSON.stringify(["instagram", "threads"]),
+    },
+    update: {
+      title: "Un petit pas compte",
+      body: "Pas besoin de tout faire d’un coup. On avance tranquillement, ensemble. #ProchePlus #Aidants",
+      bearEnabled: true,
+      poseKey: "encourage",
+      sceneKey: "scene-cognitif",
+      titleColor: "#5B6BC0",
+      subtitleColor: "#8B7BB5",
+      channelsJson: JSON.stringify(["instagram", "threads"]),
+      themeId: themeBySlug["benefices-aidants"]?.id,
+    },
   });
-  if (!classicExisting) {
-    await prisma.communityPublication.create({
-      data: {
-        id: "seed-pub-classique",
-        kind: "classique",
-        status: "draft",
-        title: "Un petit pas compte",
-        body: "Pas besoin de tout faire d’un coup. On avance tranquillement, ensemble.",
-        tagsJson: JSON.stringify(["#ProchePlus", "#Aidants", "#UnPetitPas"]),
-        themeId: themeBySlug["benefices-aidants"]?.id,
-        bearEnabled: true,
-        poseKey: "encourage",
-      },
-    });
-  }
 
-  const videoExisting = await prisma.communityPublication.findFirst({
+  await prisma.communityPublication.upsert({
     where: { id: "seed-pub-video" },
+    create: {
+      id: "seed-pub-video",
+      kind: "video",
+      status: "draft",
+      title: "Une idée pour la visite",
+      body: "Une activité courte, à votre rythme — sans promesse clinique.",
+      tagsJson: JSON.stringify(["#ModeVisite", "#TempsPartagé"]),
+      themeId: themeBySlug["mode-visite"]?.id,
+      bearEnabled: true,
+      poseKey: "curiosite",
+      sceneKey: "scene-communication",
+      titleColor: "#5B6BC0",
+      subtitleColor: "#8B7BB5",
+      channelsJson: JSON.stringify(["instagram", "threads", "tiktok"]),
+      remotionComposition: "ProchePlusShort",
+    },
+    update: {
+      title: "Une idée pour la visite",
+      body: "Une activité courte, à votre rythme — sans promesse clinique.",
+      bearEnabled: true,
+      poseKey: "curiosite",
+      sceneKey: "scene-communication",
+      titleColor: "#5B6BC0",
+      subtitleColor: "#8B7BB5",
+      channelsJson: JSON.stringify(["instagram", "threads", "tiktok"]),
+      remotionComposition: "ProchePlusShort",
+      themeId: themeBySlug["mode-visite"]?.id,
+    },
   });
-  if (!videoExisting) {
-    await prisma.communityPublication.create({
-      data: {
-        id: "seed-pub-video",
-        kind: "video",
-        status: "draft",
-        title: "Une idée pour la visite",
-        body: "Une activité courte, à votre rythme — sans promesse clinique.",
-        tagsJson: JSON.stringify(["#ModeVisite", "#TempsPartagé"]),
-        themeId: themeBySlug["mode-visite"]?.id,
-        bearEnabled: true,
-        poseKey: "curiosite",
-        remotionComposition: "ProchePlusShort",
-      },
-    });
-  }
+
+  await prisma.communityPublication.upsert({
+    where: { id: "seed-pub-carrousel" },
+    create: {
+      id: "seed-pub-carrousel",
+      kind: "carrousel",
+      status: "draft",
+      title: "Trois gestes simples",
+      body: "Un carrousel pour partager des repères concrets, à votre rythme. #ProchePlus #Aidants",
+      tagsJson: JSON.stringify(["#ProchePlus", "#Aidants"]),
+      themeId: themeBySlug["autonomie-quotidien"]?.id,
+      bearEnabled: true,
+      poseKey: "accueil",
+      sceneKey: "scene-communication",
+      titleColor: "#5B6BC0",
+      subtitleColor: "#8B7BB5",
+      channelsJson: JSON.stringify(["instagram", "threads"]),
+      slidesJson: JSON.stringify([
+        {
+          overlayText: "On commence tranquillement ?",
+          subtitle: "Un premier geste, à votre rythme.",
+          sceneKey: "scene-communication",
+          textColor: "#5B6BC0",
+          subtitleColor: "#8B7BB5",
+          accent: "teal",
+        },
+        {
+          overlayText: "Un petit pas compte déjà.",
+          subtitle: "Pas besoin d’être parfait.",
+          sceneKey: "scene-cognitif",
+          textColor: "#2A9D8F",
+          subtitleColor: "#5C5650",
+          accent: "sun",
+        },
+        {
+          overlayText: "Prenez le temps qu’il faut.",
+          subtitle: "La régularité avant la performance.",
+          sceneKey: "scene-mobilite-lit",
+          textColor: "#5B6BC0",
+          subtitleColor: "#8B7BB5",
+          accent: "teal",
+        },
+        {
+          overlayText: "Et célébrez l’essai, pas la perfection.",
+          subtitle: "Chaque essai compte.",
+          sceneKey: "scene-habillage",
+          textColor: "#C67B5C",
+          subtitleColor: "#5C5650",
+          accent: "sun",
+        },
+      ]),
+    },
+    update: {
+      title: "Trois gestes simples",
+      body: "Un carrousel pour partager des repères concrets, à votre rythme. #ProchePlus #Aidants",
+      bearEnabled: true,
+      sceneKey: "scene-communication",
+      titleColor: "#5B6BC0",
+      subtitleColor: "#8B7BB5",
+      channelsJson: JSON.stringify(["instagram", "threads"]),
+      slidesJson: JSON.stringify([
+        {
+          overlayText: "On commence tranquillement ?",
+          subtitle: "Un premier geste, à votre rythme.",
+          sceneKey: "scene-communication",
+          textColor: "#5B6BC0",
+          subtitleColor: "#8B7BB5",
+          accent: "teal",
+        },
+        {
+          overlayText: "Un petit pas compte déjà.",
+          subtitle: "Pas besoin d’être parfait.",
+          sceneKey: "scene-cognitif",
+          textColor: "#2A9D8F",
+          subtitleColor: "#5C5650",
+          accent: "sun",
+        },
+        {
+          overlayText: "Prenez le temps qu’il faut.",
+          subtitle: "La régularité avant la performance.",
+          sceneKey: "scene-mobilite-lit",
+          textColor: "#5B6BC0",
+          subtitleColor: "#8B7BB5",
+          accent: "teal",
+        },
+        {
+          overlayText: "Et célébrez l’essai, pas la perfection.",
+          subtitle: "Chaque essai compte.",
+          sceneKey: "scene-habillage",
+          textColor: "#C67B5C",
+          subtitleColor: "#5C5650",
+          accent: "sun",
+        },
+      ]),
+    },
+  });
+
+  await prisma.communityPublication.upsert({
+    where: { id: "seed-pub-facebook" },
+    create: {
+      id: "seed-pub-facebook",
+      kind: "classique",
+      status: "draft",
+      title: "Un petit pas compte",
+      body: "Pas besoin de tout faire d’un coup. On avance tranquillement, ensemble. #ProchePlus #Aidants",
+      tagsJson: JSON.stringify(["#ProchePlus", "#Aidants"]),
+      themeId: themeBySlug["benefices-aidants"]?.id,
+      bearEnabled: true,
+      poseKey: "encourage",
+      sceneKey: "scene-cognitif",
+      titleColor: "#5B6BC0",
+      subtitleColor: "#8B7BB5",
+      channelsJson: JSON.stringify(["facebook"]),
+    },
+    update: {
+      sceneKey: "scene-cognitif",
+      titleColor: "#5B6BC0",
+      subtitleColor: "#8B7BB5",
+      channelsJson: JSON.stringify(["facebook"]),
+      bearEnabled: true,
+    },
+  });
 
   await prisma.communityBlogArticle.upsert({
     where: { slug: "quest-ce-que-la-continuite-educative" },

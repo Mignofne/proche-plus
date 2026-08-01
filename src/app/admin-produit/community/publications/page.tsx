@@ -25,47 +25,43 @@ export default async function CommunityPublicationsPage() {
     include: { theme: true, targets: { include: { account: true } } },
   });
 
-  const sampleClassic = pubs.find((p) => p.kind === "classique");
-  const sampleVideo = pubs.find((p) => p.kind === "video");
-
   return (
     <CommunityPageShell
       title="Posts Semi"
       subtitle="File / calendrier — rappel automatique, mise en ligne manuelle uniquement"
     >
       <SurfaceRaised className="border-teal/30 bg-teal/5">
-        <SectionTitle>Aperçus fondateur (avant deploy)</SectionTitle>
+        <SectionTitle>Aperçus posts (avant deploy)</SectionTitle>
         <p className="mt-2 text-sm text-text-muted">
-          Corrigez le rendu avant post Semi / mise en prod.
+          Démos kit ours en situation + couleurs + format réseau — toujours à jour.
         </p>
         <div className="mt-3 flex flex-wrap gap-3">
           <ButtonLink
-            href={
-              sampleClassic
-                ? `/admin-produit/community/publications/preview/${sampleClassic.id}`
-                : "/admin-produit/community/publications/preview/demo-classique"
-            }
+            href="/admin-produit/community/publications/preview/demo-classique"
             size="sm"
           >
-            Aperçu post classique
+            Classique
           </ButtonLink>
           <ButtonLink
             href="/admin-produit/community/publications/preview/demo-carrousel"
             size="sm"
             variant="secondary"
           >
-            Aperçu carrousel
+            Carrousel
           </ButtonLink>
           <ButtonLink
-            href={
-              sampleVideo
-                ? `/admin-produit/community/publications/preview/${sampleVideo.id}`
-                : "/admin-produit/community/publications/preview/demo-video"
-            }
+            href="/admin-produit/community/publications/preview/demo-video"
             size="sm"
             variant="secondary"
           >
-            Aperçu post vidéo
+            Vidéo
+          </ButtonLink>
+          <ButtonLink
+            href="/admin-produit/community/publications/preview/demo-facebook"
+            size="sm"
+            variant="secondary"
+          >
+            Facebook
           </ButtonLink>
           <ButtonLink href="/admin-produit/community/publications/nouveau" size="sm" variant="ghost">
             Nouveau post
