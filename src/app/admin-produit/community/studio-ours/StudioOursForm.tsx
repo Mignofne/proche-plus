@@ -266,17 +266,19 @@ export function StudioOursForm({
                   key={h.id}
                   className="rounded-2xl border border-cream-dark px-3 py-2"
                 >
-                  <span className="font-medium text-teal-dark">{h.status}</span>
+                  <span className="font-medium text-teal-dark">
+                    {h.status ?? "unknown"}
+                  </span>
                   {" · "}
                   <span className="text-text-muted">
-                    {situation.slice(0, 80)}
+                    {situation.slice(0, 80) || "(sans situation)"}
                     {situation.length > 80 ? "…" : ""}
                   </span>
                   <span className="block text-xs text-text-muted">
                     {h.createdAt
                       ? new Date(h.createdAt).toLocaleString("fr-FR")
                       : "—"}{" "}
-                    · {h.provider}
+                    · {h.provider ?? "—"}
                   </span>
                 </li>
               );

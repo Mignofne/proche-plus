@@ -65,10 +65,14 @@ export async function saveGeneration(
     await ensureDir(dir);
     const path = join(dir, `${full.id}.json`);
     await writeFile(path, JSON.stringify(full, null, 2), "utf8");
-  } catch {
+  } catch (err) {
     // Ne jamais faire planter l’UI Studio Ours si le FS est indisponible
     // (ex. Vercel read-only, quota /tmp). L’enregistrement en mémoire reste
     // renvoyé au client pour la session courante.
+    console.warn(
+      "[mascot-gen] saveGeneration soft-fail:",
+      err instanceof Error ? err.message : err
+    );
   }
   return full;
 }
@@ -78,7 +82,7 @@ export async function listGenerations(
 ): Promise<MascotGenerationRecord[]> {
   try {
     const dir = resolveDataDir();
-    await ensureDir(dir);
+    // Lecture seule : pas de mkdir — absences → historique vide.
     const files = (await readdir(dir)).filter((f) => f.endsWith(".json"));
     const records: MascotGenerationRecord[] = [];
     for (const file of files) {

@@ -35,6 +35,8 @@ test.describe("Studio Ours — historique fichier", () => {
       expect(record.brief.situation).toBe("exerce les freins");
       const list = await listGenerations(5);
       expect(Array.isArray(list)).toBe(true);
+      // Soft-fail : rien n’a pu être écrit sous le chemin verrouillé
+      expect(list.some((r) => r.id === record.id)).toBe(false);
     } finally {
       if (prev === undefined) delete process.env.MASCOT_GEN_DATA_DIR;
       else process.env.MASCOT_GEN_DATA_DIR = prev;
@@ -79,6 +81,51 @@ test.describe("Studio Ours — historique fichier", () => {
     } finally {
       if (prev === undefined) delete process.env.MASCOT_GEN_DATA_DIR;
       else process.env.MASCOT_GEN_DATA_DIR = prev;
+      await rm(dataDir, { recursive: true, force: true });
+    }
+  });
+
+  test("VERCEL route l’historique vers /tmp sauf override MASCOT_GEN_DATA_DIR", async () => {
+    const dataDir = await mkdtemp(join(tmpdir(), "mascot-gen-vercel-"));
+    const prevDir = process.env.MASCOT_GEN_DATA_DIR;
+    const prevVercel = process.env.VERCEL;
+    process.env.VERCEL = "1";
+    delete process.env.MASCOT_GEN_DATA_DIR;
+
+    try {
+      // Sans override : écriture sous /tmp (ne doit pas throw)
+      const a = await saveGeneration({
+        provider: "mock",
+        status: "succeeded",
+        identityVersion: "bear-stylized-sheet@c-v3",
+        brief: { situation: "vercel-tmp", emotion: "calme", lieu: "salon" },
+        promptPositive: "p",
+        promptNegative: "n",
+        width: 1024,
+        height: 1024,
+      });
+      expect(a.id).toBeTruthy();
+
+      // Override gagne sur VERCEL
+      process.env.MASCOT_GEN_DATA_DIR = dataDir;
+      const b = await saveGeneration({
+        provider: "mock",
+        status: "succeeded",
+        identityVersion: "bear-stylized-sheet@c-v3",
+        brief: { situation: "override", emotion: "calme", lieu: "salon" },
+        promptPositive: "p",
+        promptNegative: "n",
+        width: 1024,
+        height: 1024,
+      });
+      const list = await listGenerations(10);
+      expect(list.some((r) => r.id === b.id)).toBe(true);
+      expect(list.some((r) => r.id === a.id)).toBe(false);
+    } finally {
+      if (prevDir === undefined) delete process.env.MASCOT_GEN_DATA_DIR;
+      else process.env.MASCOT_GEN_DATA_DIR = prevDir;
+      if (prevVercel === undefined) delete process.env.VERCEL;
+      else process.env.VERCEL = prevVercel;
       await rm(dataDir, { recursive: true, force: true });
     }
   });
