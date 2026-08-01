@@ -167,13 +167,13 @@ interface ImageGenerationProvider {
 | Provider | Rôle | Coût | Secrets | État Phase 1 |
 |---|---|---|---|---|
 | **Mock** | Compose prompt + sauvegarde métadonnées ; image placeholder = sheet C-v3 | 0 € | Aucun | ✅ |
-| **Remote free / assisté** | Free tier cloud — stub `not implemented` | Gratuit / crédits | Server-side | Stub |
+| **Remote** | OpenAI Images (ref C-v3) si clé ; sinon Pollinations free ; ou webhook `MASCOT_GEN_REMOTE_URL` | Gratuit / crédits | Server-side | ✅ |
 | **Local** | Daemon localhost — stub | 0 € GPU | URL server-side | Stub |
-| **Remote payant** | fal / Replicate — optionnel | Crédits | Jamais `NEXT_PUBLIC_*` | Hors scope |
 
 **Règle :** le browser n’appelle que des **Server Actions** Proche+.  
 
-**Feature flag :** `MASCOT_GEN_PROVIDER=mock|remote|local` (server env) — défaut **`mock`**.
+**Feature flag :** `MASCOT_GEN_PROVIDER=mock|remote|local` (server env) — défaut **`remote`**.  
+**Secrets utiles :** `OPENAI_API_KEY` (fidélité C-v3), `BLOB_READ_WRITE_TOKEN` (stockage durable).
 
 ---
 

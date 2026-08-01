@@ -1,15 +1,26 @@
 import { CommunityPageShell } from "@/components/community/CommunityPageShell";
 import { ButtonLink } from "@/components/ui/Button";
-import { listGenerations } from "@/lib/community/mascot-gen";
+import {
+  listGenerations,
+  resolveMascotGenProvider,
+} from "@/lib/community/mascot-gen";
 import { StudioOursForm } from "./StudioOursForm";
+
+/** Génération remote peut dépasser 10s (OpenAI / Pollinations). */
+export const maxDuration = 60;
 
 export default async function StudioOursPage() {
   const history = await listGenerations(12);
+  const providerId = resolveMascotGenProvider().id;
 
   return (
     <CommunityPageShell
       title="Studio Ours"
-      subtitle="Phase 1 : composition du prompt verrouillé — l’illustration de scène viendra ensuite"
+      subtitle={
+        providerId === "mock"
+          ? "Mode mock — prompt verrouillé + placeholder C-v3"
+          : "Génération illustrée — situation · émotion · lieu → nouvelle scène"
+      }
       actions={
         <>
           <ButtonLink
@@ -29,7 +40,7 @@ export default async function StudioOursPage() {
         </>
       }
     >
-      <StudioOursForm initialHistory={history} />
+      <StudioOursForm initialHistory={history} providerId={providerId} />
     </CommunityPageShell>
   );
 }
