@@ -24,14 +24,14 @@ export function canTransition(
   return TRANSITIONS[from]?.includes(to) ?? false;
 }
 
-/** FR5 — TikTok uniquement pour vidéo ; classique + carrousel = IG/Threads */
+/** FR5 — TikTok uniquement pour vidéo ; classique + carrousel = IG / Threads / Facebook */
 export function channelsAllowedForKind(
   kind: CommunityPublicationKind
 ): CommunitySocialChannel[] {
   if (kind === "classique" || kind === "carrousel") {
-    return ["instagram", "threads"];
+    return ["instagram", "threads", "facebook"];
   }
-  return ["instagram", "threads", "tiktok"];
+  return ["instagram", "threads", "tiktok", "facebook"];
 }
 
 export function assertChannelsForKind(
@@ -42,7 +42,7 @@ export function assertChannelsForKind(
   for (const ch of channels) {
     if (!allowed.includes(ch)) {
       throw new Error(
-        kind === "classique" || kind === "carrousel"
+        ch === "tiktok" && (kind === "classique" || kind === "carrousel")
           ? "TikTok n’est pas disponible pour un post classique / carrousel — utilisez une publication vidéo."
           : `Canal non autorisé : ${ch}`
       );

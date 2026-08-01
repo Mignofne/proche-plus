@@ -111,6 +111,11 @@ async function main() {
       label: "Proche+ TikTok",
       url: "https://tiktok.com/@procheplus",
     },
+    {
+      channel: "facebook" as const,
+      label: "Proche+ Facebook",
+      url: "https://facebook.com/procheplus",
+    },
   ]) {
     await prisma.communitySocialAccount.upsert({
       where: { channel_url: { channel: ch.channel, url: ch.url } },

@@ -15,14 +15,22 @@ test.describe("Community publications Semi", () => {
     expect(canTransition("published", "draft")).toBe(false);
   });
 
-  test("TikTok refusé pour classique et carrousel", () => {
+  test("TikTok refusé pour classique et carrousel ; Facebook ok", () => {
     expect(channelsAllowedForKind("classique")).toEqual([
       "instagram",
       "threads",
+      "facebook",
     ]);
     expect(channelsAllowedForKind("carrousel")).toEqual([
       "instagram",
       "threads",
+      "facebook",
+    ]);
+    expect(channelsAllowedForKind("video")).toEqual([
+      "instagram",
+      "threads",
+      "tiktok",
+      "facebook",
     ]);
     expect(() =>
       assertChannelsForKind("classique", ["tiktok"])
@@ -30,6 +38,9 @@ test.describe("Community publications Semi", () => {
     expect(() =>
       assertChannelsForKind("carrousel", ["tiktok"])
     ).toThrow(/TikTok/);
+    expect(() =>
+      assertChannelsForKind("classique", ["facebook"])
+    ).not.toThrow();
   });
 
   test("CAP-11 bloque témoignage attribuable sans attestation", () => {

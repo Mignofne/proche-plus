@@ -129,7 +129,7 @@ export async function createSocialAccountAction(
   const channel = String(formData.get("channel") || "") as CommunitySocialChannel;
   const label = String(formData.get("label") || "").trim();
   const url = String(formData.get("url") || "").trim();
-  if (!["instagram", "threads", "tiktok"].includes(channel)) {
+  if (!["instagram", "threads", "tiktok", "facebook"].includes(channel)) {
     throw new Error("Canal invalide");
   }
   if (!label || !url) throw new Error("Libelle et URL requis");
@@ -181,6 +181,19 @@ export async function createPublicationAction(
     throw new Error("Carrousel : renseignez slidesJson (overlayText par slide)");
   }
 
+  const titleColor = String(formData.get("titleColor") || "").trim() || null;
+  const subtitleColor =
+    String(formData.get("subtitleColor") || "").trim() || null;
+  const sceneKey = String(formData.get("sceneKey") || "").trim() || null;
+
+  const accounts =
+    accountIds.length > 0
+      ? await prisma.communitySocialAccount.findMany({
+          where: { id: { in: accountIds } },
+        })
+      : [];
+  const accountById = Object.fromEntries(accounts.map((a) => [a.id, a]));
+
   const pub = await prisma.communityPublication.create({
     data: {
       kind,
@@ -190,8 +203,12 @@ export async function createPublicationAction(
       tagsJson: JSON.stringify(tagsRaw),
       themeId: String(formData.get("themeId") || "") || null,
       bearScenarioId: String(formData.get("bearScenarioId") || "") || null,
-      bearEnabled: formData.get("bearEnabled") !== "off",
+      bearEnabled: formData.get("bearEnabled") === "on",
       poseKey: String(formData.get("poseKey") || "") || null,
+      titleColor,
+      subtitleColor,
+      sceneKey,
+      channelsJson: JSON.stringify(channels),
       slidesJson,
       isTestimonial: formData.get("isTestimonial") === "on",
       isAttributable: formData.get("isAttributable") === "on",
@@ -199,7 +216,11 @@ export async function createPublicationAction(
       targets: {
         create: accountIds.map((accountId, i) => ({
           accountId,
-          channel: channels[i] || channels[0] || "instagram",
+          channel:
+            accountById[accountId]?.channel ||
+            channels[i] ||
+            channels[0] ||
+            "instagram",
         })),
       },
       assets: {
