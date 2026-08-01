@@ -1,6 +1,6 @@
 ---
 title: 'Éditeur de posts Community Semi'
-status: draft
+status: final
 created: '2026-08-01'
 updated: '2026-08-01'
 ---
@@ -9,257 +9,307 @@ updated: '2026-08-01'
 
 ## 0. Document Purpose
 
-Ce PRD cadre l’amélioration de l’éditeur d’envoi de posts Community dans Proche+ (`/admin-produit/community/publications`). Il sert le fondateur / PM, puis UX, architecture et epics. Vocabulaire ancré dans le Glossaire ; capacités groupées avec FRs numérotés stables ; inférences marquées `[ASSUMPTION]` et indexées en §9. Il s’appuie sur l’éditeur et la preview existants (brouillon, canaux, overlays JSON, programmation statut) sans les redécrire comme produit fini.
+Ce PRD cadre l’amélioration de l’éditeur d’envoi de posts Community dans Proche+ (`/admin-produit/community/publications`). Public : fondateur / PM, puis UX, architecture et epics. Vocabulaire = Glossaire ; FRs à IDs stables ; `[ASSUMPTION]` indexées en §9. S’appuie sur l’éditeur et la preview existants (brouillon, canaux, overlays JSON, statut programmé) sans les redécrire comme produit fini. Détail mécanisme publish / compositing → `addendum.md`.
 
 ## 1. Vision
 
-Proche+ doit pouvoir composer, prévisualiser et publier des posts Community multi-photos avec le même niveau de contrôle que les comptes de référence du secteur (carousel Instagram type `avec_alan`) : texte sur l’image (positions et tailles), légende sous le post, tags, choix de réseaux, et créneau jour/heure — le tout avant envoi réel.
+Proche+ doit composer, prévisualiser et publier des posts Community multi-photos avec le contrôle des comptes de référence (Carrousel Instagram type `avec_alan`) : Overlays (positions et tailles), Légende sous le post, Tags, Réseaux, créneau jour/heure — avant envoi réel.
 
-Aujourd’hui l’outil Semi enregistre surtout des brouillons : upload téléphone faible, preview peu fidèle au feed, overlay carrousel via JSON brut, et « publier » qui marque un statut interne sans pousser vers les plateformes. La frustration #1 est l’absence d’une preview live pour ajuster avant envoi.
+Aujourd’hui Semi enregistre surtout des brouillons : upload téléphone faible, Preview peu fidèle au feed, Overlay carrousel via JSON brut, et « publier » qui ne fait que basculer un statut interne. Frustration #1 : pas de Preview live pour ajuster avant envoi.
 
-La v1 transforme ce parcours en un éditeur WYSIWYG mobile-friendly pour Proche+ : médias depuis le téléphone, overlay éditable, caption feed, preview Instagram-like, programmation Europe/Paris, et publication réelle vers les comptes connectés.
+La v1 livre un éditeur WYSIWYG mobile-friendly : médias depuis le téléphone, Overlay éditable, Légende feed, Preview Instagram-like, Programmation Europe/Paris, et Publication réelle vers les Comptes connectés — sous réserve du **gate publish** (§6.1).
 
 ## 2. Target User
 
 ### 2.1 Jobs To Be Done
 
-- **Fonctionnel** — Composer un post carousel (1–10 photos), poser le texte sur chaque slide, écrire la légende, tagger, choisir les réseaux, programmer, envoyer.
-- **Émotionnel** — Confiance avant envoi (« je vois exactement ce que le public verra »).
-- **Contexte** — Souvent depuis le téléphone (photos déjà sur l’appareil), parfois desktop pour peaufiner.
-- **Social / marque** — Sortir des posts à la hauteur de la ligne éditoriale Proche+ (ours, ton rassurant, overlays lisibles).
+- **Fonctionnel** — Composer un Post Carrousel (1–10 photos), poser le texte sur chaque Slide, écrire la Légende, tagger, choisir les Réseaux, programmer, envoyer.
+- **Émotionnel** — Confiance avant envoi (« je vois ce que le public verra »).
+- **Contexte** — Souvent téléphone (photos sur l’appareil), parfois desktop.
+- **Marque** — Posts à la hauteur de la ligne Proche+ (ours, ton rassurant, Overlays lisibles).
 
 ### 2.2 Non-Users (v1)
 
-- Aidants / patients / pros établissement (pas de surface Community publique pour eux).
-- Community managers externes multi-clients (pas un outil agence générique).
-- Création SEO blog Proche+ (parcours séparé).
+- Aidants / patients / pros établissement.
+- Community managers externes multi-clients.
+- Auteurs du blog SEO Community (parcours séparé).
 
 ### 2.3 Key User Journeys
 
-- **UJ-1. Mégane compose un carousel depuis son téléphone et l’ajuste en preview.**
-  - **Persona + context :** fondatrice Proche+, photos déjà dans l’appareil, besoin d’un post du jour.
-  - **Entry state :** authentifiée fondateur, ouvre Nouveau post Community.
-  - **Path :** upload 1–N photos → pour chaque slide, place titre / sous-titre / footer (position + taille) → écrit la Légende → tags → coche Instagram (et éventuellement autres) → voit la Preview feed (média, actions, caption, `n/N`).
-  - **Climax :** la Preview correspond à l’intention ; elle ajuste une taille de titre sans quitter l’écran.
-  - **Resolution :** brouillon sauvé, prêt à programmer ou publier.
-  - **Edge case :** une photo trop lourde / format refusé → message clair, les autres slides restent.
+- **UJ-1. Mégane compose un Carrousel depuis son téléphone et l’ajuste en Preview.**
+  - **Persona + context :** fondatrice Proche+, photos sur l’appareil, post du jour.
+  - **Entry state :** authentifiée fondateur (`requireFondateur`), Nouveau post Community.
+  - **Path :** upload 1–N photos → par Slide, place titre / sous-titre / footer (position + taille + couleur) → Légende → Tags → coche Instagram (et éventuellement autres) → Preview feed (média, actions, Preuve sociale, Légende, `n/N`).
+  - **Climax :** Preview = intention ; elle change une taille de titre sans quitter l’écran.
+  - **Resolution :** brouillon sauvé, prêt à programmer ou publier (ou rester brouillon Proche+).
+  - **Edge case :** fichier trop lourd / format refusé / HEIC non converti → message clair ; autres Slides intactes.
 
 - **UJ-2. Mégane programme un envoi réel multi-réseaux.**
-  - **Persona + context :** même fondatrice, post validé en Preview.
-  - **Entry state :** post en brouillon ou prêt, comptes sociaux connectés.
-  - **Path :** choisit jour + heure (Europe/Paris) → confirme réseaux / comptes → programme ou publie maintenant.
-  - **Climax :** statut programmé / publié côté Proche+ **et** confirmation d’envoi (ou échec explicite) par canal.
-  - **Resolution :** calendrier / liste publications reflète l’état ; en cas d’échec partiel, elle peut retry le canal en échec.
-  - **Edge case :** token Meta expiré → échec nommé « reconnecter le compte », post non marqué publié sur ce canal.
+  - **Persona + context :** post validé en Preview ; ≥1 Compte connecté live (gate §6.1).
+  - **Entry state :** brouillon ou prêt ; comptes sociaux connectés.
+  - **Path :** jour + heure Europe/Paris → confirme Réseaux / comptes → programme ou publie maintenant.
+  - **Climax :** statut programmé / publié Proche+ **et** preuve d’envoi (ou échec nommé) par canal.
+  - **Resolution :** liste publications à jour ; retry manuel des canaux en échec.
+  - **Edge case :** token Meta expiré → « reconnecter le compte » ; canal non marqué publié.
 
 ## 3. Glossary
 
-- **Post** — Unité éditoriale Community (classique, carrousel ou vidéo) destinée aux Réseaux.
-- **Slide** — Une image du Carrousel, avec ses Overlays optionnels.
-- **Carrousel** — Post multi-Slide (1 à 10). Affiche un indicateur `n/N` en Preview.
-- **Overlay** — Texte rendu **sur** une Slide (titre, sous-titre, footer ou blocs équivalents), avec position et taille éditables.
-- **Légende** — Texte de description **sous** le média dans le feed (caption plateforme), distinct des Overlays.
-- **Preview** — Aperçu live type feed (header compte, média/carousel, barre d’actions, likes, Légende) avant envoi.
-- **Réseau** — Canal de diffusion : Instagram, Facebook, Threads, TikTok.
-- **Compte connecté** — Compte social lié à Proche+ autorisé à recevoir une Publication réelle.
-- **Publication réelle** — Envoi effectif vers le/les Réseaux via API des plateformes (pas seulement statut interne Proche+).
-- **Programmation** — Planification d’envoi à une date/heure Europe/Paris.
-- **Tag** — Hashtag / mot-clé éditorial attaché au Post (règles anti-PHI existantes conservées).
-- **Bibliothèque médias** — Assets licence-ok déjà en base Community (complément à l’upload téléphone).
+- **Semi** — Back-office fondateur Community (`/admin-produit/community/...`).
+- **Post** — Unité éditoriale Community (classique, Carrousel ; kind vidéo existant hors critères d’acceptation de ce PRD).
+- **Slide** — Une image du Carrousel, avec Overlays optionnels.
+- **Carrousel** — Post multi-Slide (1 à 10) avec indicateur `n/N` en Preview.
+- **Overlay** — Texte rendu **sur** une Slide (titre, sous-titre, footer), position + taille + couleur éditables.
+- **Légende** — Caption plateforme **sous** le média dans le feed ; distincte des Overlays.
+- **Preview** — Aperçu live type feed Instagram (header, média/Carrousel, barre d’actions, Preuve sociale, Légende).
+- **Preuve sociale (Preview)** — Affordance statique simplifiée (ex. ligne « Liked by… ») ; pas de compteurs d’engagement réels.
+- **Réseau** — Canal : Instagram, Facebook, Threads, TikTok.
+- **Compte connecté** — Compte social lié à Proche+ autorisé pour Publication réelle.
+- **Publication réelle** — Envoi API plateforme (≠ seul flag statut interne `published`).
+- **Brouillon Proche+** — Sauvegarde / essai sans push plateforme.
+- **Programmation** — Planification d’envoi (saisie Europe/Paris ; stockage instant UTC).
+- **Statut canal** — État durable par Réseau ciblé : `pending` | `scheduled` | `published` | `failed`.
+- **Asset publié** — Image(s) envoyée(s) à la plateforme avec Overlays déjà composés (texte « baked » dans le bitmap).
+- **Tag** — Hashtag / mot-clé ; règles anti-PHI existantes (`validateEditableTags` et équivalents).
+- **Bibliothèque médias** — Assets licence-ok en base Community (complément à l’upload).
 
 ## 4. Features
 
 ### 4.1 Upload médias téléphone + Carrousel
 
-**Description:** L’opérateur ajoute une ou plusieurs photos depuis le téléphone (ou le fichier local), réordonne les Slides, et peut aussi piocher dans la Bibliothèque médias. `[ASSUMPTION: plafond Carrousel = 10 Slides, aligné Instagram.]` Realizes UJ-1.
+**Description:** L’opérateur ajoute des photos depuis l’appareil, réordonne les Slides, et peut réutiliser la Bibliothèque médias existante. `[ASSUMPTION: plafond Carrousel = 10 Slides.]` Realizes UJ-1.
 
 **Functional Requirements:**
 
 #### FR-1: Upload multi-photos depuis l’appareil
 
-L’opérateur authentifié fondateur peut sélectionner une ou plusieurs images depuis l’appareil dans Nouveau post / édition. Realizes UJ-1.
+L’opérateur fondateur peut sélectionner une ou plusieurs images depuis l’appareil. Realizes UJ-1.
 
 **Consequences (testable):**
-- Au moins une image uploadée apparaît immédiatement comme Slide dans l’éditeur et la Preview.
-- Formats image supportés refusés → message d’erreur par fichier, sans perdre les Slides déjà valides.
-- `[ASSUMPTION: formats v1 = JPEG, PNG, WebP ; vidéo hors scope éditeur photo sauf kind vidéo déjà existant.]`
+- Chaque image acceptée apparaît immédiatement comme Slide dans l’éditeur et la Preview.
+- Format refusé → erreur par fichier ; Slides déjà valides inchangées.
+- Fichier > **15 Mo** ou dimension max côté > **4096 px** → refus nommé ; autres Slides inchangées.
+- **HEIC/HEIF** accepté en entrée et converti côté serveur en JPEG/WebP avant persistance (ou refus nommé si conversion indisponible).
+- `[ASSUMPTION: formats canoniques persistés = JPEG, PNG, WebP.]`
 
 #### FR-2: Gestion Carrousel (ordre, compte, indicateur)
 
-L’opérateur peut réordonner, supprimer et voir le compteur `n/N` (max 10). Realizes UJ-1.
+L’opérateur peut réordonner, supprimer et voir `n/N` (max 10). Realizes UJ-1.
 
 **Consequences (testable):**
-- Tentative d’ajouter une 11ᵉ Slide → refus explicite.
-- La Preview affiche `n/N` cohérent avec l’ordre des Slides.
-- Un Post à 1 Slide reste valide (classique ou carrousel mono-slide).
+- 11ᵉ Slide → refus explicite.
+- Preview `n/N` = ordre persisté des Slides.
+- 1 Slide reste valide.
+
+#### FR-3: Réutilisation Bibliothèque médias
+
+L’opérateur peut ajouter des Slides depuis la Bibliothèque médias existante (licence-ok). Realizes UJ-1.
+
+**Consequences (testable):**
+- Un asset bibliothèque sélectionné devient une Slide au même titre qu’un upload.
+- `[ASSUMPTION: réutilise l’UI / modèle CommunityMediaAsset existant ; pas de nouveau moteur de recherche médias en v1.]`
 
 ### 4.2 Overlays sur image (positions et tailles)
 
-**Description:** Sur chaque Slide, l’opérateur édite des Overlays (au minimum titre, sous-titre, footer) avec contrôle de position et de taille, dans l’esprit des posts Alan. Plus de saisie JSON brute comme seul chemin. Realizes UJ-1.
+**Description:** Par Slide, Overlays titre / sous-titre / footer avec position, taille et couleur — plus de JSON brut comme seul chemin. Realizes UJ-1.
 
 **Functional Requirements:**
 
-#### FR-3: Édition Overlay par Slide
+#### FR-4: Édition Overlay par Slide
 
-L’opérateur peut créer/modifier le texte Overlay d’une Slide et régler position + taille (et couleur si déjà supportée). Realizes UJ-1.
+L’opérateur édite texte, position (%), taille (échelle relative) et couleur (hex, modèle Semi actuel) par bloc. Realizes UJ-1.
 
 **Consequences (testable):**
-- Un changement de position/taille se reflète dans la Preview sans rechargement complet de page (live ou quasi-live).
-- Les Overlays sont persistés avec le Post / les Slides.
-- `[ASSUMPTION: v1 = blocs structurés titre / sous-titre / footer avec position (%) et taille (échelle ou px relatif), pas un canvas libre illimité multi-polices.]`
+- Changement Overlay / Légende / ordre → Preview mise à jour **sans rechargement complet de page**.
+- Overlays persistés avec le Post / les Slides.
+- `[ASSUMPTION: v1 = trois blocs structurés, pas canvas libre multi-polices.]`
 
-#### FR-4: Overlay indépendant de la Légende
+#### FR-5: Overlay indépendant de la Légende
 
-Le système traite Overlay et Légende comme deux champs distincts ; l’un peut être vide si l’autre est rempli (sous réserve des règles de publication par Réseau). Realizes UJ-1.
+Overlay et Légende sont des champs distincts. Realizes UJ-1.
 
 **Consequences (testable):**
 - Modifier la Légende ne modifie aucun Overlay.
-- Un Post peut avoir Overlays sans Légende ou Légende sans Overlay.
+- Post valide avec Overlays sans Légende ou Légende sans Overlay (sous réserve des règles d’envoi du Réseau).
+
+#### FR-6: Composition Overlay → Asset publié
+
+Avant Publication réelle, le système produit des Assets publiés où le texte Overlay est composé dans l’image (bake). Realizes UJ-1, UJ-2.
+
+**Consequences (testable):**
+- L’image envoyée à la plateforme contient le texte Overlay visible sans dépendre d’un calque texte natif Instagram.
+- La Preview affiche le même rendu composé (ou un équivalent pixel-fidèle au bake).
+- `[ASSUMPTION: bake serveur (ou équivalent déterministe) ; détail dans addendum.md.]`
 
 ### 4.3 Légende, tags, réseaux
 
-**Description:** Sous le média, l’opérateur rédige la Légende (caption feed), ajoute des Tags, et choisit les Réseaux / Comptes connectés. Realizes UJ-1, UJ-2.
+**Description:** Légende feed, Tags, choix Réseaux / Comptes connectés. Realizes UJ-1, UJ-2.
 
 **Functional Requirements:**
 
-#### FR-5: Légende sous le post
+#### FR-7: Légende sous le post
 
-L’opérateur peut saisir et prévisualiser la Légende sous le média, avec le nom de compte en tête comme dans le feed. Realizes UJ-1.
-
-**Consequences (testable):**
-- La Preview montre username + Légende sous la barre d’actions.
-- Texte long : troncature visuelle type « more » acceptable en Preview ; texte intégral conservé à l’envoi.
-
-#### FR-6: Tags éditables
-
-L’opérateur peut ajouter des Tags ; les règles anti-médical / PHI / établissement existantes restent appliquées.
+Saisie + Preview username + Légende sous la barre d’actions. Realizes UJ-1.
 
 **Consequences (testable):**
-- Tag refusé → erreur nommée listant les Tags rejetés (comportement actuel conservé).
+- Preview : username + Légende sous les actions.
+- Troncature visuelle « more » OK en Preview ; texte intégral à l’envoi.
 
-#### FR-7: Choix des Réseaux et comptes
+#### FR-8: Tags et scan anti-PHI
 
-L’opérateur sélectionne un ou plusieurs Réseaux parmi Instagram, Facebook, Threads, TikTok et les Comptes connectés associés. Realizes UJ-2.
+Tags éditables ; mêmes règles anti-médical / PHI / établissement que l’existant. Le texte Overlay et la Légende passent le même filtre avant Publication réelle.
 
 **Consequences (testable):**
-- Aucun Réseau / compte → impossible de programmer ou de déclencher une Publication réelle.
-- `[ASSUMPTION: contraintes kind↔canal existantes (ex. TikTok vidéo) restent ; l’éditeur photo/carousel cible prioritairement IG / FB / Threads.]`
+- Tag / Overlay / Légende refusé → erreur nommée listant les termes rejetés.
+
+#### FR-9: Choix des Réseaux et comptes
+
+Sélection parmi Instagram, Facebook, Threads, TikTok + Comptes connectés. Realizes UJ-2.
+
+**Consequences (testable):**
+- Sans Réseau / compte → impossible de programmer ou déclencher une Publication réelle.
+- Réseau incompatible avec le kind du Post (ex. TikTok sans vidéo) → désactivé ou refus nommé à l’envoi, jamais silence.
+- `[ASSUMPTION: photo/Carrousel v1 prioritaire IG / FB / Threads ; TikTok uniquement si kind vidéo existant.]`
 
 ### 4.4 Preview live type feed
 
-**Description:** Frustration #1. Avant envoi, une Preview fidèle au feed (réf. Instagram `avec_alan`) : média / carousel, indicateur `n/N`, barre d’actions, ligne de likes, Légende — et Overlays visibles sur le média. Realizes UJ-1.
+**Description:** Frustration #1 — Preview fidèle au feed Instagram (`avec_alan`). **Décision :** Preview v1 = **IG-first** (ratio portrait 4:5) ; autres Réseaux réutilisent le même cadre. Realizes UJ-1.
 
 **Functional Requirements:**
 
-#### FR-8: Preview live avant envoi
+#### FR-10: Preview live avant envoi
 
-L’opérateur voit une Preview qui se met à jour quand médias, Overlays, Légende ou ordre des Slides changent. Realizes UJ-1.
-
-**Consequences (testable):**
-- La Preview est visible sur le parcours de composition (même viewport ou panneau adjacent / dessous sur mobile), pas seulement après « Enregistrer brouillon » sur une autre URL.
-- Navigation entre Slides dans la Preview (dots ou swipe) pour un Carrousel.
-
-#### FR-9: Hiérarchie visuelle feed
-
-La Preview respecte l’ordre : média (avec Overlays) → actions → preuve sociale simplifiée → Légende.
+Preview visible sur le parcours de composition ; se met à jour sans reload complet. Realizes UJ-1.
 
 **Consequences (testable):**
-- Aucun Overlay n’apparaît dans la zone Légende ; la Légende n’est pas dessinée sur le média.
+- Visible pendant la composition (panneau adjacent ou dessous sur mobile), pas seulement après save sur une autre URL.
+- Navigation Slides (dots ou swipe) pour Carrousel.
+- Cadre média Preview = **4:5** (IG-first).
+
+#### FR-11: Hiérarchie visuelle feed
+
+Ordre : média (+ Overlays) → barre d’actions → Preuve sociale (Preview) → Légende.
+
+**Consequences (testable):**
+- Aucun Overlay dans la zone Légende ; Légende jamais dessinée sur le média.
 
 ### 4.5 Programmation jour/heure
 
-**Description:** L’opérateur choisit un créneau d’envoi (date + heure) en Europe/Paris. Realizes UJ-2.
+**Description:** Créneau d’envoi Europe/Paris. Realizes UJ-2.
 
 **Functional Requirements:**
 
-#### FR-10: Programmation Europe/Paris
+#### FR-12: Programmation Europe/Paris
 
-L’opérateur peut définir jour + heure de Programmation en fuseau Europe/Paris. Realizes UJ-2.
+L’opérateur saisit jour + heure en Europe/Paris. Realizes UJ-2.
 
 **Consequences (testable):**
-- Créneau passé → refus ou confirmation explicite « publier maintenant ».
-- Le créneau affiché à l’opérateur correspond à Europe/Paris (pas seulement UTC brut sans libellé).
-- `[ASSUMPTION: un seul créneau par Post pour tous les Réseaux sélectionnés en v1.]`
+- Affichage opérateur libellé Europe/Paris ; persistance = instant UTC.
+- Transition heure d’été/hiver : le créneau affiché reste l’heure murale choisie ; l’instant UTC stocké est recalculé selon les règles TZ.
+- Créneau passé → refus ou confirmation « publier maintenant ».
+- À l’heure dite, un worker / job déclenche la Publication réelle ; si le process est down, le Post reste `scheduled` et est repris au prochain passage (pas de disparition silencieuse).
+- `[ASSUMPTION: un seul créneau par Post pour tous les Réseaux en v1.]`
 
-### 4.6 Publication réelle
+### 4.6 Brouillon Proche+ et Publication réelle
 
-**Description:** « Envoyer » signifie Publication réelle vers les Comptes connectés, avec statut par canal et erreurs actionnables. Remplace le seul marquage `published` interne. Realizes UJ-2.
+**Description:** Deux intentions explicites : sauver en Brouillon Proche+ (sans push) vs Publication réelle. Remplace le seul flip `published` interne comme preuve de succès. Realizes UJ-2.
 
 **Functional Requirements:**
 
-#### FR-11: Publication réelle vers Comptes connectés
+#### FR-13: Brouillon Proche+ explicite
 
-L’opérateur peut publier maintenant ou à l’heure programmée vers les Comptes connectés des Réseaux choisis. Realizes UJ-2.
-
-**Consequences (testable):**
-- Succès canal → identifiant / URL externe ou preuve d’envoi stockée ; statut canal = publié.
-- Échec canal → Post non marqué publié sur ce canal ; message actionnable (ex. reconnecter).
-- `[ASSUMPTION: v1 = intégration API plateformes (Meta Graph pour IG/FB/Threads ; API TikTok si kind vidéo) ; pas d’export manuel comme seul chemin de succès.]`
-
-#### FR-12: État partiel multi-réseaux
-
-Si plusieurs Réseaux sont ciblés, un échec sur l’un n’efface pas le succès des autres.
+L’opérateur peut enregistrer / itérer sans déclencher d’envoi plateforme.
 
 **Consequences (testable):**
-- Liste publications / détail Post montre l’état par Réseau.
-- Retry possible sur les canaux en échec sans republier les succès.
+- Action « Enregistrer brouillon » ne crée aucun appel API Réseau.
+- UI distingue clairement brouillon vs publier / programmer.
+
+#### FR-14: Publication réelle vers Comptes connectés
+
+Publier maintenant ou à l’heure programmée vers les Comptes connectés. Realizes UJ-2.
+
+**Consequences (testable):**
+- Succès canal → preuve d’envoi (id / URL externe) + Statut canal = `published`.
+- Échec canal → Statut canal = `failed` ; message actionnable ; pas de marquage publié sur ce canal.
+- Gate §6.1 : sans ≥1 Compte connecté live pour un Réseau photo supporté, les actions publier/programmer restent désactivées avec explication.
+- `[ASSUMPTION: API Meta Graph (IG/FB/Threads) ; TikTok API seulement si kind vidéo.]`
+
+#### FR-15: État partiel multi-réseaux + retry manuel
+
+Échec sur un Réseau n’annule pas les succès des autres. Retry = **manuel** (pas d’auto-retry MVP).
+
+**Consequences (testable):**
+- Détail Post montre Statut canal par Réseau.
+- Retry ne republie pas les canaux déjà `published` (idempotence).
+- Échec Programmation → alerte / statut visible fondateur ; pas de boucle auto.
+
+#### FR-16: Accès fondateur
+
+Seuls les opérateurs passant `requireFondateur` accèdent à composer / programmer / publier.
+
+**Consequences (testable):**
+- Accès non fondateur → refus (redirect / 403), aucun envoi.
 
 ## 5. Non-Goals (Explicit)
 
-- Génération d’images Studio Ours / `MASCOT_GEN` dans ce PRD (parcours séparé, déjà gated).
-- Outil agence multi-marques / multi-clients.
-- Éditeur vidéo timeline complet (le kind vidéo existant peut rester ; ce PRD priorise photo + carousel + texte).
-- A/B testing de créatifs, inbox commentaires, analytics avancés.
-- Publication automatique depuis les aidants ou les établissements.
-- Remplacement du blog SEO Community.
+- Génération Studio Ours / `MASCOT_GEN` (parcours séparé, gated).
+- Outil agence multi-marques.
+- **Aucune nouvelle capacité vidéo en v1** — kind vidéo existant inchangé et hors critères d’acceptation de ce PRD.
+- Auto-retry des échecs d’envoi ; A/B créatifs ; inbox ; analytics avancés.
+- Publication depuis aidants / établissements.
+- Remplacement du blog SEO.
+- Preview multi-formats par Réseau (FB 16:9, etc.) — IG-first seulement.
+- Canvas type Canva (polices illimitées, stickers).
 
 ## 6. MVP Scope
 
 ### 6.1 In Scope
 
-- Upload téléphone multi-photos + Carrousel jusqu’à 10 Slides
-- Overlays éditables (position/taille) + Légende sous le post
-- Tags, choix Réseaux / Comptes connectés
-- Preview live type feed Instagram
-- Programmation jour/heure Europe/Paris
-- Publication réelle avec statut par canal
-- Conservations des garde-fous tags / droits témoignages existants
+- Upload téléphone (+ HEIC→JPEG/WebP) + Carrousel ≤ 10 + Bibliothèque existante
+- Overlays (position / taille / couleur) + bake Asset publié + Légende
+- Tags + scan PHI Overlay/Légende ; Réseaux / Comptes connectés
+- Preview live IG-first 4:5
+- Brouillon Proche+ explicite
+- Programmation Europe/Paris (UTC stocké) + worker de reprise
+- Publication réelle + Statut canal + retry manuel — **sous gate :**
+  - **Gate publish :** FR-14 / SM-2 ne sont acceptés en prod que si **≥1 Compte connecté** Instagram ou Facebook est live. Sinon la v1 livre éditeur + Preview + brouillon / Programmation UI, avec publier réel désactivé jusqu’au branchement compte.
 
 ### 6.2 Out of Scope for MVP
 
-- Canvas design libre type Canva (polices illimitées, stickers) — raison : complexité UX/tech disproportionnée
-- Threads/IG stories & reels comme formats dédiés — `[NOTE FOR PM: revisiter si la ligne éditoriale bascule vidéo-first]`
-- Collaboration multi-rédacteurs / validation workflow
-- Auto-repost cross-network avec crops automatiques avancés au-delà des formats déjà gérés
+- Canvas libre / stories & reels dédiés — `[NOTE FOR PM: revisiter si ligne éditoriale vidéo-first]`
+- Collaboration multi-rédacteurs
+- Crops automatiques avancés multi-réseaux au-delà du cadre IG 4:5 + fit existant
+- Auto-retry / files d’attente sophistiquées
 
 ## 7. Success Metrics
 
 **Primary**
-- **SM-1** : Un Post carousel complet (médias + Overlays + Légende + au moins un Réseau) est composable et prévisualisable sans JSON manuel. Valide FR-3, FR-5, FR-8.
-- **SM-2** : Au moins un Post atteint le statut publié **avec** preuve d’envoi plateforme (pas seulement flag interne) en conditions réelles. Valide FR-11.
+- **SM-1** : Un Post Carrousel (médias + Overlays + Légende + ≥1 Réseau) composable et prévisualisable sans JSON manuel. Valide FR-4, FR-7, FR-10.
+- **SM-2** : ≥1 Post avec Statut canal `published` **et** preuve d’envoi plateforme (gate §6.1 requis). Valide FR-14.
 
 **Secondary**
-- **SM-3** : Temps perçu « j’ajuste puis j’envoie » — l’opérateur n’a plus besoin d’un outil externe pour juger le rendu overlay/légende. Valide FR-8.
+- **SM-3** : L’opérateur n’utilise plus d’outil externe pour juger le rendu Overlay/Légende avant envoi (observation fondateur sur 5 Posts). Valide FR-10.
 
-**Counter-metrics (do not optimize)**
-- **SM-C1** : Ne pas maximiser le nombre de Réseaux cochés par Post au détriment du taux de succès d’envoi (contrebalance SM-2).
-- **SM-C2** : Ne pas ajouter de champs éditoriaux qui allongent le formulaire sans passer par la Preview (contrebalance SM-1).
+**Counter-metrics**
+- **SM-C1** : Ne pas maximiser le nombre de Réseaux cochés si le taux de succès d’envoi baisse (contrebalance SM-2).
+- **SM-C2** : Ne pas allonger le formulaire hors Preview (contrebalance SM-1).
 
 ## 8. Open Questions
 
-1. Quels Comptes connectés Proche+ sont déjà disponibles en prod pour un premier envoi API réel (IG Business / FB Page / etc.) ?
-2. Faut-il un mode « brouillon Proche+ seulement » explicite à côté de Publication réelle, pour les essais sans push plateforme ?
-3. Politique d’échec Programmation : retry auto vs alerte fondateur seule ?
-4. La Preview doit-elle basculer de format selon le Réseau primaire (IG 4:5 vs FB) dès la v1, ou IG-first uniquement ?
+1. **[owner: fondateur | non-bloquant UX]** Quel Compte connecté brancher en premier en prod (IG Business vs FB Page) pour lever le gate §6.1 ?
+2. **[owner: architecture | non-bloquant PRD]** Limites exactes caption/hashtags par Réseau à encoder dans le validateur d’envoi (sources API courantes).
+3. **[owner: architecture | deferred]** Stratégie d’idempotence détaillée (clés externes Meta) — principe posé en FR-15 ; mécanisme dans architecture.
 
 ## 9. Assumptions Index
 
 - Carrousel max **10** Slides (§4.1).
-- Formats image v1 : **JPEG, PNG, WebP** (§4.1).
-- Overlays v1 = blocs **titre / sous-titre / footer** avec position + taille (pas canvas libre) (§4.2).
-- Contraintes kind↔canal existantes conservées ; photo/carousel prioritaire IG/FB/Threads (§4.3).
-- Un seul créneau de Programmation pour tous les Réseaux du Post (§4.5).
-- Fuseau **Europe/Paris** (§4.5).
-- Publication réelle via **API plateformes** + Comptes connectés (§4.6).
-- Réseaux v1 ciblés : **Instagram, Facebook, Threads, TikTok** (avec limites kind) — confirmé « OK partout ».
-- Enjeu produit : **Proche+** (surface Community Semi au service de la marque produit), pas un outil Semi-only jetable.
+- Persisté : **JPEG, PNG, WebP** ; HEIC converti (§4.1).
+- Max fichier **15 Mo** ; max côté **4096 px** (§4.1).
+- Bibliothèque = UI existante (§4.1).
+- Overlays = **3 blocs** + couleur Semi + bake Asset publié (§4.2).
+- Preview v1 = **IG-first 4:5** (§4.4).
+- Photo/Carrousel prioritaire **IG / FB / Threads** ; TikTok si vidéo seulement (§4.3).
+- Un créneau Programmation pour tous les Réseaux ; saisie **Europe/Paris**, stock **UTC** (§4.5).
+- Retry = **manuel** ; Brouillon Proche+ explicite (§4.6).
+- Publication réelle via **API** ; gate ≥1 Compte connecté IG/FB (§4.6, §6.1).
+- Accès = **fondateur** uniquement (§4.6).
+- Enjeu produit : **Proche+** via surface Semi.
