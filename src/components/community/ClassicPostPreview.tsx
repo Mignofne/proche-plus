@@ -7,6 +7,7 @@ import {
   resolvePrimaryChannel,
   type CommunityFormatSpec,
 } from "@/lib/community/formats";
+import { normalizeHexColor } from "@/lib/community/scenes";
 import type { CommunitySocialChannel } from "@prisma/client";
 import { SituationPostArt } from "./SituationPostArt";
 
@@ -58,11 +59,7 @@ export function ClassicPostPreview({
         ? channels
         : [primary]) as CommunitySocialChannel[]
     );
-  const overlaySubtitle =
-    subtitle ??
-    (body
-      ? body.replace(/#\w+/g, "").trim().slice(0, 110)
-      : null);
+  const overlaySubtitle = subtitle ?? null;
 
   return (
     <div
@@ -129,7 +126,7 @@ export function ClassicPostPreview({
             <p
               className="text-sm font-bold"
               style={{
-                color: titleColor || COMMUNITY_BRAND.tealDark,
+                color: normalizeHexColor(titleColor, COMMUNITY_BRAND.tealDark),
               }}
             >
               {title}

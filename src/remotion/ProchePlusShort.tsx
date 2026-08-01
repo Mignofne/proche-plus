@@ -31,6 +31,7 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
   titleColor,
   subtitleColor,
   sceneSrc,
+  bearEnabled = true,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
@@ -160,29 +161,33 @@ export const ProchePlusShort: React.FC<RemotionInputProps> = ({
           </p>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-end",
-            opacity: bearIn,
-            transform: `translateY(${bearY}px) scale(${bearScale})`,
-            width: "100%",
-            maxHeight: sceneMaxH,
-          }}
-        >
-          <Img
-            src={staticFile(sceneStatic)}
+        {bearEnabled ? (
+          <div
             style={{
-              width: "auto",
-              height: "auto",
-              maxWidth: isLandscape ? "70%" : "92%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-end",
+              opacity: bearIn,
+              transform: `translateY(${bearY}px) scale(${bearScale})`,
+              width: "100%",
               maxHeight: sceneMaxH,
-              objectFit: "contain",
-              objectPosition: "bottom",
             }}
-          />
-        </div>
+          >
+            <Img
+              src={staticFile(sceneStatic)}
+              style={{
+                width: "auto",
+                height: "auto",
+                maxWidth: isLandscape ? "70%" : "92%",
+                maxHeight: sceneMaxH,
+                objectFit: "contain",
+                objectPosition: "bottom",
+              }}
+            />
+          </div>
+        ) : (
+          <div style={{ height: 24 }} />
+        )}
       </AbsoluteFill>
     </AbsoluteFill>
   );

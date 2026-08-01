@@ -44,6 +44,7 @@ export function VideoPostPreview({
   subtitleColor,
   sceneKey,
   themeSlug,
+  bearEnabled = true,
 }: {
   title: string;
   body: string;
@@ -54,6 +55,7 @@ export function VideoPostPreview({
   subtitleColor?: string | null;
   sceneKey?: string | null;
   themeSlug?: string | null;
+  bearEnabled?: boolean;
 }) {
   const primary = resolvePrimaryChannel([channel, ...(channels ?? [])]);
   const format = videoFormatForChannel(primary);
@@ -68,9 +70,12 @@ export function VideoPostPreview({
     subtitleColor,
     sceneKey,
     themeSlug,
+    bearEnabled,
   });
 
   const maxW = format.key === "video-16-9" ? "max-w-lg" : "max-w-xs";
+  const loadingAspect =
+    format.key === "video-16-9" ? "aspect-video" : "aspect-[9/16]";
 
   return (
     <div className={`mx-auto w-full ${maxW} animate-fade-up`}>
@@ -78,7 +83,7 @@ export function VideoPostPreview({
         Aperçu vidéo — {label} · {format.label}
       </p>
       <div className="overflow-hidden rounded-[1.75rem] border border-cream-dark bg-[#1a1816] p-1.5 shadow-[0_18px_40px_-18px_rgba(45,42,38,0.4)]">
-        <div className="overflow-hidden rounded-[1.35rem]">
+        <div className={`overflow-hidden rounded-[1.35rem] ${loadingAspect}`}>
           <Player
             component={ProchePlusShort}
             inputProps={inputProps}
@@ -93,7 +98,12 @@ export function VideoPostPreview({
         </div>
       </div>
       <p className="mt-2 text-center text-[11px] text-text-muted">
-        Rendu fichier : <code className="text-[10px]">community:render-video</code>
+        Rendu fichier :{" "}
+        <code className="text-[10px]">
+          {primary === "facebook"
+            ? "community:render-video (ProchePlusShortFacebook)"
+            : "community:render-video"}
+        </code>
       </p>
     </div>
   );

@@ -8,6 +8,7 @@ import {
   resolvePrimaryChannel,
   type CommunityFormatSpec,
 } from "@/lib/community/formats";
+import { normalizeHexColor } from "@/lib/community/scenes";
 import type { CommunitySocialChannel } from "@prisma/client";
 import { SituationPostArt } from "./SituationPostArt";
 
@@ -165,8 +166,10 @@ export function CarouselPostPreview({
                   onClick={() => setIndex(i)}
                   className="h-0.5 flex-1 rounded-full transition-opacity"
                   style={{
-                    background: i === index ? "#fff" : "rgba(255,255,255,0.4)",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    background:
+                      i === index
+                        ? "rgba(45,42,38,0.85)"
+                        : "rgba(45,42,38,0.25)",
                   }}
                   aria-label={`Aller au slide ${i + 1}`}
                 />
@@ -198,7 +201,9 @@ export function CarouselPostPreview({
           {title ? (
             <p
               className="text-sm font-bold"
-              style={{ color: titleColor || COMMUNITY_BRAND.tealDark }}
+              style={{
+                color: normalizeHexColor(titleColor, COMMUNITY_BRAND.tealDark),
+              }}
             >
               {title}
             </p>

@@ -229,9 +229,10 @@ export default async function PublicationPreviewPage({
   } catch {
     channelsFromJson = [];
   }
+  // channelsJson (ordre de coche) prioritaire pour le format ; targets en secours
   const targetChannels = [
-    ...pub.targets.map((t) => t.channel),
     ...channelsFromJson,
+    ...pub.targets.map((t) => t.channel),
   ];
   const primary = resolvePrimaryChannel(targetChannels);
 
@@ -295,6 +296,7 @@ export default async function PublicationPreviewPage({
           sceneKey={pub.sceneKey}
           themeSlug={pub.theme?.slug}
           channels={channels}
+          bearEnabled={pub.bearEnabled}
         />
       ) : pub.kind === "carrousel" || slides.length > 0 ? (
         <CarouselPostPreview

@@ -4,7 +4,6 @@ import { SurfaceRaised } from "@/components/community/SurfaceRaised";
 import { SectionTitle } from "@/components/ui/Card";
 import { TextColorFields } from "@/components/community/TextColorFields";
 import { createPublicationAction } from "../../actions";
-import { channelsAllowedForKind } from "@/lib/community/publications";
 import { SCENE_OPTIONS } from "@/lib/community/scenes";
 
 const ALL_CHANNELS = ["instagram", "threads", "facebook", "tiktok"] as const;
@@ -16,8 +15,6 @@ export default async function NouvellePublicationPage() {
     prisma.communityMediaAsset.findMany({ orderBy: { createdAt: "desc" } }),
     prisma.communityBearScenario.findMany(),
   ]);
-
-  const classiqueChannels = channelsAllowedForKind("classique");
 
   return (
     <CommunityPageShell
@@ -127,24 +124,24 @@ export default async function NouvellePublicationPage() {
           </label>
           <fieldset className="text-sm">
             <legend className="font-semibold">
-              Canaux (le premier pilote le format d’aperçu)
+              Canaux (ordre de coche : le premier canal listé ci-dessous qui est
+              coché pilote le format — décochez IG/Threads pour un aperçu Facebook)
             </legend>
-            {ALL_CHANNELS.map((ch) => {
-              const allowedClassique = classiqueChannels.includes(ch);
-              return (
-                <label key={ch} className="mr-4 inline-flex items-center gap-1">
-                  <input
-                    type="checkbox"
-                    name="channels"
-                    value={ch}
-                    defaultChecked={allowedClassique}
-                  />
-                  {ch}
-                  {ch === "tiktok" ? " (vidéo seulement — refusé si classique/carrousel)" : ""}
-                  {ch === "facebook" ? " (format fil adapté)" : ""}
-                </label>
-              );
-            })}
+            {ALL_CHANNELS.map((ch) => (
+              <label key={ch} className="mr-4 inline-flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  name="channels"
+                  value={ch}
+                  defaultChecked={ch === "instagram"}
+                />
+                {ch}
+                {ch === "tiktok"
+                  ? " (vidéo seulement — refusé si classique/carrousel)"
+                  : ""}
+                {ch === "facebook" ? " (format fil 1.91:1 / vidéo 16:9)" : ""}
+              </label>
+            ))}
           </fieldset>
           <fieldset className="text-sm">
             <legend className="font-semibold">Comptes</legend>

@@ -212,7 +212,12 @@ export async function createPublicationAction(
       slidesJson,
       isTestimonial: formData.get("isTestimonial") === "on",
       isAttributable: formData.get("isAttributable") === "on",
-      remotionComposition: kind === "video" ? "ProchePlusShort" : null,
+      remotionComposition:
+        kind === "video"
+          ? channels[0] === "facebook"
+            ? "ProchePlusShortFacebook"
+            : "ProchePlusShort"
+          : null,
       targets: {
         create: accountIds.map((accountId, i) => ({
           accountId,

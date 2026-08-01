@@ -5,11 +5,13 @@
  * texte haut colorisable + illustration scène pleine (pas de médaillon).
  */
 
+import { useEffect, useState } from "react";
 import {
   DEFAULT_SUBTITLE_COLOR,
   DEFAULT_TITLE_COLOR,
   normalizeHexColor,
   resolveSceneSrc,
+  sceneImagePath,
 } from "@/lib/community/scenes";
 import type { CommunityFormatSpec } from "@/lib/community/formats";
 
@@ -19,6 +21,8 @@ const PASTEL_BACKGROUNDS = [
   "#F3EDE4", // cream
   "#EDE6F5", // lavande pâle
 ] as const;
+
+const FALLBACK_SCENE = sceneImagePath("scene-communication");
 
 export function SituationPostArt({
   title,
@@ -47,7 +51,12 @@ export function SituationPostArt({
 }) {
   const titleHex = normalizeHexColor(titleColor, DEFAULT_TITLE_COLOR);
   const subtitleHex = normalizeHexColor(subtitleColor, DEFAULT_SUBTITLE_COLOR);
-  const sceneSrc = resolveSceneSrc({ sceneKey, imageSrc, poseKey, themeSlug });
+  const resolved = resolveSceneSrc({ sceneKey, imageSrc, poseKey, themeSlug });
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    setFailed(false);
+  }, [resolved]);
+  const sceneSrc = failed ? FALLBACK_SCENE : resolved;
   const bg =
     PASTEL_BACKGROUNDS[accentIndex % PASTEL_BACKGROUNDS.length] ??
     PASTEL_BACKGROUNDS[0];
@@ -88,6 +97,7 @@ export function SituationPostArt({
             alt="Ours Proche+ en situation"
             className="max-h-full w-auto max-w-[92%] object-contain object-bottom drop-shadow-[0_10px_20px_rgba(107,68,35,0.12)] animate-soft-pop"
             draggable={false}
+            onError={() => setFailed(true)}
           />
         ) : (
           <div className="mb-8 text-sm text-text-muted">Sans ours</div>

@@ -25,6 +25,7 @@ export type RemotionInputProps = {
   titleColor?: string;
   subtitleColor?: string;
   sceneSrc?: string;
+  bearEnabled?: boolean;
   /** @deprecated — conservé pour compat props anciennes */
   poseSrc?: string;
 };
@@ -39,6 +40,7 @@ export function buildRemotionProps(params: {
   sceneKey?: string | null;
   imageSrc?: string | null;
   themeSlug?: string | null;
+  bearEnabled?: boolean;
 }): RemotionInputProps {
   return {
     title: params.title,
@@ -56,6 +58,7 @@ export function buildRemotionProps(params: {
       poseKey: params.poseKey,
       themeSlug: params.themeSlug,
     }),
+    bearEnabled: params.bearEnabled !== false,
   };
 }
 
