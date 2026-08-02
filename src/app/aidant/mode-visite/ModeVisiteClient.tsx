@@ -138,40 +138,46 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
               </p>
             </div>
           </div>
-          <p className="text-sm text-text-muted">
-            Les thèmes avec « Exercice prêt » sont utilisables tout de suite.
-            Les autres n&apos;ont pas encore de contenu adapté pour votre proche.
-          </p>
-          <div className="flex flex-col gap-3">
-            {data.themes.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setThemeId(t.id)}
-                className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-colors ${
-                  t.hasExercise
-                    ? "border-teal/40 bg-teal/5 hover:border-teal"
-                    : "border-cream-dark bg-white hover:border-teal/30"
-                }`}
-              >
-                <span className="text-2xl" aria-hidden>
-                  {t.icon ?? "•"}
-                </span>
-                <span className="flex-1">
-                  <span className="block text-lg font-semibold">{t.label}</span>
-                  <span
-                    className={`mt-0.5 block text-sm ${
-                      t.hasExercise ? "font-medium text-teal-dark" : "text-text-muted"
-                    }`}
+          {data.themes.length === 0 ? (
+            <Card>
+              <SectionTitle>Aucun exercice prêt pour le moment</SectionTitle>
+              <p className="mt-3 leading-relaxed">
+                Les exercices publiés du catalogue n&apos;ont pas encore été
+                rattachés au niveau d&apos;autonomie de votre proche. L&apos;équipe
+                peut les activer depuis la fiche patient.
+              </p>
+            </Card>
+          ) : (
+            <>
+              <p className="text-sm text-text-muted">
+                {data.themes.length} thème
+                {data.themes.length > 1 ? "s" : ""} avec exercice prêt pour{" "}
+                {data.patientName.split(" ")[0]}.
+              </p>
+              <div className="flex flex-col gap-3">
+                {data.themes.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setThemeId(t.id)}
+                    className="flex items-center gap-3 rounded-2xl border border-teal/40 bg-teal/5 p-4 text-left transition-colors hover:border-teal"
                   >
-                    {t.hasExercise
-                      ? "Exercice prêt pour cette visite"
-                      : "Pas encore de contenu pour votre proche"}
-                  </span>
-                </span>
-              </button>
-            ))}
-          </div>
+                    <span className="text-2xl" aria-hidden>
+                      {t.icon ?? "•"}
+                    </span>
+                    <span className="flex-1">
+                      <span className="block text-lg font-semibold">
+                        {t.label}
+                      </span>
+                      <span className="mt-0.5 block text-sm font-medium text-teal-dark">
+                        Exercice prêt pour cette visite
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </main>
       </div>
     );

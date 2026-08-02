@@ -3,6 +3,7 @@ import { join } from "path";
 import { parse } from "csv-parse/sync";
 import type { AutonomyLevel, PrismaClient } from "@prisma/client";
 import { CSV_IMPORT_VALIDATED_BY } from "../src/lib/exercises/constants";
+import { ensurePatientExercisesForLevel } from "../src/lib/exercises/activate-for-level";
 
 export { CSV_IMPORT_VALIDATED_BY };
 
@@ -366,66 +367,14 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
 async function ensureDemoPatientExercises(prisma: PrismaClient) {
   const patients = await prisma.patient.findMany({
     where: { caregivers: { some: {} } },
+    select: { id: true, autonomyLevel: true },
   });
 
   for (const patient of patients) {
-    const code =
-      patient.autonomyLevel === "autonome"
-        ? "A"
-        : patient.autonomyLevel === "semi_autonome_faible"
-          ? "B"
-          : patient.autonomyLevel === "semi_autonome_eleve"
-            ? "C"
-            : patient.autonomyLevel === "dependant"
-              ? "D"
-              : "E";
-
-    const scale = await prisma.autonomyScale.findUnique({ where: { code } });
-    if (!scale) continue;
-
-    const candidates = await prisma.exercise.findMany({
-      where: {
-        status: "publie",
-        autonomyScaleId: scale.id,
-        tier: 1,
-      },
-    });
-
-    const pro = await prisma.professional.findFirst({
-      where: { establishmentId: patient.establishmentId },
-    });
-
-    for (const exercise of candidates) {
-      const existingCurrent = await prisma.patientExercise.findFirst({
-        where: {
-          patientId: patient.id,
-          isCurrent: true,
-          exercise: { themeId: exercise.themeId },
-        },
-      });
-      if (existingCurrent) continue;
-
-      await prisma.patientExercise.upsert({
-        where: {
-          patientId_exerciseId: {
-            patientId: patient.id,
-            exerciseId: exercise.id,
-          },
-        },
-        create: {
-          patientId: patient.id,
-          exerciseId: exercise.id,
-          currentStatus: "actif",
-          activatedById: pro?.id ?? null,
-          activatedAt: new Date(),
-          isCurrent: true,
-        },
-        update: {
-          currentStatus: "actif",
-          isCurrent: true,
-          activatedAt: new Date(),
-        },
-      });
-    }
+    await ensurePatientExercisesForLevel(
+      prisma,
+      patient.id,
+      patient.autonomyLevel
+    );
   }
 }

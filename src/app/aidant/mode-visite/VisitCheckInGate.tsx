@@ -74,13 +74,19 @@ export function VisitCheckInGate({
     }
     setError("");
     startTransition(async () => {
-      const result = await submitVisitCheckIn({
-        patientId,
-        fatigueScore: fatigue,
-        painScore: pain,
-        transmissionId,
-      });
-      setPhase(result.blocked ? "blocked" : "ok");
+      try {
+        const result = await submitVisitCheckIn({
+          patientId,
+          fatigueScore: fatigue,
+          painScore: pain,
+          transmissionId,
+        });
+        setPhase(result.blocked ? "blocked" : "ok");
+      } catch {
+        setError(
+          "Impossible d'enregistrer le check-in. Vérifiez la connexion et réessayez."
+        );
+      }
     });
   }
 

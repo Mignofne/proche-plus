@@ -20,6 +20,8 @@ import {
   ModeVisiteProchePicker,
 } from "./ProchePicker";
 
+export const dynamic = "force-dynamic";
+
 export default async function ModeVisitePage({
   searchParams,
 }: {
@@ -84,26 +86,24 @@ export default async function ModeVisitePage({
 
   const patient = patientLink.patient;
   const canChangeProche = proches.length > 1;
-  let themes = await listActiveThemesForVisit();
+  const allThemes = await listActiveThemesForVisit();
 
-  // Thèmes avec exercice prêt en premier
-  const exercisesByTheme: Record<
-    string,
-    {
-      patientExerciseId: string;
-      name: string;
-      objective: string;
-      steps: string[];
-      caregiverCan: string[];
-      caregiverMustNot: string[];
-      estimatedDuration: string | null;
-      themeLabel: string;
-      levelLabel: string;
-      tier: number;
-    } | null
-  > = {};
+  type ExerciseView = {
+    patientExerciseId: string;
+    name: string;
+    objective: string;
+    steps: string[];
+    caregiverCan: string[];
+    caregiverMustNot: string[];
+    estimatedDuration: string | null;
+    themeLabel: string;
+    levelLabel: string;
+    tier: number;
+  };
 
-  for (const theme of themes) {
+  const exercisesByTheme: Record<string, ExerciseView | null> = {};
+
+  for (const theme of allThemes) {
     const pe = await getCurrentExerciseForTheme(patient.id, theme.id);
     exercisesByTheme[theme.id] = pe
       ? {
@@ -121,18 +121,14 @@ export default async function ModeVisitePage({
       : null;
   }
 
-  themes = [...themes].sort((a, b) => {
-    const aReady = exercisesByTheme[a.id] ? 0 : 1;
-    const bReady = exercisesByTheme[b.id] ? 0 : 1;
-    if (aReady !== bReady) return aReady - bReady;
-    return a.displayOrder - b.displayOrder;
-  });
+  // Aidant : uniquement les thèmes avec un exercice publié activé (pas les thèmes vides)
+  const themes = allThemes
+    .filter((t) => exercisesByTheme[t.id])
+    .sort((a, b) => a.displayOrder - b.displayOrder);
 
-  // Parcours thème-first dès qu'un catalogue existe (specs §10 + UX Sally)
-  if (themes.length > 0) {
-    const readyThemeLabels = themes
-      .filter((t) => exercisesByTheme[t.id])
-      .map((t) => t.label);
+  // Parcours thème-first dès qu'un catalogue / thème actif existe (specs §10 + UX Sally)
+  if (allThemes.length > 0) {
+    const readyThemeLabels = themes.map((t) => t.label);
 
     return (
       <ModeVisiteClient
@@ -146,7 +142,7 @@ export default async function ModeVisitePage({
             id: t.id,
             label: t.label,
             icon: t.icon,
-            hasExercise: Boolean(exercisesByTheme[t.id]),
+            hasExercise: true,
           })),
           exercisesByTheme,
           readyThemeLabels,
