@@ -39,10 +39,13 @@ test.describe("Aidant happy path", () => {
         name: /Que souhaitez-vous travailler aujourd/i,
       })
     ).toBeVisible();
+    // Viewport mobile : sans reset de scroll, l'écran ouvre sur les boutons de bilan
+    await page.setViewportSize({ width: 390, height: 700 });
     await page.getByRole("button", { name: /Fauteuil/i }).click();
     await expect(
       page.getByRole("heading", { name: /demi-tour/i })
-    ).toBeVisible();
+    ).toBeInViewport();
+    expect(await page.evaluate(() => window.scrollY)).toBeLessThan(80);
     await expect(
       page.getByText(/aide l.équipe à adapter la prochaine visite/i)
     ).toBeVisible();
