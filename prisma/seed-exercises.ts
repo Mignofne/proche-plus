@@ -69,7 +69,28 @@ export type CatalogExercise = {
   caregiverMustNot: string[];
   estimatedDuration: string | null;
   risks: string | null;
+  /** Statut catalogue Prisma dérivé du CSV */
+  status: "brouillon" | "a_valider" | "publie";
 };
+
+/**
+ * Mappe la colonne CSV « Statut » vers l'enum Prisma.
+ * - Brouillon IA / À valider / En revue → a_valider
+ * - Validé → publie
+ * - Brouillon (manuel) → brouillon
+ * - Non pertinent → null (skip)
+ */
+function statusFromCsvStatut(
+  statut: string
+): "brouillon" | "a_valider" | "publie" | null {
+  const s = statut.trim().toLowerCase();
+  if (!s) return "a_valider";
+  if (/^non pertinent/.test(s)) return null;
+  if (/^validé|^valide\b/.test(s)) return "publie";
+  if (/^à valider|^a valider|^en revue|brouillon ia/.test(s)) return "a_valider";
+  if (s.startsWith("brouillon")) return "brouillon";
+  return "a_valider";
+}
 
 function parseSteps(text: string): string[] {
   if (!text?.trim()) return [];
@@ -102,7 +123,8 @@ export function loadReferentielFromCsv(
     const name = (r["Nom de l'exercice"] || "").trim();
     const statut = (r["Statut"] || "").trim();
     if (!name) continue;
-    if (/^non pertinent/i.test(statut)) continue;
+    const mapped = statusFromCsvStatut(statut);
+    if (mapped === null) continue;
 
     const themeLabel = (r["Thème"] || "").trim();
     const slug = THEME_SLUG[themeLabel];
@@ -120,6 +142,7 @@ export function loadReferentielFromCsv(
       caregiverMustNot: asList(r["Ce que l'aidant ne doit pas faire"] || ""),
       estimatedDuration: (r["Durée indicative"] || "").trim() || null,
       risks: (r["Risques / contre-indications"] || "").trim() || null,
+      status: mapped,
     });
   }
   return out;
@@ -211,9 +234,10 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
         risks: ex.risks,
         crossesAutonomyLevel: false,
         alertOnFailure: ex.levelCode === "A",
-        status: "publie",
-        validatedBy: "Référentiel APA (import CSV)",
-        validatedAt: new Date(),
+        status: ex.status,
+        validatedBy:
+          ex.status === "publie" ? "Référentiel APA (import CSV)" : null,
+        validatedAt: ex.status === "publie" ? new Date() : null,
         onPartialExerciseId: null,
       },
     });
