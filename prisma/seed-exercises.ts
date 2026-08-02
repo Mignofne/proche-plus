@@ -109,6 +109,15 @@ function asList(text: string): string[] {
   return t ? [t] : [];
 }
 
+function normalizeExerciseName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 /** Charge le référentiel CSV (source de vérité produit). */
 export function loadReferentielFromCsv(
   csvPath = join(process.cwd(), "docs/referentiel/Referentiel_Exercices.csv")
@@ -122,6 +131,8 @@ export function loadReferentielFromCsv(
   }) as Record<string, string>[];
 
   const out: CatalogExercise[] = [];
+  const seen = new Set<string>();
+
   for (const r of rows) {
     const name = (r["Nom de l'exercice"] || "").trim();
     const statut = (r["Statut"] || "").trim();
@@ -134,10 +145,16 @@ export function loadReferentielFromCsv(
     const levelCode = (r["Niveau autonomie"] || "").trim();
     if (!slug || !levelCode) continue;
 
+    const tierRaw = Number.parseInt(String(r["Palier"] || "1"), 10);
+    const tier = Number.isFinite(tierRaw) && tierRaw > 0 ? tierRaw : 1;
+    const dedupeKey = `${slug}|${levelCode}|${tier}|${normalizeExerciseName(name)}`;
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+
     out.push({
       themeSlug: slug,
       levelCode,
-      tier: 1,
+      tier,
       name,
       objective: (r["Objectif de l'exercice"] || "").trim(),
       steps: parseSteps(r["Détail / étapes (guidance verbale)"] || ""),
@@ -207,23 +224,40 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
   let upserted = 0;
   let realigned = 0;
 
+  const existingAll = await prisma.exercise.findMany({
+    select: {
+      id: true,
+      themeId: true,
+      autonomyScaleId: true,
+      tier: true,
+      name: true,
+      status: true,
+      validatedBy: true,
+    },
+  });
+  const byKey = new Map(
+    existingAll.map((e) => [
+      `${e.themeId}|${e.autonomyScaleId}|${e.tier}|${normalizeExerciseName(e.name)}`,
+      e,
+    ])
+  );
+  // Fallback legacy : un seul exercice par thème×niveau×palier (anciens imports)
+  const byThemeLevelTier = new Map<string, (typeof existingAll)[number]>();
+  for (const e of existingAll) {
+    const k = `${e.themeId}|${e.autonomyScaleId}|${e.tier}`;
+    if (!byThemeLevelTier.has(k)) byThemeLevelTier.set(k, e);
+  }
+
   for (const ex of catalog) {
     const theme = themeBySlug[ex.themeSlug];
     const scale = scaleByCode[ex.levelCode];
     if (!theme || !scale) continue;
 
-    const existing = await prisma.exercise.findFirst({
-      where: {
-        themeId: theme.id,
-        autonomyScaleId: scale.id,
-        tier: ex.tier,
-      },
-      orderBy: { updatedAt: "desc" },
-    });
+    const key = `${theme.id}|${scale.id}|${ex.tier}|${normalizeExerciseName(ex.name)}`;
+    const legacyKey = `${theme.id}|${scale.id}|${ex.tier}`;
+    const existing = byKey.get(key) || byThemeLevelTier.get(legacyKey);
 
     if (existing) {
-      // Ancien import a publié les brouillons IA : les remettre en file à valider
-      // sans toucher aux exercices validés par un admin produit.
       if (
         ex.status === "a_valider" &&
         existing.status !== "a_valider" &&
@@ -241,8 +275,16 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
         });
         realigned += 1;
       }
-      continue;
+      // Même fiche (nom) → ne pas recréer ; sinon créer le palier / variante
+      if (
+        normalizeExerciseName(existing.name) === normalizeExerciseName(ex.name)
+      ) {
+        continue;
+      }
     }
+
+    // Anti-doublon si on vient de créer dans cette boucle
+    if (byKey.has(key)) continue;
 
     const created = await prisma.exercise.create({
       data: {
@@ -268,6 +310,16 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
     await prisma.exercise.update({
       where: { id: created.id },
       data: { onPartialExerciseId: created.id },
+    });
+    byKey.set(key, {
+      id: created.id,
+      themeId: theme.id,
+      autonomyScaleId: scale.id,
+      tier: ex.tier,
+      name: ex.name,
+      status: ex.status,
+      validatedBy:
+        ex.status === "publie" ? CSV_IMPORT_VALIDATED_BY : null,
     });
     upserted += 1;
   }
