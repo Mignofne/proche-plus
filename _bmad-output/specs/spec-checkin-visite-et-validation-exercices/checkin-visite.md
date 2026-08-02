@@ -18,12 +18,12 @@ Règle : si un seul proche, présélection automatique **puis** check-in (pas de
 
 Fréquence : **chaque** entrée mode visite, même jour, même proche.
 
-## Échelle (paliers)
+## Échelle (paliers) — confirmée
 
-Échelle conceptuelle 0–10, saisie par **paliers discrets** (boutons pleine largeur, pattern existant outcomes/autonomie).
+Échelle 0–10, saisie par **paliers discrets** (boutons pleine largeur, pattern existant outcomes/autonomie).
 
-| Valeur | Intention (libellés provisoires — à confirmer) |
-|--------|--------------------------------------------------|
+| Valeur | Libellé |
+|--------|---------|
 | 0 | Aucune |
 | 2 | Légère |
 | 4 | Modérée |
@@ -62,12 +62,40 @@ Optionnel post-check-in si non bloqué : lier plus tard à l’outcome d’exerc
 
 | Acteur | Surface | Contenu |
 |--------|---------|---------|
-| Aidant | Historique des dernières visites | Date, proche, fatigue, douleur, poursuivi / reporté « à bientôt » |
+| Aidant | **Mes dernières visites** (écran dédié) | Date, proche, fatigue, douleur, poursuivi / reporté « à bientôt », issue d’exercice si faite ; lien vers transmission liée si elle existe |
 | Pro | Timeline patient | Événement check-in (+ blocked) |
 | Pro / système | Log / audit | Entrée de log consultable |
 
+## Accueil aidant — emplacement UX (CAP-6)
+
+Objectif : historique **dès connexion**, sans concurrencer Mode visite, et **sans** laisser « Dernière transmission » collée à l’accueil une fois lue.
+
+### Hiérarchie cible de l’accueil
+
+1. Salut + proche (existant)
+2. Alertes / revue autonomie (si dues) — inchangé
+3. **Carte transmission non lue uniquement** (« Nouveau message ») — si `readAt` null
+4. Carte « Mes proches » — inchangé
+5. **CTA principal** : Mode visite
+6. **CTA secondaire persistant** : Mes dernières visites ← **nouveau**
+7. Ghost : J’ai une question · Donner mon retour · Bibliothèque
+8. **Retirer** le bouton permanent « Dernière transmission »
+
+### Pourquoi ici
+
+- Aligné EXPERIENCE : une intention du jour (Mode visite) + signal non lu si besoin — pas deux CTA « contenus » au même poids.
+- « Dernière transmission » toujours visible après lecture = bruit ; la lecture se fait via la carte non lue, la relecture via le détail d’une visite dans l’historique.
+- « Mes dernières visites » juste sous Mode visite = même zone d’actions, tap large, découvrable sans scroll profond ni onglet caché.
+
+### Écran « Mes dernières visites »
+
+- Route dédiée (ex. `/aidant/visites`), accessible dès post-onboarding.
+- Liste chronologique récente (pas un dashboard) : une ligne = une entrée mode visite.
+- Empty state : « Pas encore de visite enregistrée » + CTA Mode visite.
+- Détail d’une ligne : scores check-in, blocked ou non, outcome exercice le cas échéant, lien « Voir la transmission » seulement si une transmission est associée.
+
 ## Microcopy — contraintes
 
-- Tutoiement / vouvoiement : suivre le ton aidant existant (vouvoiement rassurant).
+- Vouvoiement rassurant (ton aidant existant).
 - Pas de termes type « contre-indication », « EVA », « score clinique ».
 - Stop = protection, pas échec de l’aidant.

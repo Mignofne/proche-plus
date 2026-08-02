@@ -13,7 +13,7 @@ sources: []
 
 ## Why
 
-**Pain to solve.** Aujourd’hui le mode visite enchaîne proche → thèmes → exercices sans vérifier l’état du proche ; un aidant peut démarrer alors que fatigue ou douleur rendent l’effort inadapté. En parallèle, les brouillons IA du référentiel sont importés comme `publie` avec une « validation » fictive, alors qu’un admin produit doit vraiment les valider avant exposition. Il faut un garde-fou bienveillant côté visite et une vraie porte de revue côté catalogue.
+**Pain to solve.** Aujourd’hui le mode visite enchaîne proche → thèmes → exercices sans vérifier l’état du proche ; un aidant peut démarrer alors que fatigue ou douleur rendent l’effort inadapté. En parallèle, les brouillons IA du référentiel sont importés comme `publie` avec une « validation » fictive, alors qu’un admin produit doit vraiment les valider avant exposition. Il faut un garde-fou bienveillant côté visite, un historique de visites immédiatement accessible, et une vraie porte de revue côté catalogue.
 
 ## Capabilities
 
@@ -26,8 +26,8 @@ sources: []
   - **success:** Si l’un des scores est ≥ 6, aucun thème ni exercice n’est proposé ; l’aidant voit une clôture « à bientôt pour la prochaine visite » et quitte sans outcome d’exercice.
 
 - **CAP-3**
-  - **intent:** L’aidant et le professionnel peuvent retrouver le check-in (et le fait que la visite a été stoppée ou poursuivie) dans l’historique aidant et dans la timeline patient / logs côté pro.
-  - **success:** Chaque check-in persisté apparaît dans l’historique des dernières visites de l’aidant et comme événement timeline + entrée de log pour le patient concerné.
+  - **intent:** L’aidant et le professionnel peuvent retrouver le check-in (et le fait que la visite a été stoppée ou poursuivie) dans « Mes dernières visites » et dans la timeline patient / logs côté pro.
+  - **success:** Chaque check-in persisté apparaît dans « Mes dernières visites » et comme événement timeline + entrée de log pour le patient concerné.
 
 - **CAP-4**
   - **intent:** L’admin produit peut identifier rapidement les exercices d’origine IA, les filtrer en statut `a_valider`, et les promouvoir explicitement vers `publie` avec horodatage et auteur de validation réels.
@@ -37,13 +37,19 @@ sources: []
   - **intent:** L’import du référentiel peut mapper les lignes « Brouillon IA — à valider… » vers `a_valider` (et jamais vers `publie` automatiquement).
   - **success:** Après sync CSV, une ligne « Brouillon IA — à valider… » absente en base est créée en `a_valider` avec provenance IA ; zéro création auto en `publie` pour ce statut CSV.
 
+- **CAP-6**
+  - **intent:** L’aidant peut ouvrir « Mes dernières visites » depuis l’accueil dès qu’il est connecté, sans que la transmission déjà lue encombre cet accueil.
+  - **success:** Lien « Mes dernières visites » toujours visible sur l’accueil aidant ; le bouton permanent « Dernière transmission » disparaît ; une transmission non lue reste visible uniquement via la carte « Nouveau message » ; une transmission déjà lue reste joignable depuis le détail d’une visite dans l’historique.
+
 ## Constraints
 
 - Check-in **à chaque** entrée mode visite (pas de skip « déjà fait aujourd’hui »).
 - Placement : **immédiatement après** résolution du proche (picker ou auto-sélection) ; **avant** choix de thème.
-- Seuil : fatigue **OU** douleur > 5 (scores paliers mappant 0–10 ; déclenchement si ≥ 6) — détail des paliers dans `checkin-visite.md`.
+- Seuil : fatigue **OU** douleur > 5 (paliers `{0,2,4,6,8,10}` ; déclenchement si ≥ 6) — libellés dans `checkin-visite.md`.
 - Blocage **hard** : pas de contournement « continuer quand même ».
 - Ton bienveillant, non alarmiste ; pas de jargon médical.
+- Accueil aidant : **Mode visite** reste le CTA principal ; « Mes dernières visites » est un accès secondaire **persistant** (jamais enfoui derrière une visite en cours).
+- Transmission sur l’accueil : **uniquement si non lue** (carte « Nouveau message ») — retirer le CTA permanent « Dernière transmission ».
 - Seul `admin_produit` valide/publie le catalogue ; les pros cliniques n’ont pas ce droit.
 - `a_valider` et `brouillon` restent invisibles pour aidant **et** pro (activation patient, mode visite, transitions) ; seul `publie` est consommable.
 - `validatedBy` / `validatedAt` ne sont posés que lors d’une validation humaine explicite vers `publie` — jamais par l’import CSV pour les brouillons IA.
@@ -56,19 +62,14 @@ sources: []
 - Génération d’exercices par IA **in-app** (le flux reste CSV/référentiel → import → revue admin).
 - Curseur continu 0–10 ou saisie libre numérique pour fatigue/douleur.
 - Soft-bypass du blocage (continuer malgré seuil).
+- Remplacer Mode visite ou la carte transmission non lue par l’historique sur l’accueil.
 
 ## Success signal
 
-Un aidant dont le proche est trop fatigué ou douloureux est stoppé avant tout exercice avec un message « à bientôt », et le check-in est relisible côté aidant et pro ; un exercice marqué brouillon IA n’apparaît jamais en mode visite tant qu’un admin produit ne l’a pas validé et publié via la file « À valider ».
+Un aidant dont le proche est trop fatigué ou douloureux est stoppé avant tout exercice avec un message « à bientôt », retrouve ce check-in dans « Mes dernières visites » depuis l’accueil, et n’est plus sollicité par un bouton « Dernière transmission » une fois le message lu ; un exercice brouillon IA n’apparaît jamais en mode visite tant qu’un admin produit ne l’a pas validé et publié.
 
 ## Assumptions
 
-- Une seule spec couvre check-in visite + statut catalogue (réponses A+B dans le même échange).
-- Paliers discrets avec valeurs `{0,2,4,6,8,10}` ; seuil > 5 ⇒ déclenchement dès `6`.
+- Une seule spec couvre check-in visite + statut catalogue + historique accueil (réponses A+B dans le même fil).
 - Label IA = provenance stockée sur l’exercice (boolean ou enum), badge admin uniquement.
-- « Historique aidant » peut être un nouvel accès ou une extension d’écran existant — surface exacte ouverte (voir Open Questions).
-
-## Open Questions
-
-- Libellés français exacts des paliers fatigue et douleur (et confirmation du mapping `{0,2,4,6,8,10}`) ?
-- Historique aidant : nouvel écran dédié « Mes dernières visites » ou extension de l’accueil / feedback ?
+- Empty state « Mes dernières visites » : message simple + CTA Mode visite (pas de faux historique).
