@@ -10,6 +10,7 @@ import { ScaleManager } from "./ScaleManager";
 
 const STATUS_LABEL: Record<string, string> = {
   brouillon: "Brouillon",
+  a_valider: "À valider",
   publie: "Publié",
   archive: "Archivé",
 };
@@ -150,6 +151,7 @@ export default async function AdminExercicesPage({
               className="rounded-xl border border-cream-dark bg-white px-3 py-2 text-sm"
             >
               <option value="">Tous les statuts</option>
+              <option value="a_valider">À valider</option>
               <option value="publie">Publié</option>
               <option value="brouillon">Brouillon</option>
               <option value="archive">Archivé</option>
