@@ -1,8 +1,8 @@
 # Deferred work
 
 - source_spec: `_bmad-output/specs/spec-historique-exercices-visite/SPEC.md`
-  summary: Implémenter Mes dernières visites = exercices effectués (retirer transmissions et « Exercices possibles »)
-  evidence: Spec créée ; brownfield page.tsx liste encore VisitCheckIn + lien transmission.
+  summary: Implémenter Mes dernières visites groupées par visite (attempts + sessionRef ; retirer transmissions et « Exercices possibles »)
+  evidence: Décision groupement par visite ; brownfield page.tsx liste VisitCheckIn sans attempts rattachés.
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-multi-exercices-visite-post-outcome.md`
   summary: CAP-4 — lier tous les outcomes d’une session au check-in / VisitSession pour « Mes dernières visites » et timeline pro
