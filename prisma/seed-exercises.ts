@@ -273,12 +273,16 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
     const existing = byKey.get(key) || byThemeLevelTier.get(legacyKey);
 
     if (existing) {
+      const csvOwned =
+        existing.validatedBy === CSV_IMPORT_VALIDATED_BY ||
+        existing.validatedBy === null ||
+        existing.validatedBy === "Référentiel APA (publication catalogue)";
+
       if (
         ex.status === "a_valider" &&
         existing.status !== "a_valider" &&
         existing.status !== "archive" &&
-        (existing.validatedBy === CSV_IMPORT_VALIDATED_BY ||
-          existing.validatedBy === null)
+        csvOwned
       ) {
         await prisma.exercise.update({
           where: { id: existing.id },
@@ -286,6 +290,22 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
             status: "a_valider",
             validatedBy: null,
             validatedAt: null,
+          },
+        });
+        realigned += 1;
+      } else if (
+        ex.status === "publie" &&
+        existing.status !== "publie" &&
+        existing.status !== "archive" &&
+        csvOwned
+      ) {
+        // CSV Validé → publier en prod (y compris fiches déjà en a_valider)
+        await prisma.exercise.update({
+          where: { id: existing.id },
+          data: {
+            status: "publie",
+            validatedBy: CSV_IMPORT_VALIDATED_BY,
+            validatedAt: new Date(),
           },
         });
         realigned += 1;
