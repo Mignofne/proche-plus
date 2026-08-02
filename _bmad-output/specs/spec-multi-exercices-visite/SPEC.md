@@ -27,8 +27,8 @@ sources:
   - **success:** ~~N/A — reporté.~~ Entrée reste thème → exercice courant (`isCurrent`), comme aujourd’hui.
 
 - **CAP-3**
-  - **intent:** À la fin d’un exercice (après outcome), le système **propose un autre exercice** ; l’aidant peut accepter (continuer la session) ou terminer la visite.
-  - **success:** Écran post-outcome avec CTA primaire « Faire un autre exercice » (→ retour choix de thème) et ghost « Terminer la visite » ; pas de « Visite terminée » auto.
+  - **intent:** À la fin d’un exercice (après outcome), le système **propose de continuer** avec l’exercice courant du même thème (nommé), ou de changer de thème **sur la même page**, ou de terminer.
+  - **success:** Post-outcome : primaire « Continuer : {nom} » (même thème, après refresh) ; secondaire « Autre thème » (liste inline des autres thèmes) ; ghost « Terminer la visite » — pas de détour forcé vers l’écran thèmes complet, pas de « Visite terminée » auto.
 
 - **CAP-4**
   - **intent:** L’aidant et le pro peuvent retrouver **tous** les outcomes réalisés pendant la session (pas seulement le dernier).
@@ -39,9 +39,10 @@ sources:
 - Périmètre MVP = **uniquement** la proposition post-outcome — pas de liste multi-exercices à l’entrée du thème.
 - Entrée : thème → exercice courant publié activé (comportement existant).
 - Check-in fatigue/douleur **inchangé** : toujours avant thèmes ; stop hard (≥ 6) = sortie de session sans exercices.
-- Un seul CTA primaire par écran post-outcome.
+- Un seul CTA primaire par écran post-outcome (« Continuer : {nom} » quand un exercice même thème est disponible).
 - Microcopy post-outcome : ne pas afficher « Visite terminée » tant que la session peut continuer.
-- Thème-first reste obligatoire (jamais auto-sauter le choix de thème).
+- Thème-first à **l’entrée** de visite ; en post-outcome, le changement de thème se fait inline (pas d’auto-lancement d’un autre thème).
+- Ne pas auto-lancer un exercice sans CTA nommé explicite.
 - Alignement UX : `EXPERIENCE.md` (ux-proche-plus-2026-07-30) — spines win on conflict with mocks/code.
 
 ## Non-goals

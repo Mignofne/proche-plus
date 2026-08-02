@@ -107,9 +107,13 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
   const [done, setDone] = useState<string | null>(null);
   const [visitEnded, setVisitEnded] = useState(false);
   const [note, setNote] = useState("");
+  const [showOtherThemes, setShowOtherThemes] = useState(false);
 
   const exercise = themeId ? data.exercisesByTheme[themeId] : null;
-  const canDoAnother = data.themes.length > 0;
+  const sameThemeNext = themeId ? data.exercisesByTheme[themeId] : null;
+  const otherThemes = data.themes.filter((t) => t.id !== themeId);
+  const canContinueSame = Boolean(sameThemeNext);
+  const canPickOtherTheme = otherThemes.length > 0;
 
   // Au clic thème → exercice, le contenu s'allonge : sans reset, le scroll
   // (et l'ancrage CSS vers le footer) laisse l'écran sur les boutons Réussi/Échec.
@@ -135,9 +139,11 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
         setVisitEnded(false);
         setThemeId(state.themeId ?? themeId);
         setDone(state.doneMessage ?? "C'est noté.");
+        setShowOtherThemes(false);
         break;
       case "ended":
         setVisitEnded(true);
+        setShowOtherThemes(false);
         break;
       default:
         break;
@@ -189,15 +195,24 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
     });
   }
 
-  function startAnotherExercise() {
-    replaceVisitHistory({ screen: "themes" });
+  function continueSameTheme() {
+    if (!themeId || !sameThemeNext) return;
+    setShowOtherThemes(false);
     setDone(null);
-    setThemeId(null);
     setNote("");
+    pushVisitHistory({ screen: "exercise", themeId });
     router.refresh();
   }
 
+  function pickThemeFromDone(nextThemeId: string) {
+    setShowOtherThemes(false);
+    setDone(null);
+    setNote("");
+    selectTheme(nextThemeId);
+  }
+
   function endVisit() {
+    setShowOtherThemes(false);
     pushVisitHistory({ screen: "ended", themeId });
     setVisitEnded(true);
   }
@@ -220,27 +235,69 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
   }
 
   if (done) {
+    const showThemeList =
+      canPickOtherTheme && (showOtherThemes || !canContinueSame);
+    const hasContinuePath = canContinueSame || canPickOtherTheme;
+
     return (
-      <div className="mx-auto min-h-dvh max-w-lg bg-cream">
+      <div className="mx-auto min-h-dvh max-w-lg bg-cream pb-8">
         <AppHeader title="Mode visite" backHref="/aidant" />
         <main className="flex flex-col items-center gap-6 p-6 text-center">
           <Mascot pose="celebrate" />
           <div className="flex flex-col gap-2">
             <p className="text-lg font-medium">
-              {canDoAnother
+              {hasContinuePath
                 ? "C'est noté — un autre exercice ?"
                 : "C'est noté."}
             </p>
             <p className="text-sm text-text-muted">{done}</p>
           </div>
           <div className="flex w-full flex-col gap-3">
-            {canDoAnother && (
-              <Button onClick={startAnotherExercise} fullWidth>
-                Faire un autre exercice
+            {canContinueSame && sameThemeNext && (
+              <Button onClick={continueSameTheme} fullWidth>
+                Continuer : {sameThemeNext.name}
               </Button>
             )}
+            {canPickOtherTheme && canContinueSame && (
+              <Button
+                variant="secondary"
+                onClick={() => setShowOtherThemes((v) => !v)}
+                fullWidth
+              >
+                {showOtherThemes ? "Masquer les thèmes" : "Autre thème"}
+              </Button>
+            )}
+            {showThemeList && (
+              <div className="flex w-full flex-col gap-2 text-left">
+                {!canContinueSame && (
+                  <p className="text-sm font-medium text-teal-dark">
+                    Choisir un autre thème
+                  </p>
+                )}
+                {otherThemes.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => pickThemeFromDone(t.id)}
+                    className="flex items-center gap-3 rounded-2xl border border-teal/40 bg-teal/5 p-4 text-left transition-colors hover:border-teal"
+                  >
+                    <span className="text-2xl" aria-hidden>
+                      {t.icon ?? "•"}
+                    </span>
+                    <span className="flex-1">
+                      <span className="block text-lg font-semibold">
+                        {t.label}
+                      </span>
+                      <span className="mt-0.5 block text-sm font-medium text-teal-dark">
+                        Exercice prêt pour cette visite
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
             <Button
-              variant={canDoAnother ? "ghost" : "primary"}
+              variant={hasContinuePath ? "ghost" : "primary"}
               onClick={endVisit}
               fullWidth
             >

@@ -62,27 +62,39 @@ test.describe("Aidant happy path", () => {
       page.getByRole("button", { name: /S'habiller/i })
     ).toContainText(/Exercice prêt/i);
 
-    // Post-outcome : proposer un autre exercice (pas de sortie auto)
+    // Post-outcome : Continuer même thème (nommé) ou Autre thème inline
     await page.getByRole("button", { name: /Fauteuil/i }).click();
     await page.getByRole("button", { name: /^Réussi$/i }).click();
     await expect(
       page.getByText(/C'est noté — un autre exercice/i)
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /Faire un autre exercice/i })
+      page.getByRole("button", { name: /Continuer :/i })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Autre thème/i })
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: /Terminer la visite/i })
     ).toBeVisible();
-    await page.getByRole("button", { name: /Faire un autre exercice/i }).click();
+    // Continuer sans revenir à la liste complète des thèmes
+    await page.getByRole("button", { name: /Continuer :/i }).click();
     await expect(
       page.getByRole("heading", {
         name: /Que souhaitez-vous travailler aujourd/i,
       })
+    ).toHaveCount(0);
+    await expect(
+      page.getByText(/aide l.équipe à adapter la prochaine visite/i)
     ).toBeVisible();
 
-    // Terminer la visite → clôture calme → accueil
-    await page.getByRole("button", { name: /Fauteuil/i }).click();
+    // Autre thème inline → puis terminer
+    await page.getByRole("button", { name: /^Réussi$/i }).click();
+    await page.getByRole("button", { name: /Autre thème/i }).click();
+    await page.getByRole("button", { name: /S'habiller/i }).click();
+    await expect(
+      page.getByText(/aide l.équipe à adapter la prochaine visite/i)
+    ).toBeVisible();
     await page.getByRole("button", { name: /^Réussi$/i }).click();
     await expect(
       page.getByRole("button", { name: /Terminer la visite/i })
