@@ -8,8 +8,10 @@ test.describe("référentiel CSV → statut catalogue", () => {
 
     const aValider = catalog.filter((ex) => ex.status === "a_valider");
     const publie = catalog.filter((ex) => ex.status === "publie");
+    const palier2 = catalog.filter((ex) => ex.tier === 2);
 
-    expect(aValider.length).toBeGreaterThanOrEqual(30);
+    expect(aValider.length).toBeGreaterThanOrEqual(40);
     expect(publie.length).toBe(0);
+    expect(palier2.length).toBeGreaterThanOrEqual(10);
   });
 });

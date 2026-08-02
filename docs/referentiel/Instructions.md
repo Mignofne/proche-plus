@@ -16,6 +16,8 @@ Comment l'utiliser
 
 3. Les cellules surlignées en jaune sont celles à compléter par l'expert (nom de l'exercice, objectif, étapes, etc.).
 
+3bis. La colonne **Palier** (1, 2, …) permet plusieurs exercices dans le même thème × niveau (progression fine avant de changer de niveau A–E).
+
 4. Les 3 lignes en vert (Fauteuil/C, S'habiller/B, Manger/D) sont des exemples déjà rédigés — à valider ou ajuster par l'expert.
 
 5. La colonne 'Statut' permet de suivre l'avancement ligne par ligne : à compléter / en revue / validé.
