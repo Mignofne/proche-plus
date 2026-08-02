@@ -6,5 +6,6 @@
 4. **Descendre en difficulté** : autorisé (repli palier / niveau inférieur) sans alerte, sauf échec au niveau A → `alertOnFailure = true`.
 5. **Douleur, essoufflement anormal, vertige** : l'aidant doit arrêter et prévenir l'équipe — le mentionner dans « ne doit pas » / risques si pertinent au thème.
 6. **Pas de charge médicale** : pas d'ordonnance déguisée, pas de posologie, pas de protocole kiné non enseigné.
+6bis. **Guidance verbale / anti-portage** : guider par la parole ; jamais demander de soulever / porter la personne (portage délétère). Préserver autonomie, rythme et sécurité partagée (TMS aidant).
 7. **Communication / cognitif** : éviter la mise en échec ; consignes courtes ; une consigne à la fois.
 8. **Non pertinent** : mieux vaut une case vide qu'un exercice dangereux pour « remplir » la matrice.

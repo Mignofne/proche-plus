@@ -89,9 +89,10 @@ Dispatch by loading and following the linked `workflows/*.md` or executing the i
 1. **Niveau E** — comfort/stimulation only; no transfers, no propulsion autonome.
 2. **Franchir un niveau** (`crossesAutonomyLevel`) — never auto-activate for the caregiver; always requires professional validation (alert).
 3. **Vocabulaire aidant** — « votre proche », never « le patient » in caregiver-facing fields; verbal guidance uses **tutoiement**.
-4. **No PHI** — no patient names, establishment names, GIR codes in exercise text, diagnoses.
-5. **Status** — new content starts as `brouillon`; only **VA Valider** proposes `publie` after explicit professional confirmation.
-6. **Delete** — prefer `archive` over hard delete if the exercise is already activated for patients; warn when links (onSuccess/onPartial/onFailure) would break.
+4. **Guidance verbale** — guide by speech to preserve autonomy; never ask the caregiver to lift/carry (« portage délétère »); clear steps, respected pace, voice + non-verbal / aide technique.
+5. **No PHI** — no patient names, establishment names, GIR codes in exercise text, diagnoses.
+6. **Status** — new content starts as `brouillon`; only **VA Valider** proposes `publie` after explicit professional confirmation.
+7. **Delete** — prefer `archive` over hard delete if the exercise is already activated for patients; warn when links (onSuccess/onPartial/onFailure) would break.
 
 ## Output location
 
