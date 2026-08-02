@@ -21,6 +21,7 @@ BMAD (Build More, Architect Dreams) est installé sur ce projet pour orchestrer 
 | Skill | Usage |
 |-------|-------|
 | `bmad-help` | Orientation — toujours commencer ici |
+| `bmad-studio-ours` | Nouvelle **photo** ou **vidéo** de l’ours (canon C-v3) — dire « Studio Ours » / « nouvelle photo ours » |
 | `bmad-document-project` | Documenter l'état actuel du code |
 | `bmad-check-implementation-readiness` | Vérifier si les specs sont prêtes pour l'implémentation |
 | `bmad-create-story` / `bmad-dev-story` | Créer et implémenter des user stories |

@@ -94,7 +94,7 @@ Résumé :
 
 BMAD est installé pour orchestrer planning et implémentation via Cursor.
 
-- **Skills** : `.agents/skills/` (46 skills BMAD)
+- **Skills** : `.agents/skills/` (BMAD + Studio Ours pour photos/vidéos mascotte)
 - **Config** : `_bmad/`
 - **Guide** : [docs/BMAD.md](./docs/BMAD.md)
 - **Connaissances** : [docs/](./docs/)
