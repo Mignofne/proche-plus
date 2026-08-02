@@ -5,8 +5,8 @@ Les brouillons IA / « À valider » du CSV arrivent en `a_valider` dans le BO.
 
 ```markdown
 ---
-theme: [S'habiller | Manger | Se déplacer | Fauteuil | Toilette / hygiène | Mobilité au lit | Communication | Mémoire / attention]
-theme_slug: [habillage|repas|deplacement|fauteuil|toilette|mobilite-lit|communication|cognitif]
+theme: [ADL… | Épaules et bras | Mains et doigts | Tronc et dos | Hanches et jambes | Chevilles et pieds | Cou et tête | Souffle et corps entier]
+theme_slug: [habillage|…|zone_epaules_bras|zone_mains|zone_tronc|zone_hanches_jambes|zone_chevilles_pieds|zone_cou|zone_souffle]
 niveau: [A|B|C|D|E]
 palier: [1|2|3…]
 status: brouillon

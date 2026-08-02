@@ -17,6 +17,8 @@
 
 ## Thèmes catalogue (labels aidant)
 
+### Vie quotidienne (ADL)
+
 | Label | slug typique |
 |-------|----------------|
 | S'habiller | habillage |
@@ -24,6 +26,18 @@
 | Se déplacer | deplacement |
 | Fauteuil | fauteuil |
 | Toilette / hygiène | toilette |
-| Mobilité au lit | mobilite-lit |
+| Mobilité au lit | mobilite_lit |
 | Communication | communication |
 | Mémoire / attention | cognitif |
+
+### Zones corporelles (parties du corps)
+
+| Label | slug typique |
+|-------|----------------|
+| Épaules et bras | zone_epaules_bras |
+| Mains et doigts | zone_mains |
+| Tronc et dos | zone_tronc |
+| Hanches et jambes | zone_hanches_jambes |
+| Chevilles et pieds | zone_chevilles_pieds |
+| Cou et tête | zone_cou |
+| Souffle et corps entier | zone_souffle |

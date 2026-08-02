@@ -42,7 +42,9 @@ E — Grabataire / alité : Gestes de confort et de stimulation uniquement, aucu
 
 
 
-Rappel des 8 thèmes disponibles côté aidant
+Rappel des thèmes disponibles côté aidant
+
+**Vie quotidienne (ADL)**
 
 S'habiller — enfiler un vêtement, boutonner, mettre des chaussures
 
@@ -59,6 +61,22 @@ Mobilité au lit — se retourner, se redresser, changer de position assise
 Communication — échanger, comprendre une consigne, s'exprimer
 
 Mémoire / attention — petits exercices cognitifs légers liés au quotidien
+
+**Zones corporelles (parties du corps à travailler — APA)**
+
+Épaules et bras — mobilité douce des bras et épaules
+
+Mains et doigts — ouverture, coordination fine
+
+Tronc et dos — redressement, rotation douce du buste
+
+Hanches et jambes — mobilisation des membres inférieurs
+
+Chevilles et pieds — souplesse des chevilles
+
+Cou et tête — rotations / inclinaisons douces (jamais forcées)
+
+Souffle et corps entier — respiration et détente globale
 
 
 
