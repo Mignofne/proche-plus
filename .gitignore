@@ -27,8 +27,9 @@
 .DS_Store
 *.pem
 
-# Studio Ours — historique générations locales
+# Studio Ours — historique générations locales + rendus Remotion
 .data/mascot-gen/
+/tmp/
 
 # debug
 npm-debug.log*
@@ -58,9 +59,6 @@ _bmad/config.user.toml
 
 playwright-report/
 test-results/
-
-# Studio Ours — historique générations locales
-.data/mascot-gen/
 
 # env catch-all (keep example)
 .env
