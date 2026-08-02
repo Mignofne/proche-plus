@@ -16,6 +16,7 @@ import {
   SKILL_LABELS,
   STATUS_LABELS,
 } from "@/lib/constants";
+import { labelForCheckInScore } from "@/lib/visit-checkin";
 import { CaregiverManager } from "../CaregiverManager";
 import { ExerciseManager } from "../ExerciseManager";
 
@@ -77,6 +78,13 @@ export default async function PatientDetailPage({
       autonomyHistory: {
         orderBy: { setAt: "desc" },
         take: 8,
+      },
+      visitCheckIns: {
+        orderBy: { createdAt: "desc" },
+        take: 8,
+        include: {
+          caregiver: { include: { user: { select: { firstName: true, lastName: true } } } },
+        },
       },
     },
   });
@@ -226,6 +234,36 @@ export default async function PatientDetailPage({
               </li>
             ))}
           </ol>
+        </Card>
+
+        <Card className="mb-6">
+          <SectionTitle>Check-ins visite (fatigue / douleur)</SectionTitle>
+          {patient.visitCheckIns.length === 0 ? (
+            <p className="mt-3 text-sm text-text-muted">
+              Aucun check-in aidant pour l&apos;instant.
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-3">
+              {patient.visitCheckIns.map((c) => (
+                <li key={c.id} className="text-sm">
+                  <p className="font-medium">
+                    {new Date(c.createdAt).toLocaleString("fr-FR", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                    {c.blocked ? " — reporté" : " — exercices OK"}
+                  </p>
+                  <p className="text-text-muted">
+                    Fatigue : {labelForCheckInScore(c.fatigueScore)} · Douleur :{" "}
+                    {labelForCheckInScore(c.painScore)}
+                    {c.caregiver.user.firstName
+                      ? ` · ${c.caregiver.user.firstName} ${c.caregiver.user.lastName ?? ""}`
+                      : ""}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </Card>
 
         {objective && (

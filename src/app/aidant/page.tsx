@@ -114,15 +114,11 @@ export default async function AidantHomePage() {
             Mode visite
           </ButtonLink>
           <ButtonLink
-            href={
-              latestTransmission
-                ? `/aidant/transmission/${latestTransmission.id}`
-                : "/aidant"
-            }
+            href="/aidant/visites"
             variant="secondary"
             fullWidth
           >
-            Dernière transmission
+            Mes dernières visites
           </ButtonLink>
           <ButtonLink href="/aidant/question" variant="ghost" fullWidth>
             J&apos;ai une question

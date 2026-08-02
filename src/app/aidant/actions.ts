@@ -74,12 +74,71 @@ function revalidateCaregiverPaths(patientId?: string) {
   revalidatePath("/aidant/proches");
   revalidatePath("/aidant/onboarding");
   revalidatePath("/aidant/mode-visite");
+  revalidatePath("/aidant/visites");
   revalidatePath("/pro");
   revalidatePath("/admin-etablissement");
   if (patientId) {
     revalidatePath(`/aidant/proches/${patientId}/edit`);
     revalidatePath(`/pro/patient/${patientId}`);
   }
+}
+
+export async function submitVisitCheckIn(input: {
+  patientId: string;
+  fatigueScore: number;
+  painScore: number;
+  transmissionId?: string | null;
+}) {
+  const { session, caregiver } = await requireCaregiver();
+  await assertCaregiverPatient(caregiver.id, input.patientId);
+
+  const allowed = new Set([0, 2, 4, 6, 8, 10]);
+  if (!allowed.has(input.fatigueScore) || !allowed.has(input.painScore)) {
+    throw new Error("Niveau invalide");
+  }
+
+  const { shouldBlockVisit } = await import("@/lib/visit-checkin");
+  const blocked = shouldBlockVisit(input.fatigueScore, input.painScore);
+
+  let transmissionId: string | null = null;
+  if (input.transmissionId) {
+    const tx = await prisma.transmission.findFirst({
+      where: {
+        id: input.transmissionId,
+        visit: {
+          patientId: input.patientId,
+          patient: {
+            caregivers: { some: { caregiverId: caregiver.id } },
+          },
+        },
+      },
+      select: { id: true },
+    });
+    transmissionId = tx?.id ?? null;
+  }
+
+  const checkIn = await prisma.visitCheckIn.create({
+    data: {
+      patientId: input.patientId,
+      caregiverId: caregiver.id,
+      fatigueScore: input.fatigueScore,
+      painScore: input.painScore,
+      blocked,
+      transmissionId,
+    },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      userId: session.userId,
+      action: blocked ? "visit_checkin.blocked" : "visit_checkin.ok",
+      entity: "VisitCheckIn",
+      entityId: checkIn.id,
+    },
+  });
+
+  revalidateCaregiverPaths(input.patientId);
+  return { blocked, checkInId: checkIn.id };
 }
 
 export async function createCaregiverPatient(input: {

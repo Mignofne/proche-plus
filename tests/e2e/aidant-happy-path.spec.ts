@@ -15,10 +15,24 @@ test.describe("Aidant happy path", () => {
       page.getByRole("link", { name: /question/i })
     ).toBeVisible();
 
+    await expect(
+      page.getByRole("link", { name: "Mes dernières visites" })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Dernière transmission" })
+    ).toHaveCount(0);
+
     await page.getByRole("link", { name: "Mode visite" }).click();
     await expect(page).toHaveURL(/\/aidant\/mode-visite(\?patientId=|$|\?)/);
     // 1 proche démo → auto-sélection via ?patientId=
     await expect(page).toHaveURL(/patientId=/);
+    // Check-in fatigue / douleur avant les thèmes
+    await expect(
+      page.getByRole("heading", { name: /Comment se sent/i })
+    ).toBeVisible();
+    await page.getByRole("group", { name: "Fatigue" }).getByRole("button", { name: "Aucune" }).click();
+    await page.getByRole("group", { name: "Douleur" }).getByRole("button", { name: "Aucune" }).click();
+    await page.getByRole("button", { name: "Continuer" }).click();
     // Choix de thème obligatoire (tous les thèmes du catalogue)
     await expect(
       page.getByRole("heading", {

@@ -151,3 +151,19 @@ export async function getVisitModeData(
 
   return { patientLink, latestTransmission };
 }
+
+export async function listVisitCheckInsForCaregiver(
+  caregiverId: string,
+  take = 30
+) {
+  return prisma.visitCheckIn.findMany({
+    where: { caregiverId },
+    orderBy: { createdAt: "desc" },
+    take,
+    include: {
+      patient: {
+        select: { id: true, firstName: true, lastName: true },
+      },
+    },
+  });
+}

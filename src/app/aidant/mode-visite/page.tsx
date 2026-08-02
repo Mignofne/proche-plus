@@ -138,6 +138,7 @@ export default async function ModeVisitePage({
       <ModeVisiteClient
         data={{
           mode: "exercise",
+          patientId: patient.id,
           transmissionId: latestTransmission?.id ?? null,
           patientName: `${patient.firstName} ${patient.lastName}`,
           autonomyLevel: patient.autonomyLevel,
@@ -174,6 +175,7 @@ export default async function ModeVisitePage({
     <ModeVisiteClient
       data={{
         mode: "legacy",
+        patientId: patient.id,
         transmissionId: latestTransmission.id,
         patientName: `${patient.firstName} ${patient.lastName}`,
         autonomyLevel: patient.autonomyLevel,
