@@ -55,6 +55,7 @@ Always also load (if present):
 - `{skill-root}/references/gabarit-exercice.md`
 - `{skill-root}/references/regles-securite.md`
 - `{skill-root}/references/vocabulaire-aidant.md`
+- `{skill-root}/references/guidance-verbale.md`
 - `{project-root}/docs/Proche+_Specs_Section10_et_suivantes.md` (§10–11)
 - `{project-root}/docs/referentiel/Instructions.md`
 

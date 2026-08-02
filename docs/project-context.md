@@ -4,6 +4,22 @@
 
 **Proche+** est un SaaS de continuité éducative entre établissements de rééducation et familles-aidants. Il transforme la visite familiale en temps actif de réadaptation, sans transformer le proche en soignant.
 
+### Guidance verbale (technique d’accompagnement)
+
+La **guidance verbale** est une technique d’accompagnement de la mobilité. Elle consiste à guider la personne aidée **par la parole** pour préserver son autonomie et éviter tout portage délétère.
+
+#### Principes et objectifs
+
+- **Maintien de l’autonomie** — Stimuler les capacités restantes de la personne aidée au lieu de faire l’action à sa place.
+- **Sécurité partagée** — Réduire l’effort physique de l’aidant et prévenir les accidents ou les troubles musculosquelettiques.
+- **Communication adaptée** — Utiliser des mots simples, précis et adaptés à l’état de conscience et de compréhension de la personne.
+
+#### Modalités de mise en œuvre
+
+- **Consignes claires** — Annoncer chaque étape du mouvement (ex. : « Avancez vos pieds », « Penchez-vous en avant »).
+- **Rythme respecté** — Laisser le temps à la personne d’analyser la demande et d’agir à son propre rythme.
+- **Association des aides** — Combiner la voix avec une guidance non verbale (regard, toucher sécurisant) ou une aide technique si nécessaire.
+
 ## Acteurs
 
 | Rôle | Utilisateur | Device |

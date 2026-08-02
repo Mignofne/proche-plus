@@ -30,3 +30,12 @@ VISITE → TRANSMISSION → MODE VISITE → FEEDBACK → ADAPTATION → VISITE S
 - Cloisonnement strict : données pro / éducatives / feedback
 - Cible aidants 60+ : accessibilité, grands caractères, ton chaleureux
 - Hébergement santé France (HDS) — ultérieur au MVP Vercel
+
+## Guidance verbale (vision)
+
+Technique d’accompagnement de la mobilité : guider par la parole pour préserver l’autonomie et éviter tout portage délétère.
+
+- **Principes** — maintien de l’autonomie ; sécurité partagée (effort aidant / TMS) ; communication adaptée
+- **Mise en œuvre** — consignes claires étape par étape ; rythme respecté ; association voix + non-verbal / aide technique
+
+Détail : [project-context.md](./project-context.md) § Vision.
