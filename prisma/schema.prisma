@@ -1,11 +1,11 @@
 generator client {
   provider      = "prisma-client-js"
   // Vercel serverless (Amazon Linux 2023) needs the RHEL OpenSSL 3 engine
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  binaryTargets = ["native"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -246,6 +246,8 @@ model VisitCheckIn {
   /// Transmission la plus récente au moment du check-in (relecture historique)
   transmissionId String?
   createdAt      DateTime  @default(now())
+  /// Exercices effectués pendant cette visite (sessionRef)
+  exerciseAttempts ExerciseAttempt[]
 
   @@index([caregiverId, createdAt])
   @@index([patientId, createdAt])
@@ -507,7 +509,12 @@ model ExerciseAttempt {
   patientExercise   PatientExercise        @relation(fields: [patientExerciseId], references: [id], onDelete: Cascade)
   outcome           ExerciseAttemptOutcome
   note              String?
+  /// Visite (check-in) pendant laquelle l'outcome a été enregistré
+  visitCheckInId    String?
+  visitCheckIn      VisitCheckIn?          @relation(fields: [visitCheckInId], references: [id], onDelete: SetNull)
   createdAt         DateTime               @default(now())
+
+  @@index([visitCheckInId, createdAt])
 }
 
 model ProfessionalAlert {

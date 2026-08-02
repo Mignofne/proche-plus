@@ -164,6 +164,20 @@ export async function listVisitCheckInsForCaregiver(
       patient: {
         select: { id: true, firstName: true, lastName: true },
       },
+      exerciseAttempts: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          patientExercise: {
+            include: {
+              exercise: {
+                include: {
+                  theme: { select: { label: true } },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }
