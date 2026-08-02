@@ -1,11 +1,11 @@
 generator client {
   provider      = "prisma-client-js"
   // Vercel serverless (Amazon Linux 2023) needs the RHEL OpenSSL 3 engine
-  binaryTargets = ["native"]
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
