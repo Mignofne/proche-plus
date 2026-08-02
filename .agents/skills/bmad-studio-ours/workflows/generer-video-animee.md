@@ -31,9 +31,9 @@ Sans clé i2v : **flipbook** = chemin produit actuel.
   "accent": "teal",
   "title": "Top chrono 15",
   "body": "Toutes les 15 minutes — à votre rythme.",
-  "holdFrames": 4,
+  "holdFrames": 14,
   "loops": 1,
-  "endHoldFrames": 36,
+  "endHoldFrames": 45,
   "frames": [
     "/community-assets/ours-canon/generations/ours-anim-demo-f01.png",
     "/community-assets/ours-canon/generations/ours-anim-demo-f02.png"
@@ -50,4 +50,10 @@ npm run community:render-video -- \
   --slug={slug}-anime
 ```
 
-7. **Livrer** le MP4 + frames. Proposer variante plus fluide (plus de frames / holdFrames=3) ou i2v si clé dispo.
+7. **Livrer** le MP4 + frames.
+
+## Rythme (public senior / ours ~60 ans)
+
+- **Défaut :** `holdFrames` **14** (~0,5 s/pose à 30 fps) — calme, lisible.
+- Trop rapide → monter à 18–20. Jamais sous 10 pour un contenu aidant/senior.
+- `endHoldFrames` ≥ 40 pour laisser souffler sur la dernière pose.
