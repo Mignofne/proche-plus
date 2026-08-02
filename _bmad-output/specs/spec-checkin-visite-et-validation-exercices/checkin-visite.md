@@ -85,7 +85,7 @@ Objectif : historique **dès connexion**, sans concurrencer Mode visite, et **sa
 ### Pourquoi ici
 
 - Aligné EXPERIENCE : une intention du jour (Mode visite) + signal non lu si besoin — pas deux CTA « contenus » au même poids.
-- « Dernière transmission » toujours visible après lecture = bruit ; la lecture se fait via la carte non lue, la relecture via le détail d’une visite dans l’historique.
+- « Dernière transmission » toujours visible après lecture = bruit ; la lecture se fait via la carte non lue (relecture hors « Mes dernières visites »).
 - « Mes dernières visites » juste sous Mode visite = même zone d’actions, tap large, découvrable sans scroll profond ni onglet caché.
 
 ### Écran « Mes dernières visites »
@@ -93,7 +93,7 @@ Objectif : historique **dès connexion**, sans concurrencer Mode visite, et **sa
 - Route dédiée (ex. `/aidant/visites`), accessible dès post-onboarding.
 - Liste chronologique récente (pas un dashboard) : une ligne = une entrée mode visite.
 - Empty state : « Pas encore de visite enregistrée » + CTA Mode visite.
-- Détail d’une ligne : scores check-in, blocked ou non, outcome exercice le cas échéant, lien « Voir la transmission » seulement si une transmission est associée.
+- Contenu des lignes : exercices effectués (outcomes) ; visite reportée si check-in bloqué — voir `spec-historique-exercices-visite/` (pas de lien transmission).
 
 ## Microcopy — contraintes
 
