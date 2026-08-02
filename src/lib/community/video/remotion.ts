@@ -111,8 +111,8 @@ export function getStoryboardRenderInstructions(propsPath: string): string {
 export const REMOTION_FLIPBOOK_ID = "ProchePlusFlipbook";
 export const REMOTION_FLIPBOOK_FACEBOOK_ID = "ProchePlusFlipbookFacebook";
 
-/** Frames Remotion par image flipbook (30 fps → ~6–7,5 ips perçues à 4–5) */
-export const DEFAULT_FLIPBOOK_HOLD = 5;
+/** Frames Remotion par image flipbook — défaut calme senior (~0,5 s/pose @ 30 fps) */
+export const DEFAULT_FLIPBOOK_HOLD = 14;
 
 /**
  * Ours animé — suite de keyframes (même scène, poses successives).
