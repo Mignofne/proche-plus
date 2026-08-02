@@ -63,7 +63,7 @@ Optionnel post-check-in si non bloqué : lier plus tard à l’outcome d’exerc
 
 | Acteur | Surface | Contenu |
 |--------|---------|---------|
-| Aidant | **Mes dernières visites** (écran dédié) | Date, proche, fatigue, douleur, poursuivi / reporté « à bientôt », issue d’exercice si faite ; lien vers transmission liée si elle existe |
+| Aidant | **Mes dernières visites** (écran dédié) | Exercices effectués (outcomes) + check-in reporté si bloqué — **pas** de lien transmission ni « Exercices possibles » (voir `spec-historique-exercices-visite/`) |
 | Pro | Timeline patient | Événement check-in (+ blocked) |
 | Pro / système | Log / audit | Entrée de log consultable |
 

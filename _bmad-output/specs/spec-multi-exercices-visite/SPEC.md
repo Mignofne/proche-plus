@@ -32,7 +32,7 @@ sources:
 
 - **CAP-4**
   - **intent:** L’aidant et le pro peuvent retrouver **tous** les outcomes réalisés pendant la session (pas seulement le dernier).
-  - **success:** « Mes dernières visites » / détail visite et timeline pro listent chaque exercice + outcome de la session liée au check-in (ou équivalent session).
+  - **success:** Aidant : voir `SPEC-historique-exercices-visite` (exercices effectués, pas transmissions). Pro : timeline/log listent chaque outcome de session (lien check-in / sessionRef encore ouvert).
 
 ## Constraints
 
