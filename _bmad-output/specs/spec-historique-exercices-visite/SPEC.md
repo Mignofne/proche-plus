@@ -13,13 +13,13 @@ sources: []
 
 ## Why
 
-**Pain to solve.** « Mes dernières visites » montre aujourd’hui des check-ins avec le libellé « Exercices possibles » et un lien « Voir la transmission ». L’aidant veut l’**historique des exercices qu’il a réellement faits** (outcomes), pas les transmissions ni un signal d’exercices disponibles.
+**Pain to solve.** « Mes dernières visites » montre aujourd’hui des check-ins avec le libellé « Exercices possibles » et un lien « Voir la transmission ». L’aidant veut l’**historique des exercices qu’il a réellement faits** (outcomes), regroupés **par visite**, pas les transmissions ni un signal d’exercices disponibles.
 
 ## Capabilities
 
 - **CAP-1**
   - **intent:** L’aidant peut retrouver, dans « Mes dernières visites », les exercices qu’il a effectués (identification de l’exercice, outcome, moment, proche).
-  - **success:** Chaque `ExerciseAttempt` du proche lié apparaît avec nom (et thème), outcome (Réussi / Essai / Échec), date/heure, proche — aucun item sans outcome.
+  - **success:** Chaque `ExerciseAttempt` du proche lié apparaît avec nom (et thème), outcome (Réussi / Essai / Échec), et est rattaché à une visite — aucun item sans outcome.
 
 - **CAP-2**
   - **intent:** La surface d’historique n’expose plus les transmissions ni le libellé « Exercices possibles ».
@@ -27,11 +27,17 @@ sources: []
 
 - **CAP-3**
   - **intent:** Une visite stoppée au check-in (fatigue/douleur) reste compréhensible sans simuler des exercices.
-  - **success:** Entrée « Visite reportée — à bientôt » (ou équivalent) sans liste d’exercices inventés ni « Exercices possibles ».
+  - **success:** Bloc visite « Visite reportée — à bientôt » sans liste d’exercices inventés ni « Exercices possibles ».
+
+- **CAP-4**
+  - **intent:** L’aidant peut voir les exercices effectués **groupés par visite** (une séance = un bloc).
+  - **success:** Chaque bloc visite affiche date/proche (+ check-in si utile) et, dessous, la liste ordonnée des outcomes de cette session ; deux exercices de la même visite apparaissent dans le même bloc.
 
 ## Constraints
 
 - Une ligne d’exercice = un **outcome réel** (`ExerciseAttempt`) — jamais un `PatientExercise` courant non tenté.
+- Organisation UI = **blocs visite**, pas liste plate d’attempts.
+- Chaque attempt doit être rattaché à la visite (`sessionRef` = check-in id ou `VisitSession`) pour permettre le groupement.
 - Pas de lien transmission sur cette surface (les transmissions non lues restent sur l’accueil).
 - Périmètre : aidant, proches liés uniquement.
 - Détail des champs / empty states : `historique-aidant-contenu.md`.
@@ -42,16 +48,14 @@ sources: []
 - Historique pro / timeline (hors affinage déjà couvert ailleurs).
 - Liste du catalogue ou des exercices activés « à faire ».
 - Feedback post-visite dans cet écran.
+- Liste plate chronologique d’attempts (choix écarté).
 
 ## Success signal
 
-Après une visite où Jean a fait deux exercices, « Mes dernières visites » liste ces deux résultats (noms + Réussi/Essai/Échec) ; plus de « Exercices possibles » ni de lien transmission sur cet écran.
+Après une visite où Jean a fait deux exercices, « Mes dernières visites » montre **un bloc visite** contenant ces deux résultats ; une autre visite = un autre bloc ; plus de « Exercices possibles » ni de lien transmission.
 
 ## Assumptions
 
-- Source principale = `ExerciseAttempt` (+ exercice/thème via `PatientExercise`) pour les proches de l’aidant, ordre chronologique décroissant.
-- Le check-in fatigue/douleur peut rester en **contexte** (groupe visite ou ligne reportée) ; le contenu principal reste les exercices effectués.
-
-## Open Questions
-
-- Grouper les attempts par visite/check-in (nécessite `sessionRef` / CAP-4 multi-exercices) ou liste plate chronologique d’attempts ?
+- Source exercices = `ExerciseAttempt` (+ exercice/thème via `PatientExercise`) pour les proches de l’aidant.
+- Check-in fatigue/douleur reste en **en-tête de bloc** visite ; le corps du bloc = exercices effectués (vide si reportée).
+- Implémentation du `sessionRef` peut s’appuyer sur le check-in existant ou un `VisitSession` — détail schéma à trancher en dev/architecture, mais le rattachement est **requis**.
