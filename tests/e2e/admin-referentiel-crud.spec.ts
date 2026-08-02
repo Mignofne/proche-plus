@@ -43,4 +43,48 @@ test.describe("Admin fondateur — CRUD référentiel", () => {
       page.getByRole("button", { name: /Supprimer \(archiver\)/i })
     ).toBeVisible();
   });
+
+  test("peut changer le statut de plusieurs exercices d’un coup", async ({
+    page,
+  }) => {
+    await loginUi(
+      page,
+      DEMO.fondateur.email,
+      DEMO.fondateur.password,
+      "fondateur"
+    );
+    const stamp = Date.now();
+    const nameA = `Bulk statut A ${stamp}`;
+    const nameB = `Bulk statut B ${stamp}`;
+
+    for (const name of [nameA, nameB]) {
+      await page.goto("/admin-produit/exercices/nouveau");
+      await page.locator('input[name="name"]').fill(name);
+      await page
+        .locator('textarea[name="objective"]')
+        .fill("Objectif test bulk statut");
+      await page.locator('textarea[name="steps"]').fill("Étape 1");
+      await page.locator('select[name="status"]').selectOption("brouillon");
+      await page.getByRole("button", { name: /^Enregistrer$/i }).click();
+      await expect(page).toHaveURL(/\/admin-produit\/exercices\/.+/);
+    }
+
+    await page.goto(`/admin-produit/exercices?q=${encodeURIComponent(String(stamp))}`);
+    await expect(
+      page.getByRole("heading", { name: /Référentiel exercices/i })
+    ).toBeVisible();
+
+    const applyBtn = page.getByRole("button", { name: /Appliquer le statut/i });
+    await expect(applyBtn).toBeDisabled();
+
+    await page.getByRole("checkbox", { name: `Sélectionner ${nameA}` }).check();
+    await page.getByRole("checkbox", { name: `Sélectionner ${nameB}` }).check();
+    await expect(applyBtn).toBeEnabled();
+
+    await page.getByLabel("Nouveau statut").selectOption("a_valider");
+    await applyBtn.click();
+    await expect(page.getByRole("status")).toContainText(/À valider/i);
+    await expect(page.getByText(nameA)).toBeVisible();
+    await expect(page.getByText(/À valider/i).first()).toBeVisible();
+  });
 });

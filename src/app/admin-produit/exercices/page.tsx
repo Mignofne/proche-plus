@@ -2,20 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Mascot } from "@/components/mascot/Mascot";
 import { ButtonLink } from "@/components/ui/Button";
-import { Card, SectionTitle } from "@/components/ui/Card";
+import { SectionTitle } from "@/components/ui/Card";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ensureCatalogReady } from "@/lib/exercises/ensure-catalog";
-import { CSV_IMPORT_VALIDATED_BY } from "@/lib/exercises/constants";
 import { ThemeManager } from "./ThemeManager";
 import { ScaleManager } from "./ScaleManager";
-
-const STATUS_LABEL: Record<string, string> = {
-  brouillon: "Brouillon",
-  a_valider: "À valider",
-  publie: "Publié",
-  archive: "Archivé",
-};
+import { ExerciseBulkList } from "./ExerciseBulkList";
 
 const STATUS_SORT: Record<string, number> = {
   a_valider: 0,
@@ -199,56 +192,19 @@ export default async function AdminExercicesPage({
             </button>
           </form>
 
-          <div className="mt-3 flex flex-col gap-2">
-            {filtered.map((ex) => {
-              const isAiPending =
-                ex.status === "a_valider" ||
-                ex.validatedBy === CSV_IMPORT_VALIDATED_BY;
-              return (
-                <Link
-                  key={ex.id}
-                  href={`/admin-produit/exercices/${ex.id}`}
-                  className={`rounded-2xl border bg-white p-4 transition-colors hover:border-teal ${
-                    ex.status === "a_valider"
-                      ? "border-terracotta/40"
-                      : "border-cream-dark"
-                  }`}
-                >
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="font-medium">
-                      {ex.theme.label} · {ex.autonomyScale.code}/p{ex.tier} —{" "}
-                      {ex.name}
-                    </p>
-                    <span className="flex flex-wrap items-center gap-2">
-                      {isAiPending && (
-                        <span className="rounded-full bg-cream-dark px-2 py-0.5 text-xs font-semibold text-text-muted">
-                          IA
-                        </span>
-                      )}
-                      <span
-                        className={`text-xs font-semibold ${
-                          ex.status === "a_valider"
-                            ? "text-terracotta"
-                            : "text-teal-dark"
-                        }`}
-                      >
-                        {STATUS_LABEL[ex.status] ?? ex.status}
-                      </span>
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-text-muted line-clamp-1">
-                    {ex.objective}
-                  </p>
-                </Link>
-              );
-            })}
-            {filtered.length === 0 && (
-              <Card>
-                <p className="text-sm text-text-muted">
-                  Aucun exercice pour ces filtres.
-                </p>
-              </Card>
-            )}
+          <div className="mt-3">
+            <ExerciseBulkList
+              exercises={filtered.map((ex) => ({
+                id: ex.id,
+                name: ex.name,
+                objective: ex.objective,
+                status: ex.status,
+                tier: ex.tier,
+                validatedBy: ex.validatedBy,
+                themeLabel: ex.theme.label,
+                scaleCode: ex.autonomyScale.code,
+              }))}
+            />
           </div>
         </section>
       </main>
