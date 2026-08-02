@@ -2,9 +2,9 @@
 title: 'Mode visite — proposer un autre exercice après outcome'
 type: 'feature'
 created: '2026-08-02'
-status: 'in-progress'
+status: 'done'
 baseline_commit: '0e85c04'
-review_loop_iteration: 0
+review_loop_iteration: 1
 context:
   - '{project-root}/_bmad-output/specs/spec-multi-exercices-visite/SPEC.md'
   - '{project-root}/_bmad-output/specs/spec-multi-exercices-visite/visit-session-flow.md'

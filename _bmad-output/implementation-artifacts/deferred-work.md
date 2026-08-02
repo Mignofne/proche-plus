@@ -4,6 +4,10 @@
   summary: CAP-4 — lier tous les outcomes d’une session au check-in / VisitSession pour « Mes dernières visites » et timeline pro
   evidence: Hors slice UI post-outcome ; `VisitCheckIn` et `ExerciseAttempt` non reliés aujourd’hui ; schéma + surfaces historique à traiter à part.
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-multi-exercices-visite-post-outcome.md`
+  summary: Microcopy `submitExerciseOutcome` encore orientée « prochaine visite » alors que l’aidant peut enchaîner maintenant
+  evidence: Messages advance/fallback dans actions.ts ; headline post-outcome OK mais sous-texte peut contredire le CTA.
+
 - source_spec: `_bmad-output/implementation-artifacts/spec-community-facebook-formats.md`
   summary: Templates / teasers article ne renseignent pas encore couleurs, scène ni channelsJson
   evidence: `applyTemplateToDraftAction` et créations teaser créent des drafts sans les nouveaux champs ; preview retombe sur défauts IG.

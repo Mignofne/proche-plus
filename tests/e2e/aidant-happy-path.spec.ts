@@ -71,6 +71,17 @@ test.describe("Aidant happy path", () => {
       })
     ).toBeVisible();
 
+    // Terminer la visite → clôture calme → accueil
+    await page.getByRole("button", { name: /Fauteuil/i }).click();
+    await page.getByRole("button", { name: /^Réussi$/i }).click();
+    await expect(
+      page.getByRole("button", { name: /Terminer la visite/i })
+    ).toBeVisible();
+    await page.getByRole("button", { name: /Terminer la visite/i }).click();
+    await expect(page.getByRole("banner")).toContainText(/Visite terminée/i);
+    await page.getByRole("button", { name: /Retour à l'accueil/i }).click();
+    await expect(page).toHaveURL(/\/aidant$/);
+
     await page.goto("/aidant/question");
     await expect(page).toHaveURL(/\/aidant\/question/);
 

@@ -104,6 +104,8 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
         note: note.trim() || undefined,
         transmissionId: data.transmissionId,
       });
+      // Rafraîchir les exercices courants (advance/fallback) avant un éventuel enchaînement
+      router.refresh();
       setDone(result.message);
     });
   }
@@ -112,6 +114,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
     setDone(null);
     setThemeId(null);
     setNote("");
+    router.refresh();
   }
 
   if (visitEnded) {
@@ -152,7 +155,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
               </Button>
             )}
             <Button
-              variant="ghost"
+              variant={canDoAnother ? "ghost" : "primary"}
               onClick={() => setVisitEnded(true)}
               fullWidth
             >
