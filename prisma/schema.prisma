@@ -1,11 +1,11 @@
 generator client {
   provider      = "prisma-client-js"
   // Vercel serverless (Amazon Linux 2023) needs the RHEL OpenSSL 3 engine
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  binaryTargets = ["native"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -199,14 +199,15 @@ model Professional {
 }
 
 model Caregiver {
-  id        String            @id @default(cuid())
-  userId    String            @unique
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status    CaregiverStatus   @default(invite)
-  patients  PatientCaregiver[]
-  feedbacks CaregiverFeedback[]
-  questions Question[]
-  actions   CaregiverAction[]
+  id            String            @id @default(cuid())
+  userId        String            @unique
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status        CaregiverStatus   @default(invite)
+  patients      PatientCaregiver[]
+  feedbacks     CaregiverFeedback[]
+  questions     Question[]
+  actions       CaregiverAction[]
+  visitCheckIns VisitCheckIn[]
 }
 
 model Patient {
@@ -228,7 +229,26 @@ model Patient {
   autonomyAlerts           AutonomyAlert[]
   patientExercises         PatientExercise[]
   professionalAlerts       ProfessionalAlert[]
+  visitCheckIns            VisitCheckIn[]
   createdAt                DateTime               @default(now())
+}
+
+/// Check-in fatigue / douleur avant exercices (mode visite)
+model VisitCheckIn {
+  id             String    @id @default(cuid())
+  patientId      String
+  patient        Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  caregiverId    String
+  caregiver      Caregiver @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  fatigueScore   Int
+  painScore      Int
+  blocked        Boolean
+  /// Transmission la plus récente au moment du check-in (relecture historique)
+  transmissionId String?
+  createdAt      DateTime  @default(now())
+
+  @@index([caregiverId, createdAt])
+  @@index([patientId, createdAt])
 }
 
 model AutonomyLevelHistory {

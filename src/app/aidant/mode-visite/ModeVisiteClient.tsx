@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
@@ -16,17 +15,8 @@ import {
   submitCaregiverVisitAction,
   submitExerciseOutcome,
 } from "@/app/aidant/actions";
-
-function ChangeProcheLink() {
-  return (
-    <Link
-      href="/aidant/mode-visite"
-      className="text-left text-sm text-teal"
-    >
-      ← Changer de proche
-    </Link>
-  );
-}
+import { ChangeProcheLink } from "./ChangeProcheLink";
+import { VisitCheckInGate } from "./VisitCheckInGate";
 
 type ThemeOption = {
   id: string;
@@ -50,6 +40,7 @@ type ExerciseView = {
 
 type LegacyVisitData = {
   mode: "legacy";
+  patientId: string;
   transmissionId: string;
   patientName: string;
   autonomyLevel: string;
@@ -63,6 +54,7 @@ type LegacyVisitData = {
 
 type ExerciseVisitData = {
   mode: "exercise";
+  patientId: string;
   transmissionId: string | null;
   patientName: string;
   autonomyLevel: string;
@@ -75,10 +67,20 @@ type ExerciseVisitData = {
 export type VisitClientData = LegacyVisitData | ExerciseVisitData;
 
 export function ModeVisiteClient({ data }: { data: VisitClientData }) {
-  if (data.mode === "exercise") {
-    return <ExerciseModeVisite data={data} />;
-  }
-  return <LegacyModeVisite data={data} />;
+  return (
+    <VisitCheckInGate
+      patientId={data.patientId}
+      patientName={data.patientName}
+      transmissionId={data.transmissionId}
+      canChangeProche={data.canChangeProche}
+    >
+      {data.mode === "exercise" ? (
+        <ExerciseModeVisite data={data} />
+      ) : (
+        <LegacyModeVisite data={data} />
+      )}
+    </VisitCheckInGate>
+  );
 }
 
 function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
