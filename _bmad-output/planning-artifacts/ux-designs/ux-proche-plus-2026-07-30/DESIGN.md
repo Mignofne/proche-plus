@@ -143,8 +143,7 @@ Coins `{rounded.md}`–`{rounded.xl}` (chaleureux, pas « pill » systématique)
 - **Bouton secondaire** — sun.
 - **Carte section** — titre teal-dark + corps ; utilisée pour « À retenir / À essayer / À éviter ».
 - **Barre de progression visite** — track muted, fill teal ; étapes numérotées accessibles (pas seulement couleur) — legacy / étapes fixes.
-- **Ligne liste exercice** — même langage que le sélecteur de thème : bordure teal légère, fond teal/5, titre Nunito bold, sous-ligne durée ou niveau ; badge « Proposé » en teal-dark sur l’exercice courant (pas de sticker flottant).
-- **Écran entre-deux** — mascotte encourage / celebrate courte ; un CTA primaire teal, un secondaire sun, un ghost — pas de carte dashboard.
+- **Écran post-outcome** — mascotte encourage / celebrate courte ; CTA primaire teal « Faire un autre exercice » + ghost « Terminer la visite » — pas de carte dashboard, pas de multi-CTA.
 - **Timeline éducative (pro)** — étapes textuelles : transmis → consulté → essayé / réalisé / doute → feedback → acquis.
 - **File d’actions (admin établissement)** — lignes prioritaires cliquables, badge compteur.
 - **KPI card (admin produit)** — métrique + cible + écart ; pas de détail patient.

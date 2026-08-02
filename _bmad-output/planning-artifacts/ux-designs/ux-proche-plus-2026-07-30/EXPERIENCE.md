@@ -27,9 +27,9 @@ updated: 2026-08-02
 Pas de UI kit externe nommé : design system interne Proche+ (`DESIGN.md`). Produit régulé (données de santé / continuum éducatif) — cloisonnement multi-établissements **obligatoire**.
 
 Boucle cœur :  
-`VISITE → TRANSMISSION → MODE VISITE → (THÈME → LISTE EXERCICES → EXERCICE → OUTCOME)×N → FIN VISITE → FEEDBACK → ADAPTATION PRO → VISITE SUIVANTE`
+`VISITE → TRANSMISSION → MODE VISITE → (THÈME → EXERCICE → OUTCOME → PROPOSER UN AUTRE?)×N → FIN VISITE → FEEDBACK → ADAPTATION PRO → VISITE SUIVANTE`
 
-Invariant session : **un outcome d’exercice ne clôt pas la visite**. Seule une action explicite « Terminer la visite » (ou le stop check-in fatigue/douleur) sort du mode visite.
+Invariant session : **à la fin d’un exercice, proposer un autre** — un outcome ne clôt pas la visite. Seule une action explicite « Terminer la visite » (ou le stop check-in fatigue/douleur) sort du mode visite.
 
 ## Information Architecture
 
@@ -52,9 +52,8 @@ Aucun établissement ne lit les données d’un autre.
 | **Mes proches** | Accueil (carte dédiée) / onboarding | **Ajouter, modifier, supprimer** un proche — identité d’abord |
 | Transmission | Accueil / notif | Lire à retenir / essayer / éviter / revoir + compréhension |
 | Choix de thème | Mode visite (après check-in OK) | Choisir ce qu’on veut travailler aujourd’hui (S’habiller, Manger, Fauteuil…) |
-| Liste d’exercices du thème | Après thème | Vue simple des exercices **activés** pour ce thème / ce proche ; choisir lequel faire |
-| Mode visite — exercice | Après choix dans la liste | Consignes + actions (Réussi · Essai · Échec) |
-| Entre-deux exercices | Après outcome | Rester en session : autre exercice · autre thème · terminer |
+| Mode visite — exercice | Après thème | Exercice courant du thème + consignes + actions (Réussi · Essai · Échec) |
+| Post-outcome | Après outcome | Proposer un autre exercice **ou** terminer la visite |
 | Fin de visite | CTA explicite « Terminer la visite » | Clore ; expliquer que l’équipe s’en sert pour la suite |
 | Feedback | Post-visite / rappel | Retour simple facultatif |
 | Question | Accueil | Question ponctuelle au pro |
@@ -105,7 +104,6 @@ Microcopy. Posture de marque dans `DESIGN.md`.
 | « Comment ça s’est passé avec votre proche ? » | « Une action — le professionnel en sera informé » |
 | « Votre réponse aide l’équipe pour la prochaine visite » | Jargon opaque (« action », « informé ») sans bénéfice pour l’aidant |
 | « Que souhaitez-vous travailler aujourd’hui ? » | Sauter le choix de thème à la place de l’aidant |
-| « Quel exercice voulez-vous faire ? » | Auto-lancer l’exercice courant sans choix quand plusieurs sont prêts |
 | « C’est noté — un autre exercice ? » | « Visite terminée » dès le premier outcome |
 | « Prenez votre temps » | « Dépêchez-vous, objectif du jour » |
 | « Une étape à la fois — 2 sur 4 » | Écran fourre-tout sans prochaine action |
@@ -115,12 +113,11 @@ Microcopy. Posture de marque dans `DESIGN.md`.
 Libellés d’outcome visite (matrice) **requis** : Réussi · Essai, avec difficulté · Échec.  
 Libellés d’action legacy (transmission seule) : Réalisé avec succès · J’ai essayé · J’ai un doute · Demander de l’aide · Laisser une note.
 
-Microcopy **entre-deux** (après outcome, session encore ouverte) :
-- Primaire : « Faire un autre exercice »
-- Secondaire : « Changer de thème »
+Microcopy **post-outcome** (session encore ouverte) :
+- Primaire : « Faire un autre exercice » → retour choix de thème
 - Ghost : « Terminer la visite »
 
-Éviter en cours de session les formulations qui renvoient uniquement à « la prochaine visite » si l’aidant peut encore enchaîner.
+Pas de liste multi-exercices à l’entrée du thème dans ce périmètre.
 
 ## Component Patterns
 
@@ -128,12 +125,11 @@ Behavioral. Visuel dans `DESIGN.md.Components`.
 
 | Composant | Règles |
 |---|---|
-| Sélecteur de thème | Entrée obligatoire du mode visite (post check-in) ; thèmes avec au moins un exercice activé ; jamais auto-sélection silencieuse |
-| Liste d’exercices du thème | Après le thème ; lignes simples (nom + durée indicative + badge « Proposé » sur le courant) ; une ligne = un exercice activé ; jamais le catalogue entier non activé |
-| Progress visite | Optionnel en session multi-exercices : compteur « N exercice(s) fait(s) aujourd’hui » plutôt qu’une fausse barre d’étapes fixes ; ne remplace pas le CTA |
+| Sélecteur de thème | Entrée obligatoire du mode visite (post check-in) ; thèmes avec au moins un exercice activé ; jamais auto-sélection silencieuse ; aussi la cible du CTA « Faire un autre exercice » |
+| Progress visite | Legacy : barre d’étapes ; mode exercice : pas de fausse barre multi-exercices obligatoire |
 | CTA principal | Un seul au-dessus de la fold ; ≥ 48 px |
 | Chip / bouton d’outcome | En fin d’exercice ; un outcome primaire à la fois |
-| Écran entre-deux | Après outcome : confirmation courte + 3 sorties (autre exercice / autre thème / terminer) — pas de redirection auto vers l’accueil |
+| Écran post-outcome | Après outcome : confirmation + « Faire un autre exercice » + « Terminer la visite » — pas de redirection auto vers l’accueil |
 | Timeline éducative | Lecture seule pour aidant (résumé simple) ; éditable / complète pour pro |
 | GIR badge | Affiché côté pro comme **contexte** ; pas de sparkline d’évolution MVP |
 | Action queue row | Tap → détail actionnable ; compteur si > 0 |
@@ -144,8 +140,8 @@ Behavioral. Visuel dans `DESIGN.md.Components`.
 | État | Traitement |
 |---|---|
 | Transmission non lue | Badge pro + carte « Nouveau » aidant |
-| Mode visite en cours | Session ouverte jusqu’à « Terminer » ; reprise au hub thème ou à la liste du thème en cours |
-| Entre-deux exercices | Outcome enregistré ; session toujours active ; pas d’écran « Visite terminée » |
+| Mode visite en cours | Session ouverte jusqu’à « Terminer » ; après un exercice, proposition d’en faire un autre |
+| Post-outcome | Outcome enregistré ; session active ; propose un autre exercice ou terminer — pas « Visite terminée » auto |
 | Consigne avec doute | Remonte au pro ; ton sobre ; n’oblige pas à quitter la session |
 | Feedback non répondu | Un seul rappel ; jamais bloquant |
 | Famille invitée non activée | File admin établissement |
@@ -155,11 +151,11 @@ Behavioral. Visuel dans `DESIGN.md.Components`.
 ## Interaction Primitives
 
 - **Hybride mode visite** : une action principale par écran ; en legacy, barre d’étapes + « Suivant ».
-- **Session multi-exercices** : thème → liste → exercice → outcome → entre-deux (boucle) jusqu’à fin explicite.
+- **Enchaînement** : thème → exercice courant → outcome → **proposer un autre** (retour thèmes) jusqu’à fin explicite.
 - Tap only pour l’essentiel ; pas de swipe obligatoire.
 - Synthèse vocale optionnelle sur consignes.
 - Confirmation explicite (« J’ai compris ») pour messages de sécurité — pas de disparition auto.
-- Retour toujours au même endroit / même libellé (« ← Changer de thème », « ← Autre exercice »).
+- Retour toujours au même endroit / même libellé (« ← Changer de thème »).
 
 **Interdit MVP aidant** : chat libre type messagerie, multi-CTA concurrents sur l’écran exercice, gamification, sortie auto vers l’accueil après un outcome.
 
@@ -214,18 +210,17 @@ Invariant : filtre `establishmentId` partout ; RLS Postgres recommandé en prod 
 
 À tout moment après : **Mes proches** → ajouter / modifier / supprimer.
 
-### Flow A — Jean Martin (aidant), visite du dimanche (plusieurs exercices)
+### Flow A — Jean Martin (aidant), visite du dimanche (enchaîner un autre exercice)
 
 **Protagoniste** : Jean, 68 ans, conjoint de Marie, peu à l’aise avec le téléphone mais motivé.
 
 1. Ouvre Proche+ → voit **une** carte claire : Mode visite (+ transmission non lue si besoin) **et** « Mes dernières visites » / « Gérer mes proches ».
 2. Lit la transmission si besoin → lance **Mode visite** → check-in fatigue/douleur OK.
 3. **Choisit un thème** (ex. Fauteuil) — même s’il n’y en a qu’un, le choix reste explicite.
-4. Voit une **liste simple** des exercices activés pour Fauteuil (ex. « Demi-tour » marqué Proposé, « Freins ») — il tap sur celui qu’il veut.
-5. Fait l’exercice (objectif, étapes, peut / ne doit pas) → **Réussi / Essai / Échec**.
-6. **Climax** : écran entre-deux « C’est noté » — il choisit **Faire un autre exercice** (même thème), change de thème (ex. Communication), ou termine. *Il comprend qu’il peut enchaîner sans perdre la visite.*
-7. Après un 2ᵉ outcome, il tape **Terminer la visite** → message calme de confirmation → accueil.
-8. J+1 : feedback optionnel en 2 taps.
+4. Voit l’**exercice courant** (objectif, étapes, peut / ne doit pas) → **Réussi / Essai / Échec**.
+5. **Climax** : « C’est noté — un autre exercice ? » — il tape **Faire un autre exercice** → revient aux thèmes, choisit Communication, fait le 2ᵉ.
+6. Il tape **Terminer la visite** → message calme de confirmation → accueil.
+7. J+1 : feedback optionnel en 2 taps.
 
 ### Flow B — Sophie (ergo), préparer la semaine
 
