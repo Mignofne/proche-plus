@@ -78,3 +78,21 @@ context:
 
 **Manual checks (if no CLI):**
 - Mode visite démo : outcome → pas d’accueil forcé → autre exercice → thème → 2ᵉ exercice → Terminer → accueil
+
+## Suggested Review Order
+
+**Post-outcome UI**
+
+- Point d’entrée : états `done` / `visitEnded` et CTAs
+  [`ModeVisiteClient.tsx:120`](../../src/app/aidant/mode-visite/ModeVisiteClient.tsx#L120)
+
+- Reset session locale vers le choix de thème
+  [`ModeVisiteClient.tsx:113`](../../src/app/aidant/mode-visite/ModeVisiteClient.tsx#L113)
+
+- Refresh RSC après outcome pour éviter PE obsolète
+  [`ModeVisiteClient.tsx:108`](../../src/app/aidant/mode-visite/ModeVisiteClient.tsx#L108)
+
+**Tests**
+
+- Enchaînement + Terminer → clôture → accueil
+  [`aidant-happy-path.spec.ts:55`](../../tests/e2e/aidant-happy-path.spec.ts#L55)
