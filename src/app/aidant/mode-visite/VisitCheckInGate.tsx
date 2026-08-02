@@ -11,6 +11,7 @@ import {
   type VisitCheckInScore,
 } from "@/lib/visit-checkin";
 import { ChangeProcheLink } from "./ChangeProcheLink";
+import { VisitSessionProvider } from "./VisitSessionContext";
 
 function LevelPicker({
   label,
@@ -64,6 +65,7 @@ export function VisitCheckInGate({
   const [fatigue, setFatigue] = useState<VisitCheckInScore | null>(null);
   const [pain, setPain] = useState<VisitCheckInScore | null>(null);
   const [phase, setPhase] = useState<"form" | "blocked" | "ok">("form");
+  const [checkInId, setCheckInId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
@@ -81,6 +83,7 @@ export function VisitCheckInGate({
           painScore: pain,
           transmissionId,
         });
+        setCheckInId(result.checkInId);
         setPhase(result.blocked ? "blocked" : "ok");
       } catch {
         setError(
@@ -91,7 +94,9 @@ export function VisitCheckInGate({
   }
 
   if (phase === "ok") {
-    return <>{children}</>;
+    return (
+      <VisitSessionProvider checkInId={checkInId}>{children}</VisitSessionProvider>
+    );
   }
 
   if (phase === "blocked") {

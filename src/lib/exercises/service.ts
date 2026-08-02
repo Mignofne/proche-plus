@@ -146,6 +146,7 @@ export async function recordExerciseOutcome(input: {
   patientExerciseId: string;
   outcome: TransitionOutcome;
   note?: string | null;
+  visitCheckInId?: string | null;
 }) {
   const pe = await prisma.patientExercise.findUnique({
     where: { id: input.patientExerciseId },
@@ -181,6 +182,7 @@ export async function recordExerciseOutcome(input: {
         patientExerciseId: pe.id,
         outcome: input.outcome as ExerciseAttemptOutcome,
         note: input.note ?? null,
+        visitCheckInId: input.visitCheckInId ?? null,
       },
     });
 

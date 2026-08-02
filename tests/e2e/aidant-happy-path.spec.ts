@@ -82,6 +82,14 @@ test.describe("Aidant happy path", () => {
     await page.getByRole("button", { name: /Retour à l'accueil/i }).click();
     await expect(page).toHaveURL(/\/aidant$/);
 
+    // Historique : exercices effectués groupés par visite (pas transmissions)
+    await page.getByRole("link", { name: "Mes dernières visites" }).click();
+    await expect(page).toHaveURL(/\/aidant\/visites/);
+    await expect(page.getByText(/Exercices possibles/i)).toHaveCount(0);
+    await expect(page.getByText(/Voir la transmission/i)).toHaveCount(0);
+    await expect(page.getByText(/Réussi/i).first()).toBeVisible();
+    await expect(page.getByText(/Fauteuil/i).first()).toBeVisible();
+
     await page.goto("/aidant/question");
     await expect(page).toHaveURL(/\/aidant\/question/);
 

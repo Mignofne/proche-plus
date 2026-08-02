@@ -17,6 +17,7 @@ import {
 } from "@/app/aidant/actions";
 import { ChangeProcheLink } from "./ChangeProcheLink";
 import { VisitCheckInGate } from "./VisitCheckInGate";
+import { useVisitSession } from "./VisitSessionContext";
 
 type ThemeOption = {
   id: string;
@@ -85,6 +86,7 @@ export function ModeVisiteClient({ data }: { data: VisitClientData }) {
 
 function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
   const router = useRouter();
+  const { checkInId } = useVisitSession();
   // Toujours laisser l'aidant choisir le thème (même s'il n'y en a qu'un)
   const [themeId, setThemeId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -103,6 +105,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
         outcome,
         note: note.trim() || undefined,
         transmissionId: data.transmissionId,
+        visitCheckInId: checkInId,
       });
       // Rafraîchir les exercices courants (advance/fallback) avant un éventuel enchaînement
       router.refresh();

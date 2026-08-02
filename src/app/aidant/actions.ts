@@ -502,6 +502,7 @@ export async function submitExerciseOutcome(input: {
   outcome: "reussi" | "essai" | "echec";
   note?: string;
   transmissionId?: string | null;
+  visitCheckInId?: string | null;
 }) {
   const { caregiver } = await requireCaregiver();
 
@@ -516,11 +517,26 @@ export async function submitExerciseOutcome(input: {
   });
   if (!pe) throw new Error("Exercice non autorisé");
 
+  let visitCheckInId: string | null = null;
+  if (input.visitCheckInId) {
+    const checkIn = await prisma.visitCheckIn.findFirst({
+      where: {
+        id: input.visitCheckInId,
+        caregiverId: caregiver.id,
+        patientId: pe.patientId,
+        blocked: false,
+      },
+      select: { id: true },
+    });
+    visitCheckInId = checkIn?.id ?? null;
+  }
+
   const { recordExerciseOutcome } = await import("@/lib/exercises/service");
   const decision = await recordExerciseOutcome({
     patientExerciseId: pe.id,
     outcome: input.outcome,
     note: input.note,
+    visitCheckInId,
   });
 
   if (input.transmissionId) {
@@ -551,6 +567,7 @@ export async function submitExerciseOutcome(input: {
 
   revalidatePath("/aidant");
   revalidatePath("/aidant/mode-visite");
+  revalidatePath("/aidant/visites");
   revalidatePath("/pro");
   revalidatePath("/admin-etablissement");
 
