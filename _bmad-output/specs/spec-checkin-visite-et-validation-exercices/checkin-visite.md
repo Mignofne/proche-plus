@@ -10,7 +10,8 @@ Entrée /aidant/mode-visite
   → (N>1, pas de patientId) ProchePicker → sélection
   → (1 proche OU patientId résolu) proche fixé
   → **NOUVEAU : Check-in fatigue + douleur**   ← obligatoire
-       ├─ scores OK (tous ≤ 5) → choix de thème → exercice → issue (flux actuel)
+       ├─ scores OK (tous ≤ 5) → choix de thème → liste exercices → exercice → entre-deux / multi-exercices
+       │     (segment post-check-in détaillé dans `spec-multi-exercices-visite/`)
        └─ fatigue ≥ 6 OU douleur ≥ 6 → écran stop bienveillant → sortie
 ```
 

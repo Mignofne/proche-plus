@@ -4,10 +4,12 @@ description: Parcours aidant actionnable, pro avec progression éducative, admin
 status: final
 sources:
   - docs/Proche+_Specs_Fonctionnelles_Architecture.md
+  - docs/Proche+_Specs_Section10_et_suivantes.md
   - docs/project-context.md
   - _bmad-output/planning-artifacts/ux-designs/ux-proche-plus-2026-07-30/.memlog.md
   - _bmad-output/planning-artifacts/ux-designs/ux-proche-plus-2026-07-30/DESIGN.md
-updated: 2026-07-31
+  - _bmad-output/specs/spec-multi-exercices-visite/SPEC.md
+updated: 2026-08-02
 ---
 
 # Proche+ — Experience Spine
@@ -25,7 +27,9 @@ updated: 2026-07-31
 Pas de UI kit externe nommé : design system interne Proche+ (`DESIGN.md`). Produit régulé (données de santé / continuum éducatif) — cloisonnement multi-établissements **obligatoire**.
 
 Boucle cœur :  
-`VISITE → TRANSMISSION → MODE VISITE → ACTIONS AIDANT → FEEDBACK → ADAPTATION PRO → VISITE SUIVANTE`
+`VISITE → TRANSMISSION → MODE VISITE → (THÈME → LISTE EXERCICES → EXERCICE → OUTCOME)×N → FIN VISITE → FEEDBACK → ADAPTATION PRO → VISITE SUIVANTE`
+
+Invariant session : **un outcome d’exercice ne clôt pas la visite**. Seule une action explicite « Terminer la visite » (ou le stop check-in fatigue/douleur) sort du mode visite.
 
 ## Information Architecture
 
@@ -47,10 +51,11 @@ Aucun établissement ne lit les données d’un autre.
 | Accueil | Login / cold open | Objectif en cours + prochaines actions claires |
 | **Mes proches** | Accueil (carte dédiée) / onboarding | **Ajouter, modifier, supprimer** un proche — identité d’abord |
 | Transmission | Accueil / notif | Lire à retenir / essayer / éviter / revoir + compréhension |
-| Choix de thème | Mode visite (entrée) | Choisir ce qu’on veut travailler aujourd’hui (S’habiller, Manger, Fauteuil…) |
-| Mode visite | Après thème | Exercice adapté au niveau + consignes + actions |
-| Action sur consigne | Mode visite | Réussi · Essai avec difficulté · Échec (ou actions legacy) |
-| Fin de visite | Dernière étape mode visite | Clore ; expliquer que l’équipe s’en sert pour la suite |
+| Choix de thème | Mode visite (après check-in OK) | Choisir ce qu’on veut travailler aujourd’hui (S’habiller, Manger, Fauteuil…) |
+| Liste d’exercices du thème | Après thème | Vue simple des exercices **activés** pour ce thème / ce proche ; choisir lequel faire |
+| Mode visite — exercice | Après choix dans la liste | Consignes + actions (Réussi · Essai · Échec) |
+| Entre-deux exercices | Après outcome | Rester en session : autre exercice · autre thème · terminer |
+| Fin de visite | CTA explicite « Terminer la visite » | Clore ; expliquer que l’équipe s’en sert pour la suite |
 | Feedback | Post-visite / rappel | Retour simple facultatif |
 | Question | Accueil | Question ponctuelle au pro |
 | Ressources | Accueil | Bibliothèque sans solliciter le pro |
@@ -100,6 +105,8 @@ Microcopy. Posture de marque dans `DESIGN.md`.
 | « Comment ça s’est passé avec votre proche ? » | « Une action — le professionnel en sera informé » |
 | « Votre réponse aide l’équipe pour la prochaine visite » | Jargon opaque (« action », « informé ») sans bénéfice pour l’aidant |
 | « Que souhaitez-vous travailler aujourd’hui ? » | Sauter le choix de thème à la place de l’aidant |
+| « Quel exercice voulez-vous faire ? » | Auto-lancer l’exercice courant sans choix quand plusieurs sont prêts |
+| « C’est noté — un autre exercice ? » | « Visite terminée » dès le premier outcome |
 | « Prenez votre temps » | « Dépêchez-vous, objectif du jour » |
 | « Une étape à la fois — 2 sur 4 » | Écran fourre-tout sans prochaine action |
 | Ton sobre sur doute / chute | Humour sur risque |
@@ -108,16 +115,25 @@ Microcopy. Posture de marque dans `DESIGN.md`.
 Libellés d’outcome visite (matrice) **requis** : Réussi · Essai, avec difficulté · Échec.  
 Libellés d’action legacy (transmission seule) : Réalisé avec succès · J’ai essayé · J’ai un doute · Demander de l’aide · Laisser une note.
 
+Microcopy **entre-deux** (après outcome, session encore ouverte) :
+- Primaire : « Faire un autre exercice »
+- Secondaire : « Changer de thème »
+- Ghost : « Terminer la visite »
+
+Éviter en cours de session les formulations qui renvoient uniquement à « la prochaine visite » si l’aidant peut encore enchaîner.
+
 ## Component Patterns
 
 Behavioral. Visuel dans `DESIGN.md.Components`.
 
 | Composant | Règles |
 |---|---|
-| Sélecteur de thème | Entrée obligatoire du mode visite ; liste complète des thèmes actifs ; jamais auto-sélection silencieuse |
-| Progress visite | Après le thème ; indique étape N/M ; ne remplace pas le CTA |
+| Sélecteur de thème | Entrée obligatoire du mode visite (post check-in) ; thèmes avec au moins un exercice activé ; jamais auto-sélection silencieuse |
+| Liste d’exercices du thème | Après le thème ; lignes simples (nom + durée indicative + badge « Proposé » sur le courant) ; une ligne = un exercice activé ; jamais le catalogue entier non activé |
+| Progress visite | Optionnel en session multi-exercices : compteur « N exercice(s) fait(s) aujourd’hui » plutôt qu’une fausse barre d’étapes fixes ; ne remplace pas le CTA |
 | CTA principal | Un seul au-dessus de la fold ; ≥ 48 px |
-| Chip / bouton d’outcome | Par consigne ou en fin d’étape ; un outcome primaire à la fois |
+| Chip / bouton d’outcome | En fin d’exercice ; un outcome primaire à la fois |
+| Écran entre-deux | Après outcome : confirmation courte + 3 sorties (autre exercice / autre thème / terminer) — pas de redirection auto vers l’accueil |
 | Timeline éducative | Lecture seule pour aidant (résumé simple) ; éditable / complète pour pro |
 | GIR badge | Affiché côté pro comme **contexte** ; pas de sparkline d’évolution MVP |
 | Action queue row | Tap → détail actionnable ; compteur si > 0 |
@@ -128,8 +144,9 @@ Behavioral. Visuel dans `DESIGN.md.Components`.
 | État | Traitement |
 |---|---|
 | Transmission non lue | Badge pro + carte « Nouveau » aidant |
-| Mode visite en cours | Progress + reprise à l’étape en cours |
-| Consigne avec doute | Remonte au pro avant prochaine visite ; ton sobre |
+| Mode visite en cours | Session ouverte jusqu’à « Terminer » ; reprise au hub thème ou à la liste du thème en cours |
+| Entre-deux exercices | Outcome enregistré ; session toujours active ; pas d’écran « Visite terminée » |
+| Consigne avec doute | Remonte au pro ; ton sobre ; n’oblige pas à quitter la session |
 | Feedback non répondu | Un seul rappel ; jamais bloquant |
 | Famille invitée non activée | File admin établissement |
 | Empty pro / admin | CTA concret (« Inviter un aidant », « Faire une transmission ») |
@@ -137,13 +154,14 @@ Behavioral. Visuel dans `DESIGN.md.Components`.
 
 ## Interaction Primitives
 
-- **Hybride mode visite** : barre de progression + une action principale + « Suivant ».
+- **Hybride mode visite** : une action principale par écran ; en legacy, barre d’étapes + « Suivant ».
+- **Session multi-exercices** : thème → liste → exercice → outcome → entre-deux (boucle) jusqu’à fin explicite.
 - Tap only pour l’essentiel ; pas de swipe obligatoire.
 - Synthèse vocale optionnelle sur consignes.
 - Confirmation explicite (« J’ai compris ») pour messages de sécurité — pas de disparition auto.
-- Retour toujours au même endroit / même libellé.
+- Retour toujours au même endroit / même libellé (« ← Changer de thème », « ← Autre exercice »).
 
-**Interdit MVP aidant** : chat libre type messagerie, multi-CTA concurrents, gamification.
+**Interdit MVP aidant** : chat libre type messagerie, multi-CTA concurrents sur l’écran exercice, gamification, sortie auto vers l’accueil après un outcome.
 
 ## Accessibility Floor
 
@@ -196,17 +214,18 @@ Invariant : filtre `establishmentId` partout ; RLS Postgres recommandé en prod 
 
 À tout moment après : **Mes proches** → ajouter / modifier / supprimer.
 
-### Flow A — Jean Martin (aidant), visite du dimanche
+### Flow A — Jean Martin (aidant), visite du dimanche (plusieurs exercices)
 
 **Protagoniste** : Jean, 68 ans, conjoint de Marie, peu à l’aise avec le téléphone mais motivé.
 
-1. Ouvre Proche+ → voit **une** carte claire : « Aujourd’hui : mode visite » (+ transmission non lue si besoin) **et** un accès visible « Gérer mes proches ».
-2. Lit la transmission (sections) → confirme compréhension (clair / doute).
-3. Lance **Mode visite** → **choisit un thème** (ex. Fauteuil) parmi la liste — même s’il n’y a qu’un thème disponible, le choix reste explicite.
-4. Voit l’exercice adapté (objectif, étapes au tutoiement, peut / ne doit pas) — ou un message « pas encore activé, parlez-en à l’équipe » si le pro n’a rien activé pour ce thème.
-5. **Climax** : répond à « Comment ça s’est passé avec votre proche ? » → **Réussi / Essai / Échec** — *il comprend que ça sert à adapter la visite suivante*.
-6. Fin de visite → message calme de confirmation.
-7. J+1 : feedback optionnel en 2 taps.
+1. Ouvre Proche+ → voit **une** carte claire : Mode visite (+ transmission non lue si besoin) **et** « Mes dernières visites » / « Gérer mes proches ».
+2. Lit la transmission si besoin → lance **Mode visite** → check-in fatigue/douleur OK.
+3. **Choisit un thème** (ex. Fauteuil) — même s’il n’y en a qu’un, le choix reste explicite.
+4. Voit une **liste simple** des exercices activés pour Fauteuil (ex. « Demi-tour » marqué Proposé, « Freins ») — il tap sur celui qu’il veut.
+5. Fait l’exercice (objectif, étapes, peut / ne doit pas) → **Réussi / Essai / Échec**.
+6. **Climax** : écran entre-deux « C’est noté » — il choisit **Faire un autre exercice** (même thème), change de thème (ex. Communication), ou termine. *Il comprend qu’il peut enchaîner sans perdre la visite.*
+7. Après un 2ᵉ outcome, il tape **Terminer la visite** → message calme de confirmation → accueil.
+8. J+1 : feedback optionnel en 2 taps.
 
 ### Flow B — Sophie (ergo), préparer la semaine
 
@@ -226,6 +245,10 @@ Invariant : filtre `establishmentId` partout ; RLS Postgres recommandé en prod 
 1. Dashboard 5 KPIs vs cibles.
 2. Filtre éventuel par établissement **agrégé** (volume), sans ouvrir de dossier patient hors mandat.
 
+## Open Questions
+
+- Faut-il un `VisitSession` explicite en schéma pour lier check-in + N outcomes, ou réutiliser le check-in existant comme `sessionRef` ? (bloquant architecture / implémentation CAP-4 — pas bloquant UX spines)
+
 ## Inspiration & Anti-patterns
 
 | S’inspirer de | Éviter |
@@ -233,6 +256,7 @@ Invariant : filtre `establishmentId` partout ; RLS Postgres recommandé en prod 
 | Parcours admin « inbox zéro » (actions d’abord) | Dashboard vanity metrics pour le soignant |
 | Checklists visite terrain (étapes visibles) | App enfant / gamification sticker |
 | Dossier éducatif partagé (consignes) | Second DPI / mesure GIR certifiante |
+| Liste courte post-thème (agency aidant) | Auto-lancer l’exercice courant puis « Visite terminée » |
 
 ## Responsive & Platform
 
