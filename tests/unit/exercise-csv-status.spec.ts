@@ -17,6 +17,13 @@ test.describe("référentiel CSV → statut catalogue", () => {
     const bodyZones = catalog.filter((ex) =>
       ex.themeSlug.startsWith("zone_")
     );
-    expect(bodyZones.length).toBeGreaterThanOrEqual(30);
+    expect(bodyZones.length).toBeGreaterThanOrEqual(50);
+    const byZone = new Map<string, number>();
+    for (const ex of bodyZones) {
+      byZone.set(ex.themeSlug, (byZone.get(ex.themeSlug) ?? 0) + 1);
+    }
+    for (const [slug, count] of byZone) {
+      expect(count, slug).toBeGreaterThanOrEqual(5);
+    }
   });
 });

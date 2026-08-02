@@ -268,3 +268,85 @@ Souffle et corps entier,D,Dépendant pour les transferts,1,Respiration calme pen
 Souffle et corps entier,E,Grabataire / alité,1,Présence calme et respiration observée,"Offrir un moment calme auprès de votre proche, sans exercice physique.","1. ""Je m'assieds près de toi.""
 2. ""On respire tranquillement.""
 3. ""Rien d'autre à faire.""","Présence, silence ou parole douce.","Mobiliser, asseoir, transfert.",3 minutes,Aucun geste physique — présence seulement.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle — Camille APA
+Épaules et bras,A,Autonome,2,Croiser les bras sur la poitrine puis ouvrir,"Que votre proche croise puis ouvre les bras devant lui, sans forcer.","1. ""Assieds-toi bien au fond de la chaise.""
+2. ""Croise les bras sur ta poitrine, tout doux.""
+3. ""Ouvre les bras devant toi.""
+4. ""Recommence trois fois.""","Compter les mouvements, encourager.",Tirer les bras en arrière ; forcer l'ouverture.,5 minutes,Arrêter si douleur d'épaule.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Épaules et bras,B,"Semi-autonome, aide technique, risque faible à modéré",2,Glisser les mains le long des cuisses,Que votre proche fasse glisser les mains le long des cuisses en avant et en arrière.,"1. ""Pose les mains sur tes cuisses.""
+2. ""Fais-les glisser vers les genoux.""
+3. ""Remonte doucement vers les hanches.""
+4. ""On recommence lentement.""","Rester à côté, rappeler de respirer.",Pousser le dos en avant ; tirer sur les poignets.,5 minutes,Mouvement lent ; douleur = pause.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Épaules et bras,C,"Semi-autonome, aide humaine à proximité, risque élevé",2,Poser la main sur l'épaule opposée,Que votre proche pose une main sur l'épaule opposée sous votre supervision.,"1. ""Je reste juste à côté.""
+2. ""Pose ta main droite sur ton épaule gauche.""
+3. ""Reviens le bras le long du corps.""
+4. ""Fais l'autre côté.""","Guider à la voix, soutenir le coude si technique enseignée.",Forcer l'amplitude ; laisser sans surveillance.,5 minutes,Surveillance proche ; arrêt si douleur.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Mains et doigts,A,Autonome,2,Étaler les doigts sur la table puis les ramener,Que votre proche étale les doigts sur la table puis les regroupe.,"1. ""Pose les mains à plat sur la table.""
+2. ""Écarte les doigts comme une étoile.""
+3. ""Rapproche-les doucement.""
+4. ""Recommence plusieurs fois.""","Encourager, compter.",Écarter les doigts de force.,4 minutes,Douleur articulaire = arrêt.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Mains et doigts,B,"Semi-autonome, aide technique, risque faible à modéré",2,Retourner une main paume vers le ciel,Que votre proche tourne la main paume vers le ciel puis vers la table.,"1. ""Avant-bras sur la table.""
+2. ""Tourne la main paume vers le ciel.""
+3. ""Remets la paume vers la table.""
+4. ""Fais l'autre main.""",Montrer le geste lentement.,Tordre le poignet ; forcer la rotation.,4 minutes,Mouvement indolore seulement.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Mains et doigts,C,"Semi-autonome, aide humaine à proximité, risque élevé",2,Prendre et poser un objet léger,"Que votre proche prenne un objet très léger et le repose, sous supervision.","1. ""Voici un objet tout léger.""
+2. ""Prends-le doucement.""
+3. ""Pose-le un peu plus loin sur la table.""
+4. ""Je reste près de toi.""","Choisir un objet léger, rester tout près.",Donner un objet lourd ; exiger la vitesse.,5 minutes,Surveillance constante ; objet non cassant.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Tronc et dos,A,Autonome,2,Glisser les omoplates en arrière puis relâcher,Que votre proche rapproche un peu les omoplates puis relâche.,"1. ""Assieds-toi droit.""
+2. ""Rapproche un peu les omoplates, comme si tu serrais un crayon derrière toi.""
+3. ""Relâche.""
+4. ""On le fait trois fois.""",Encourager sans toucher le dos.,Pousser les épaules en arrière avec force.,4 minutes,Arrêter si douleur entre les omoplates.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Tronc et dos,B,"Semi-autonome, aide technique, risque faible à modéré",2,Basculer le bassin assis tout doucement,"Que votre proche fasse une petite bascule du bassin en avant et en arrière, assis.","1. ""Pieds au sol.""
+2. ""Avance un tout petit peu le bas du dos.""
+3. ""Reviens contre le dossier.""
+4. ""Mouvement lent, deux ou trois fois.""","Rester devant, rappeler de ne pas bloquer la respiration.",Forcer la cambrure ; secouer le tronc.,5 minutes,Amplitude minimale ; douleur = arrêt.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Tronc et dos,C,"Semi-autonome, aide humaine à proximité, risque élevé",2,Se redresser après s'être appuyé sur la table,"Que votre proche s'appuie un instant sur la table puis se redresse, sous supervision.","1. ""Je reste juste devant toi.""
+2. ""Pose les mains sur la table devant toi.""
+3. ""Redresse-toi doucement.""
+4. ""On le fait une ou deux fois.""",Mains prêtes en cas de bascule.,Tirer sur les bras pour redresser ; laisser seul.,4 minutes,Surveillance très proche.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Hanches et jambes,A,Autonome,2,Écarter puis ramener les genoux assis,"Que votre proche écarte un peu les genoux puis les ramène, en position assise.","1. ""Assieds-toi bien stable.""
+2. ""Écarte un peu les genoux.""
+3. ""Ramène-les.""
+4. ""Recommence lentement.""","Compter, encourager.",Écarter les genoux de force avec les mains.,5 minutes,Douleur de hanche = arrêt.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Hanches et jambes,B,"Semi-autonome, aide technique, risque faible à modéré",2,Lever le talon en gardant les orteils au sol,"Que votre proche lève les talons puis les repose, assis.","1. ""Pieds au sol.""
+2. ""Lève les talons, orteils restent au sol.""
+3. ""Repose les talons.""
+4. ""On recommence quelques fois.""",Rester à proximité.,Tirer les pieds vers le haut.,4 minutes,Mouvement lent ; sol non glissant.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Hanches et jambes,C,"Semi-autonome, aide humaine à proximité, risque élevé",2,Avancer un pied sous la chaise puis le ramener,"Que votre proche avance un pied puis le ramène, avec vous tout près.","1. ""Je reste à côté de ta jambe.""
+2. ""Avance le pied droit sous la chaise.""
+3. ""Ramène-le.""
+4. ""Fais l'autre pied.""",Superviser l'équilibre assis.,Tirer la jambe ; laisser sans surveillance.,5 minutes,Surveillance constante.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Chevilles et pieds,A,Autonome,2,Écrire des lettres dans l'air avec le pied,Que votre proche trace lentement des lettres simples avec la pointe du pied.,"1. ""Lève un peu le pied.""
+2. ""Écris un grand O dans l'air avec la pointe.""
+3. ""Puis un I.""
+4. ""Change de pied.""","Proposer des lettres simples, encourager.",Tourner la cheville de force.,5 minutes,Arrêter si douleur de cheville.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Chevilles et pieds,B,"Semi-autonome, aide technique, risque faible à modéré",2,Écarter puis rapprocher les pointes de pieds,"Que votre proche écarte les pointes de pieds puis les rapproche, talons au sol.","1. ""Talons au sol.""
+2. ""Écarte les pointes de pieds.""
+3. ""Rapproche-les.""
+4. ""Mouvement lent.""",Montrer le geste.,Forcer les pieds vers l'extérieur.,4 minutes,Mouvement indolore.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Chevilles et pieds,C,"Semi-autonome, aide humaine à proximité, risque élevé",2,Rouler le pied sur une bouteille d'eau vide,"Que votre proche fasse rouler doucement le pied sur une bouteille vide, sous supervision.","1. ""Voici une bouteille d'eau vide.""
+2. ""Pose le pied dessus.""
+3. ""Fais-la rouler d'avant en arrière, tout doux.""
+4. ""Je reste près de toi.""","Stabiliser la bouteille, surveiller l'équilibre.",Utiliser un objet dur ou instable ; laisser seul.,4 minutes,Objet stable ; surveillance.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Cou et tête,A,Autonome,2,Regarder le plafond puis le sol sans forcer,"Que votre proche lève puis baisse un peu le regard, sans forcer le cou.","1. ""Assieds-toi droit.""
+2. ""Lève un peu les yeux vers le plafond.""
+3. ""Reviens au milieu.""
+4. ""Baisse un peu le regard vers le sol, puis reviens.""",Encourager un mouvement très lent.,Pousser la tête en arrière ou en avant.,3 minutes,Vertige ou douleur = arrêt immédiat.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Cou et tête,B,"Semi-autonome, aide technique, risque faible à modéré",2,Glisser le menton vers l'avant puis le rentrer,Que votre proche avance un peu le menton puis le rentre doucement.,"1. ""Regarde droit devant.""
+2. ""Avance un tout petit peu le menton.""
+3. ""Rentre le menton comme pour faire un double menton doux.""
+4. ""Relâche.""",Rester à proximité.,Forcer le menton ; faire des à-coups.,3 minutes,Amplitude minimale.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Cou et tête,C,"Semi-autonome, aide humaine à proximité, risque élevé",2,Suivre votre doigt des yeux sans tourner le buste,"Que votre proche suive votre doigt des yeux, avec peu de mouvement de tête, sous supervision.","1. ""Je bouge mon doigt lentement.""
+2. ""Suis-le avec les yeux.""
+3. ""Tourne la tête seulement si c'est confortable.""
+4. ""On s'arrête si tu as la tête qui tourne.""","Guider le doigt lentement, rester près.",Bouger vite ; forcer la rotation du cou.,4 minutes,Arrêt si vertige.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Souffle et corps entier,A,Autonome,2,Souffler comme pour éteindre une bougie,Que votre proche expire longuement comme pour éteindre une bougie imaginaire.,"1. ""Inspire tranquillement par le nez.""
+2. ""Souffle longtemps par la bouche, comme pour une bougie.""
+3. ""On le fait trois fois.""",Compter ou mimer la bougie.,Forcer l'hyperventilation.,4 minutes,Essoufflement anormal = arrêt.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Souffle et corps entier,B,"Semi-autonome, aide technique, risque faible à modéré",2,"Lever les épaules à l'inspire, les laisser tomber à l'expire",Que votre proche lève un peu les épaules à l'inspire et les relâche à l'expire.,"1. ""À l'inspire, monte un peu les épaules.""
+2. ""À l'expire, laisse-les retomber.""
+3. ""Quatre fois, tout doux.""",Montrer le rythme.,Crisper le cou ; lever les bras haut si douleur.,5 minutes,Mouvement minimal.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
+Souffle et corps entier,C,"Semi-autonome, aide humaine à proximité, risque élevé",2,Poser une main sur le ventre et sentir le souffle,"Que votre proche sente le ventre bouger sous sa main pendant la respiration, avec vous à côté.","1. ""Je reste à côté de toi.""
+2. ""Pose une main sur ton ventre.""
+3. ""Sens-la monter et descendre.""
+4. ""Trois respirations calmes.""","Guider à la voix, rester près.",Laisser seul si angoisse.,4 minutes,Surveillance ; repos si malaise.,Brouillon IA — à valider par l'expert APA,,,Zone corporelle p2 — Camille APA
