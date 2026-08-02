@@ -15,6 +15,14 @@ const THEMES = [
   { slug: "mobilite_lit", label: "Mobilité au lit", icon: "🛏️", displayOrder: 6 },
   { slug: "communication", label: "Communication", icon: "🗣️", displayOrder: 7 },
   { slug: "cognitif", label: "Mémoire / attention", icon: "🧠", displayOrder: 8 },
+  // Zones corporelles (parties du corps à travailler — APA)
+  { slug: "zone_epaules_bras", label: "Épaules et bras", icon: "💪", displayOrder: 20 },
+  { slug: "zone_mains", label: "Mains et doigts", icon: "✋", displayOrder: 21 },
+  { slug: "zone_tronc", label: "Tronc et dos", icon: "🧍", displayOrder: 22 },
+  { slug: "zone_hanches_jambes", label: "Hanches et jambes", icon: "🦵", displayOrder: 23 },
+  { slug: "zone_chevilles_pieds", label: "Chevilles et pieds", icon: "🦶", displayOrder: 24 },
+  { slug: "zone_cou", label: "Cou et tête", icon: "🗣️", displayOrder: 25 },
+  { slug: "zone_souffle", label: "Souffle et corps entier", icon: "🌬️", displayOrder: 26 },
 ];
 
 const SCALES: {
@@ -59,6 +67,13 @@ const THEME_SLUG: Record<string, string> = {
   "Mobilité au lit": "mobilite_lit",
   Communication: "communication",
   "Mémoire / attention": "cognitif",
+  "Épaules et bras": "zone_epaules_bras",
+  "Mains et doigts": "zone_mains",
+  "Tronc et dos": "zone_tronc",
+  "Hanches et jambes": "zone_hanches_jambes",
+  "Chevilles et pieds": "zone_chevilles_pieds",
+  "Cou et tête": "zone_cou",
+  "Souffle et corps entier": "zone_souffle",
 };
 
 export type CatalogExercise = {
