@@ -12,8 +12,13 @@ const schemaPath = path.join(root, "prisma", "schema.prisma");
 const backupPath = path.join(root, "prisma", "schema.postgresql.bak.prisma");
 
 const schema = fs.readFileSync(schemaPath, "utf8");
-if (!fs.existsSync(backupPath)) {
+// Always refresh bak from current postgres schema (avoid stale bak wiping new fields)
+if (schema.includes('provider = "postgresql"')) {
   fs.writeFileSync(backupPath, schema, "utf8");
+} else if (!fs.existsSync(backupPath)) {
+  throw new Error(
+    "schema.prisma is not postgresql and no backup exists — refuse to prepare"
+  );
 }
 
 let next = schema.replace(
