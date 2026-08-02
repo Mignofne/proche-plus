@@ -5,6 +5,8 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card, SectionTitle } from "@/components/ui/Card";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureCatalogReady } from "@/lib/exercises/ensure-catalog";
+import { CSV_IMPORT_VALIDATED_BY } from "@/lib/exercises/constants";
 import { ThemeManager } from "./ThemeManager";
 import { ScaleManager } from "./ScaleManager";
 
@@ -13,6 +15,13 @@ const STATUS_LABEL: Record<string, string> = {
   a_valider: "À valider",
   publie: "Publié",
   archive: "Archivé",
+};
+
+const STATUS_SORT: Record<string, number> = {
+  a_valider: 0,
+  brouillon: 1,
+  publie: 2,
+  archive: 3,
 };
 
 export default async function AdminExercicesPage({
@@ -24,6 +33,9 @@ export default async function AdminExercicesPage({
   if (!session || session.role !== "admin_produit") {
     redirect("/connexion?role=fondateur");
   }
+
+  // Réaligne les brouillons IA encore marqués « publie » (ancien import CSV)
+  await ensureCatalogReady();
 
   const sp = await searchParams;
   const themeFilter = sp.theme || "";
@@ -43,15 +55,24 @@ export default async function AdminExercicesPage({
     prisma.autonomyScale.findMany({ orderBy: { displayOrder: "asc" } }),
   ]);
 
-  const filtered = exercises.filter((ex) => {
-    if (themeFilter && ex.themeId !== themeFilter) return false;
-    if (statusFilter && ex.status !== statusFilter) return false;
-    if (q) {
-      const hay = `${ex.name} ${ex.objective} ${ex.theme.label}`.toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
+  const pendingCount = exercises.filter((ex) => ex.status === "a_valider").length;
+
+  const filtered = exercises
+    .filter((ex) => {
+      if (themeFilter && ex.themeId !== themeFilter) return false;
+      if (statusFilter && ex.status !== statusFilter) return false;
+      if (q) {
+        const hay = `${ex.name} ${ex.objective} ${ex.theme.label}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const byStatus =
+        (STATUS_SORT[a.status] ?? 9) - (STATUS_SORT[b.status] ?? 9);
+      if (byStatus !== 0) return byStatus;
+      return a.name.localeCompare(b.name, "fr");
+    });
 
   return (
     <div className="min-h-dvh bg-cream">
@@ -126,6 +147,18 @@ export default async function AdminExercicesPage({
             </ButtonLink>
           </div>
 
+          {pendingCount > 0 && statusFilter !== "a_valider" && (
+            <Link
+              href="/admin-produit/exercices?status=a_valider"
+              className="mt-3 flex items-center justify-between rounded-2xl border border-terracotta/40 bg-terracotta/10 px-4 py-3 text-sm font-semibold text-terracotta transition-colors hover:border-terracotta"
+            >
+              <span>File à valider — brouillons IA en attente</span>
+              <span className="rounded-full bg-terracotta px-2.5 py-0.5 text-xs text-white">
+                {pendingCount}
+              </span>
+            </Link>
+          )}
+
           <form className="mt-3 flex flex-wrap gap-2" method="get">
             <input
               name="q"
@@ -151,7 +184,9 @@ export default async function AdminExercicesPage({
               className="rounded-xl border border-cream-dark bg-white px-3 py-2 text-sm"
             >
               <option value="">Tous les statuts</option>
-              <option value="a_valider">À valider</option>
+              <option value="a_valider">
+                À valider{pendingCount ? ` (${pendingCount})` : ""}
+              </option>
               <option value="publie">Publié</option>
               <option value="brouillon">Brouillon</option>
               <option value="archive">Archivé</option>
@@ -165,26 +200,48 @@ export default async function AdminExercicesPage({
           </form>
 
           <div className="mt-3 flex flex-col gap-2">
-            {filtered.map((ex) => (
-              <Link
-                key={ex.id}
-                href={`/admin-produit/exercices/${ex.id}`}
-                className="rounded-2xl border border-cream-dark bg-white p-4 transition-colors hover:border-teal"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="font-medium">
-                    {ex.theme.label} · {ex.autonomyScale.code}/p{ex.tier} —{" "}
-                    {ex.name}
+            {filtered.map((ex) => {
+              const isAiPending =
+                ex.status === "a_valider" ||
+                ex.validatedBy === CSV_IMPORT_VALIDATED_BY;
+              return (
+                <Link
+                  key={ex.id}
+                  href={`/admin-produit/exercices/${ex.id}`}
+                  className={`rounded-2xl border bg-white p-4 transition-colors hover:border-teal ${
+                    ex.status === "a_valider"
+                      ? "border-terracotta/40"
+                      : "border-cream-dark"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-medium">
+                      {ex.theme.label} · {ex.autonomyScale.code}/p{ex.tier} —{" "}
+                      {ex.name}
+                    </p>
+                    <span className="flex flex-wrap items-center gap-2">
+                      {isAiPending && (
+                        <span className="rounded-full bg-cream-dark px-2 py-0.5 text-xs font-semibold text-text-muted">
+                          IA
+                        </span>
+                      )}
+                      <span
+                        className={`text-xs font-semibold ${
+                          ex.status === "a_valider"
+                            ? "text-terracotta"
+                            : "text-teal-dark"
+                        }`}
+                      >
+                        {STATUS_LABEL[ex.status] ?? ex.status}
+                      </span>
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-text-muted line-clamp-1">
+                    {ex.objective}
                   </p>
-                  <span className="text-xs font-semibold text-teal-dark">
-                    {STATUS_LABEL[ex.status] ?? ex.status}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-text-muted line-clamp-1">
-                  {ex.objective}
-                </p>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
             {filtered.length === 0 && (
               <Card>
                 <p className="text-sm text-text-muted">
