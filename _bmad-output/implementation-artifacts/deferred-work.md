@@ -1,5 +1,9 @@
 # Deferred work
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-multi-exercices-visite-post-outcome.md`
+  summary: CAP-4 — lier tous les outcomes d’une session au check-in / VisitSession pour « Mes dernières visites » et timeline pro
+  evidence: Hors slice UI post-outcome ; `VisitCheckIn` et `ExerciseAttempt` non reliés aujourd’hui ; schéma + surfaces historique à traiter à part.
+
 - source_spec: `_bmad-output/implementation-artifacts/spec-community-facebook-formats.md`
   summary: Templates / teasers article ne renseignent pas encore couleurs, scène ni channelsJson
   evidence: `applyTemplateToDraftAction` et créations teaser créent des drafts sans les nouveaux champs ; preview retombe sur défauts IG.

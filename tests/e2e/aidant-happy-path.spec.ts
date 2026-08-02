@@ -52,6 +52,25 @@ test.describe("Aidant happy path", () => {
       page.getByRole("button", { name: /S'habiller/i })
     ).toContainText(/Exercice prêt/i);
 
+    // Post-outcome : proposer un autre exercice (pas de sortie auto)
+    await page.getByRole("button", { name: /Fauteuil/i }).click();
+    await page.getByRole("button", { name: /^Réussi$/i }).click();
+    await expect(
+      page.getByText(/C'est noté — un autre exercice/i)
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Faire un autre exercice/i })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Terminer la visite/i })
+    ).toBeVisible();
+    await page.getByRole("button", { name: /Faire un autre exercice/i }).click();
+    await expect(
+      page.getByRole("heading", {
+        name: /Que souhaitez-vous travailler aujourd/i,
+      })
+    ).toBeVisible();
+
     await page.goto("/aidant/question");
     await expect(page).toHaveURL(/\/aidant\/question/);
 

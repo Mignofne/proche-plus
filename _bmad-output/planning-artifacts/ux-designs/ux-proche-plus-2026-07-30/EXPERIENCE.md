@@ -251,7 +251,7 @@ Invariant : filtre `establishmentId` partout ; RLS Postgres recommandé en prod 
 | Parcours admin « inbox zéro » (actions d’abord) | Dashboard vanity metrics pour le soignant |
 | Checklists visite terrain (étapes visibles) | App enfant / gamification sticker |
 | Dossier éducatif partagé (consignes) | Second DPI / mesure GIR certifiante |
-| Liste courte post-thème (agency aidant) | Auto-lancer l’exercice courant puis « Visite terminée » |
+| Proposition simple en fin d’exercice | « Visite terminée » auto après le 1ᵉʳ outcome |
 
 ## Responsive & Platform
 
