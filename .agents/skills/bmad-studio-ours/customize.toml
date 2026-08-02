@@ -34,8 +34,13 @@ description = "Générer une nouvelle photo / illustration de l'ours"
 prompt = "Load and follow {skill-root}/workflows/generer-photo.md"
 
 [[agent.menu]]
+code = "VA"
+description = "Ours animé — flipbook keyframes (l'ours bouge)"
+prompt = "Load and follow {skill-root}/workflows/generer-video-animee.md"
+
+[[agent.menu]]
 code = "VD"
-description = "Générer une vidéo MP4 (stills C-v3 → Remotion storyboard)"
+description = "Vidéo diaporama Community (stills + titres Remotion)"
 prompt = "Load and follow {skill-root}/workflows/generer-video.md"
 
 [[agent.menu]]

@@ -66,8 +66,11 @@ Reject (explain in FR, do not generate) if the brief violates S1–S9 / §5 — 
 | Intent | Workflow |
 |---|---|
 | Photo / illustration / still | `workflows/generer-photo.md` |
-| Vidéo / MP4 / storyboard Remotion | `workflows/generer-video.md` — **doit** produire un fichier `.mp4` |
+| **Ours animé** (l’ours bouge) | `workflows/generer-video-animee.md` → `ProchePlusFlipbook` |
+| Vidéo diaporama Community | `workflows/generer-video.md` → `ProchePlusStoryboard` |
 | Unclear | Show menu from `customize.toml`, wait |
+
+Si l’utilisateur dit « animé / qui bouge / motion » → **VA** (flipbook), pas le diaporama.
 
 ### Step 6: Deliver
 

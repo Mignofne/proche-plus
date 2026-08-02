@@ -1,28 +1,33 @@
-# Studio Ours — Top chrono 15
+# Studio Ours — Top chrono 15 (ours animé)
 
 **Exercice :** Top chrono 15 (Les Exercices Assis · A · Palier 1)  
 **Source UI :** prévisualisation aidant (proche-plus.vercel.app)  
-**Canon :** C-v3
+**Canon :** C-v3  
+**Mode :** **flipbook animé** (`ProchePlusFlipbook`) — l’ours change de pose
 
-## Storyboard
+## Keyframes
 
-| # | Frames | Action | Titre | Sous-titre |
-|---|---|---|---|---|
-| 1 | 75 | Pieds / jambes assis | Top chrono 15 | Toutes les 15 minutes, on bouge un peu. |
-| 2 | 75 | Bras | Bras & jambes | Tends et plie — à ton rythme. |
-| 3 | 90 | Mains accoudoirs / assis↔debout | Assis ↔ debout | Mains sur les accoudoirs. On recommence dans 15 min. |
+| Frame | Action |
+|---|---|
+| f01 / f02 | Alternance pieds (tap assis) |
+| f03 / f04 | Bras tendus ↔ pliés |
+| f05 / f06 | Assis ↔ debout (accoudoirs) |
 
 ## Assets
 
-- `public/community-assets/ours-canon/generations/ours-video-topchrono15-beat{1,2,3}.png`
-- Props : `tmp/studio-ours/topchrono15-props.json`
-- MP4 : `tmp/community-renders/topchrono15-*.mp4` (~8 s, 9:16)
+- `public/community-assets/ours-canon/generations/ours-anim-topchrono-f{01..06}.png`
+- Props : `tmp/studio-ours/topchrono15-flipbook-props.json`
+- MP4 : `tmp/community-renders/topchrono15-anime-*.mp4` (9:16)
 
 ## Rendu
 
 ```bash
 npm run community:render-video -- \
-  --composition=ProchePlusStoryboard \
-  --props=tmp/studio-ours/topchrono15-props.json \
-  --slug=topchrono15
+  --composition=ProchePlusFlipbook \
+  --props=tmp/studio-ours/topchrono15-flipbook-props.json \
+  --slug=topchrono15-anime
 ```
+
+## Note
+
+Image→vidéo IA fluide (Seedance / équivalent) nécessite une clé API — non dispo dans l’env cloud actuelle. Flipbook = chemin produit sans clé.

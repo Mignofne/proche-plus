@@ -1,15 +1,19 @@
 import { Composition } from "remotion";
 import { ProchePlusShort } from "./ProchePlusShort";
+import { ProchePlusStoryboard } from "./ProchePlusStoryboard";
+import { ProchePlusFlipbook } from "./ProchePlusFlipbook";
 import {
-  ProchePlusStoryboard,
-} from "./ProchePlusStoryboard";
-import {
+  DEFAULT_FLIPBOOK_HOLD,
   DEFAULT_STORYBOARD_BEAT_FRAMES,
   REMOTION_COMPOSITION_ID,
+  REMOTION_FLIPBOOK_FACEBOOK_ID,
+  REMOTION_FLIPBOOK_ID,
   REMOTION_STORYBOARD_FACEBOOK_ID,
   REMOTION_STORYBOARD_ID,
   buildRemotionProps,
+  flipbookDurationInFrames,
   storyboardDurationInFrames,
+  type RemotionFlipbookProps,
   type RemotionInputProps,
   type RemotionStoryboardProps,
 } from "@/lib/community/video/remotion";
@@ -39,6 +43,18 @@ export const RemotionRoot: React.FC = () => {
         body: "Ensemble, sans se presser.",
         durationInFrames: DEFAULT_STORYBOARD_BEAT_FRAMES,
       },
+    ],
+  };
+
+  const defaultFlipbook: RemotionFlipbookProps = {
+    accent: "teal",
+    title: "Top chrono 15",
+    body: "On bouge un peu, toutes les 15 minutes.",
+    holdFrames: DEFAULT_FLIPBOOK_HOLD,
+    loops: 1,
+    endHoldFrames: 36,
+    frames: [
+      "/community-assets/ours-canon/scenes-referentiel/scene-cognitif.png",
     ],
   };
 
@@ -93,6 +109,30 @@ export const RemotionRoot: React.FC = () => {
             30,
             storyboardDurationInFrames(props.beats ?? [])
           ),
+        })}
+      />
+      <Composition
+        id={REMOTION_FLIPBOOK_ID}
+        component={ProchePlusFlipbook}
+        durationInFrames={flipbookDurationInFrames(defaultFlipbook)}
+        fps={30}
+        width={vertical.width}
+        height={vertical.height}
+        defaultProps={defaultFlipbook}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.max(30, flipbookDurationInFrames(props)),
+        })}
+      />
+      <Composition
+        id={REMOTION_FLIPBOOK_FACEBOOK_ID}
+        component={ProchePlusFlipbook}
+        durationInFrames={flipbookDurationInFrames(defaultFlipbook)}
+        fps={30}
+        width={landscape.width}
+        height={landscape.height}
+        defaultProps={defaultFlipbook}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.max(30, flipbookDurationInFrames(props)),
         })}
       />
     </>

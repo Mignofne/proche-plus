@@ -107,3 +107,40 @@ export function getRenderInstructions(publicationId: string): string {
 export function getStoryboardRenderInstructions(propsPath: string): string {
   return `npm run community:render-video -- --composition=${REMOTION_STORYBOARD_ID} --props=${propsPath}`;
 }
+
+export const REMOTION_FLIPBOOK_ID = "ProchePlusFlipbook";
+export const REMOTION_FLIPBOOK_FACEBOOK_ID = "ProchePlusFlipbookFacebook";
+
+/** Frames Remotion par image flipbook (30 fps → ~6–7,5 ips perçues à 4–5) */
+export const DEFAULT_FLIPBOOK_HOLD = 5;
+
+/**
+ * Ours animé — suite de keyframes (même scène, poses successives).
+ * `loops` rejoue la séquence ; un hold final est ajouté hors loops dans Root.
+ */
+export type RemotionFlipbookProps = {
+  frames: string[];
+  holdFrames?: number;
+  title?: string;
+  body?: string;
+  accent?: "teal" | "sun" | "terracotta";
+  titleColor?: string;
+  subtitleColor?: string;
+  /** Nombre de passages sur la séquence de frames (défaut 2) */
+  loops?: number;
+  /** Frames supplémentaires figées sur la dernière pose */
+  endHoldFrames?: number;
+};
+
+export function flipbookDurationInFrames(
+  props: Pick<
+    RemotionFlipbookProps,
+    "frames" | "holdFrames" | "loops" | "endHoldFrames"
+  >
+): number {
+  const hold = props.holdFrames ?? DEFAULT_FLIPBOOK_HOLD;
+  const loops = Math.max(1, props.loops ?? 2);
+  const n = Math.max(1, props.frames.length);
+  const endHold = props.endHoldFrames ?? 30;
+  return n * hold * loops + endHold;
+}
