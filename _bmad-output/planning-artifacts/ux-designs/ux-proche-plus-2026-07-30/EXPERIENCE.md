@@ -114,8 +114,10 @@ Libellés d’outcome visite (matrice) **requis** : Réussi · Essai, avec diffi
 Libellés d’action legacy (transmission seule) : Réalisé avec succès · J’ai essayé · J’ai un doute · Demander de l’aide · Laisser une note.
 
 Microcopy **post-outcome** (session encore ouverte) :
-- Primaire : « Faire un autre exercice » → retour choix de thème
+- Primaire : « Continuer : {nom de l’exercice} » — exercice courant du **même thème** (après refresh advance/fallback) ; 1 tap pour enchaîner
+- Secondaire : « Autre thème » — déploie la liste des autres thèmes **sur la même page** (pas de détour)
 - Ghost : « Terminer la visite »
+- Si plus d’exercice sur le thème : masquer le primaire ; montrer directement les autres thèmes (ou seul Terminer)
 
 Pas de liste multi-exercices à l’entrée du thème dans ce périmètre.
 
@@ -125,11 +127,11 @@ Behavioral. Visuel dans `DESIGN.md.Components`.
 
 | Composant | Règles |
 |---|---|
-| Sélecteur de thème | Entrée obligatoire du mode visite (post check-in) ; thèmes avec au moins un exercice activé ; jamais auto-sélection silencieuse ; aussi la cible du CTA « Faire un autre exercice » |
+| Sélecteur de thème | Entrée obligatoire du mode visite (post check-in) ; thèmes avec au moins un exercice activé ; jamais auto-sélection silencieuse ; aussi inline post-outcome via « Autre thème » |
 | Progress visite | Legacy : barre d’étapes ; mode exercice : pas de fausse barre multi-exercices obligatoire |
 | CTA principal | Un seul au-dessus de la fold ; ≥ 48 px |
 | Chip / bouton d’outcome | En fin d’exercice ; un outcome primaire à la fois |
-| Écran post-outcome | Après outcome : confirmation + « Faire un autre exercice » + « Terminer la visite » — pas de redirection auto vers l’accueil |
+| Écran post-outcome | Confirmation + Continuer (exercice nommé, même thème) + Autre thème (liste inline) + Terminer — pas de redirection auto vers l’accueil ni détour liste thèmes |
 | Timeline éducative | Lecture seule pour aidant (résumé simple) ; éditable / complète pour pro |
 | GIR badge | Affiché côté pro comme **contexte** ; pas de sparkline d’évolution MVP |
 | Action queue row | Tap → détail actionnable ; compteur si > 0 |
@@ -218,7 +220,7 @@ Invariant : filtre `establishmentId` partout ; RLS Postgres recommandé en prod 
 2. Lit la transmission si besoin → lance **Mode visite** → check-in fatigue/douleur OK.
 3. **Choisit un thème** (ex. Fauteuil) — même s’il n’y en a qu’un, le choix reste explicite.
 4. Voit l’**exercice courant** (objectif, étapes, peut / ne doit pas) → **Réussi / Essai / Échec**.
-5. **Climax** : « C’est noté — un autre exercice ? » — il tape **Faire un autre exercice** → revient aux thèmes, choisit Communication, fait le 2ᵉ.
+5. **Climax** : « C’est noté — un autre exercice ? » — il voit **Continuer : [exercice Fauteuil suivant]** ; ou tape **Autre thème** → Communication sur la même page → fait le 2ᵉ.
 6. Il tape **Terminer la visite** → message calme de confirmation → accueil.
 7. J+1 : feedback optionnel en 2 taps.
 
