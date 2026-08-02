@@ -89,9 +89,11 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
   const [themeId, setThemeId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [done, setDone] = useState<string | null>(null);
+  const [visitEnded, setVisitEnded] = useState(false);
   const [note, setNote] = useState("");
 
   const exercise = themeId ? data.exercisesByTheme[themeId] : null;
+  const canDoAnother = data.themes.length > 0;
 
   function record(outcome: "reussi" | "essai" | "echec") {
     if (!exercise) return;
@@ -102,20 +104,64 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
         note: note.trim() || undefined,
         transmissionId: data.transmissionId,
       });
+      // Rafraîchir les exercices courants (advance/fallback) avant un éventuel enchaînement
+      router.refresh();
       setDone(result.message);
     });
   }
 
-  if (done) {
+  function startAnotherExercise() {
+    setDone(null);
+    setThemeId(null);
+    setNote("");
+    router.refresh();
+  }
+
+  if (visitEnded) {
     return (
       <div className="mx-auto min-h-dvh max-w-lg bg-cream">
         <AppHeader title="Visite terminée" backHref="/aidant" />
         <main className="flex flex-col items-center gap-6 p-6 text-center">
           <Mascot pose="celebrate" />
-          <p className="text-lg font-medium">{done}</p>
+          <p className="text-lg font-medium">
+            Merci — votre retour aide l&apos;équipe pour la suite.
+          </p>
           <Button onClick={() => router.push("/aidant")} fullWidth>
             Retour à l&apos;accueil
           </Button>
+        </main>
+      </div>
+    );
+  }
+
+  if (done) {
+    return (
+      <div className="mx-auto min-h-dvh max-w-lg bg-cream">
+        <AppHeader title="Mode visite" backHref="/aidant" />
+        <main className="flex flex-col items-center gap-6 p-6 text-center">
+          <Mascot pose="celebrate" />
+          <div className="flex flex-col gap-2">
+            <p className="text-lg font-medium">
+              {canDoAnother
+                ? "C'est noté — un autre exercice ?"
+                : "C'est noté."}
+            </p>
+            <p className="text-sm text-text-muted">{done}</p>
+          </div>
+          <div className="flex w-full flex-col gap-3">
+            {canDoAnother && (
+              <Button onClick={startAnotherExercise} fullWidth>
+                Faire un autre exercice
+              </Button>
+            )}
+            <Button
+              variant={canDoAnother ? "ghost" : "primary"}
+              onClick={() => setVisitEnded(true)}
+              fullWidth
+            >
+              Terminer la visite
+            </Button>
+          </div>
         </main>
       </div>
     );

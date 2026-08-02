@@ -6,7 +6,7 @@ sources:
   - docs/Proche+_Specs_Fonctionnelles_Architecture.md
   - docs/project-context.md
   - _bmad-output/planning-artifacts/ux-designs/ux-proche-plus-2026-07-30/.memlog.md
-updated: 2026-07-30
+updated: 2026-08-02
 colors:
   surface-base: '#FAF7F2'
   surface-raised: '#FFFFFF'
@@ -142,7 +142,8 @@ Coins `{rounded.md}`–`{rounded.xl}` (chaleureux, pas « pill » systématique)
 - **Bouton primaire** — teal, ≥ 48×48, libellé verbe d’action (« Réalisé avec succès », « Suivant », « Consulter »).
 - **Bouton secondaire** — sun.
 - **Carte section** — titre teal-dark + corps ; utilisée pour « À retenir / À essayer / À éviter ».
-- **Barre de progression visite** — track muted, fill teal ; étapes numérotées accessibles (pas seulement couleur).
+- **Barre de progression visite** — track muted, fill teal ; étapes numérotées accessibles (pas seulement couleur) — legacy / étapes fixes.
+- **Écran post-outcome** — mascotte encourage / celebrate courte ; CTA primaire teal « Faire un autre exercice » + ghost « Terminer la visite » — pas de carte dashboard, pas de multi-CTA.
 - **Timeline éducative (pro)** — étapes textuelles : transmis → consulté → essayé / réalisé / doute → feedback → acquis.
 - **File d’actions (admin établissement)** — lignes prioritaires cliquables, badge compteur.
 - **KPI card (admin produit)** — métrique + cible + écart ; pas de détail patient.
