@@ -49,8 +49,15 @@ test.describe("Aidant happy path", () => {
     await expect(
       page.getByText(/aide l.équipe à adapter la prochaine visite/i)
     ).toBeVisible();
+    // Retour système (Android) : exercice → liste des thèmes (pas le choix du proche)
+    await page.goBack();
+    await expect(
+      page.getByRole("heading", {
+        name: /Que souhaitez-vous travailler aujourd/i,
+      })
+    ).toBeVisible();
+    await expect(page).toHaveURL(/patientId=/);
     // Référentiel complet : d'autres thèmes niveau C doivent être prêts
-    await page.getByRole("button", { name: /Changer de thème/i }).click();
     await expect(
       page.getByRole("button", { name: /S'habiller/i })
     ).toContainText(/Exercice prêt/i);
