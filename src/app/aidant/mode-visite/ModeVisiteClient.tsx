@@ -18,6 +18,13 @@ import {
 import { ChangeProcheLink } from "./ChangeProcheLink";
 import { VisitCheckInGate } from "./VisitCheckInGate";
 import { useVisitSession } from "./VisitSessionContext";
+import { useVisitHistoryListener } from "./useVisitHistoryListener";
+import {
+  isVisitHistoryState,
+  pushVisitHistory,
+  replaceVisitHistory,
+  type VisitHistoryState,
+} from "./visitHistory";
 
 /** Remonte en haut après un changement d'écran (évite d'atterrir sur les boutons de bilan). */
 function scrollViewportToTop() {
@@ -110,6 +117,57 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
     scrollViewportToTop();
   }, [themeId, done, visitEnded]);
 
+  function applyHistoryState(state: VisitHistoryState) {
+    switch (state.screen) {
+      case "themes":
+      case "checkin":
+        setVisitEnded(false);
+        setDone(null);
+        setThemeId(null);
+        setNote("");
+        break;
+      case "exercise":
+        setVisitEnded(false);
+        setDone(null);
+        setThemeId(state.themeId ?? null);
+        break;
+      case "done":
+        setVisitEnded(false);
+        setThemeId(state.themeId ?? themeId);
+        setDone(state.doneMessage ?? "C'est noté.");
+        break;
+      case "ended":
+        setVisitEnded(true);
+        break;
+      default:
+        break;
+    }
+  }
+
+  useVisitHistoryListener(applyHistoryState);
+
+  function selectTheme(id: string) {
+    pushVisitHistory({ screen: "exercise", themeId: id });
+    setDone(null);
+    setThemeId(id);
+  }
+
+  function backToThemes() {
+    // Aligne le bouton UI sur le retour système (évite une pile d'historique orpheline).
+    const current = window.history.state;
+    if (
+      isVisitHistoryState(current) &&
+      (current.screen === "exercise" || current.screen === "done")
+    ) {
+      window.history.back();
+      return;
+    }
+    replaceVisitHistory({ screen: "themes" });
+    setThemeId(null);
+    setDone(null);
+    setNote("");
+  }
+
   function record(outcome: "reussi" | "essai" | "echec") {
     if (!exercise) return;
     startTransition(async () => {
@@ -122,15 +180,26 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
       });
       // Rafraîchir les exercices courants (advance/fallback) avant un éventuel enchaînement
       router.refresh();
+      pushVisitHistory({
+        screen: "done",
+        themeId,
+        doneMessage: result.message,
+      });
       setDone(result.message);
     });
   }
 
   function startAnotherExercise() {
+    replaceVisitHistory({ screen: "themes" });
     setDone(null);
     setThemeId(null);
     setNote("");
     router.refresh();
+  }
+
+  function endVisit() {
+    pushVisitHistory({ screen: "ended", themeId });
+    setVisitEnded(true);
   }
 
   if (visitEnded) {
@@ -172,7 +241,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
             )}
             <Button
               variant={canDoAnother ? "ghost" : "primary"}
-              onClick={() => setVisitEnded(true)}
+              onClick={endVisit}
               fullWidth
             >
               Terminer la visite
@@ -221,7 +290,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => setThemeId(t.id)}
+                    onClick={() => selectTheme(t.id)}
                     className="flex items-center gap-3 rounded-2xl border border-teal/40 bg-teal/5 p-4 text-left transition-colors hover:border-teal"
                   >
                     <span className="text-2xl" aria-hidden>
@@ -265,7 +334,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
               </p>
             )}
           </Card>
-          <Button variant="ghost" onClick={() => setThemeId(null)} fullWidth>
+          <Button variant="ghost" onClick={backToThemes} fullWidth>
             ← Choisir un autre thème
           </Button>
         </main>
@@ -281,7 +350,7 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
           {data.canChangeProche && <ChangeProcheLink />}
           <button
             type="button"
-            onClick={() => setThemeId(null)}
+            onClick={backToThemes}
             className="text-left text-sm text-teal"
           >
             ← Changer de thème

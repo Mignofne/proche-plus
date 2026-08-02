@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState, useTransition, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +12,7 @@ import {
 } from "@/lib/visit-checkin";
 import { ChangeProcheLink } from "./ChangeProcheLink";
 import { VisitSessionProvider } from "./VisitSessionContext";
+import { replaceVisitHistory } from "./visitHistory";
 
 function LevelPicker({
   label,
@@ -69,6 +70,13 @@ export function VisitCheckInGate({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
+  // Marque l'entrée courante (remplace, ne pousse pas) pour enchaîner thèmes/exercice.
+  useEffect(() => {
+    if (phase === "form") {
+      replaceVisitHistory({ screen: "checkin" });
+    }
+  }, [phase]);
+
   useLayoutEffect(() => {
     if (phase === "ok" || phase === "blocked") {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -92,7 +100,15 @@ export function VisitCheckInGate({
           transmissionId,
         });
         setCheckInId(result.checkInId);
-        setPhase(result.blocked ? "blocked" : "ok");
+        // Remplace le check-in : retour depuis les thèmes = page d'avant (proche / accueil),
+        // pas le formulaire déjà validé.
+        if (result.blocked) {
+          replaceVisitHistory({ screen: "blocked" });
+          setPhase("blocked");
+        } else {
+          replaceVisitHistory({ screen: "themes" });
+          setPhase("ok");
+        }
       } catch {
         setError(
           "Impossible d'enregistrer le check-in. Vérifiez la connexion et réessayez."
