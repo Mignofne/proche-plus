@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function LegalFooter() {
   return (
-    <footer className="border-t border-cream-dark bg-cream px-4 py-6">
+    <footer className="[overflow-anchor:none] border-t border-cream-dark bg-cream px-4 py-6">
       <nav
         aria-label="Informations légales"
         className="mx-auto flex max-w-5xl flex-wrap justify-center gap-x-5 gap-y-3 text-sm"

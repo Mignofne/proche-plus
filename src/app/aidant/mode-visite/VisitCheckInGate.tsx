@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
+import { useLayoutEffect, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
@@ -68,6 +68,14 @@ export function VisitCheckInGate({
   const [checkInId, setCheckInId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
+
+  useLayoutEffect(() => {
+    if (phase === "ok" || phase === "blocked") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  }, [phase]);
 
   function confirm() {
     if (fatigue === null || pain === null) {

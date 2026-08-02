@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useLayoutEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Mascot } from "@/components/mascot/Mascot";
 import { Button } from "@/components/ui/Button";
@@ -18,6 +18,13 @@ import {
 import { ChangeProcheLink } from "./ChangeProcheLink";
 import { VisitCheckInGate } from "./VisitCheckInGate";
 import { useVisitSession } from "./VisitSessionContext";
+
+/** Remonte en haut après un changement d'écran (évite d'atterrir sur les boutons de bilan). */
+function scrollViewportToTop() {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+}
 
 type ThemeOption = {
   id: string;
@@ -96,6 +103,12 @@ function ExerciseModeVisite({ data }: { data: ExerciseVisitData }) {
 
   const exercise = themeId ? data.exercisesByTheme[themeId] : null;
   const canDoAnother = data.themes.length > 0;
+
+  // Au clic thème → exercice, le contenu s'allonge : sans reset, le scroll
+  // (et l'ancrage CSS vers le footer) laisse l'écran sur les boutons Réussi/Échec.
+  useLayoutEffect(() => {
+    scrollViewportToTop();
+  }, [themeId, done, visitEnded]);
 
   function record(outcome: "reussi" | "essai" | "echec") {
     if (!exercise) return;
