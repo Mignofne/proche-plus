@@ -2,6 +2,9 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { parse } from "csv-parse/sync";
 import type { AutonomyLevel, PrismaClient } from "@prisma/client";
+import { CSV_IMPORT_VALIDATED_BY } from "../src/lib/exercises/constants";
+
+export { CSV_IMPORT_VALIDATED_BY };
 
 const THEMES = [
   { slug: "habillage", label: "S'habiller", icon: "🧥", displayOrder: 1 },
@@ -170,9 +173,9 @@ export async function seedExerciseCatalog(prisma: PrismaClient) {
  */
 export async function ensureExerciseCatalog(prisma: PrismaClient) {
   await ensureThemesAndScales(prisma);
-  const { upserted } = await syncExercisesFromReferentiel(prisma);
+  const { upserted, realigned } = await syncExercisesFromReferentiel(prisma);
   await ensureDemoPatientExercises(prisma);
-  return { seeded: upserted > 0, upserted };
+  return { seeded: upserted > 0, upserted, realigned };
 }
 
 async function ensureThemesAndScales(prisma: PrismaClient) {
@@ -202,6 +205,7 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
   const scaleByCode = Object.fromEntries(scales.map((s) => [s.code, s]));
 
   let upserted = 0;
+  let realigned = 0;
 
   for (const ex of catalog) {
     const theme = themeBySlug[ex.themeSlug];
@@ -217,8 +221,28 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
       orderBy: { updatedAt: "desc" },
     });
 
-    // Ne jamais écraser un exercice déjà présent (éditions admin conservées)
-    if (existing) continue;
+    if (existing) {
+      // Ancien import a publié les brouillons IA : les remettre en file à valider
+      // sans toucher aux exercices validés par un admin produit.
+      if (
+        ex.status === "a_valider" &&
+        existing.status !== "a_valider" &&
+        existing.status !== "archive" &&
+        (existing.validatedBy === CSV_IMPORT_VALIDATED_BY ||
+          existing.validatedBy === null)
+      ) {
+        await prisma.exercise.update({
+          where: { id: existing.id },
+          data: {
+            status: "a_valider",
+            validatedBy: null,
+            validatedAt: null,
+          },
+        });
+        realigned += 1;
+      }
+      continue;
+    }
 
     const created = await prisma.exercise.create({
       data: {
@@ -236,7 +260,7 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
         alertOnFailure: ex.levelCode === "A",
         status: ex.status,
         validatedBy:
-          ex.status === "publie" ? "Référentiel APA (import CSV)" : null,
+          ex.status === "publie" ? CSV_IMPORT_VALIDATED_BY : null,
         validatedAt: ex.status === "publie" ? new Date() : null,
         onPartialExerciseId: null,
       },
@@ -248,7 +272,7 @@ async function syncExercisesFromReferentiel(prisma: PrismaClient) {
     upserted += 1;
   }
 
-  return { upserted, catalogCount: catalog.length };
+  return { upserted, realigned, catalogCount: catalog.length };
 }
 
 /** Active les exercices publiés (palier 1) au niveau de chaque patient suivi. */
