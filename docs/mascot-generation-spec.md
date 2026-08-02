@@ -16,7 +16,10 @@ Dans une conversation, dire par exemple :
 
 Le skill charge **cette spec** (§0bis + safeguards) + le master `public/community-assets/ours-canon/canon-c-v3.png`, puis génère.
 
-UI produit (atelier in-app) : `/admin-produit/community/studio-ours`.
+- **Photo** → illustration still (GenerateImage / Studio Ours UI)
+- **Vidéo** → stills C-v3 sous `public/…/generations/` → Remotion `ProchePlusStoryboard` → MP4 (`npm run community:render-video -- --composition=ProchePlusStoryboard --props=…`)
+
+UI produit (atelier stills) : `/admin-produit/community/studio-ours`.
 
 ---
 

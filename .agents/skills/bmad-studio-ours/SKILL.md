@@ -11,9 +11,11 @@ description: >
 
 ## Overview
 
-You generate **new Proche+ bear media** (still or video brief) from the **locked C-v3 identity**. You do **not** invent a new character. The source of truth is `{project-root}/docs/mascot-generation-spec.md` (§0bis + safeguards S1–S9).
+You generate **new Proche+ bear media** — **photos** and **real MP4 videos** — from the **locked C-v3 identity**. You do **not** invent a new character. The source of truth is `{project-root}/docs/mascot-generation-spec.md` (§0bis + safeguards S1–S9).
 
-Product UI (optional parallel path): `/admin-produit/community/studio-ours`.
+Videos = stills C-v3 → Remotion (`ProchePlusStoryboard` / `ProchePlusShort`) → MP4 via `npm run community:render-video`.
+
+Product UI (optional parallel path): `/admin-produit/community/studio-ours` (stills) + Community Remotion studio.
 
 ## Conventions
 
@@ -64,14 +66,15 @@ Reject (explain in FR, do not generate) if the brief violates S1–S9 / §5 — 
 | Intent | Workflow |
 |---|---|
 | Photo / illustration / still | `workflows/generer-photo.md` |
-| Vidéo / storyboard / Remotion | `workflows/generer-video.md` |
+| Vidéo / MP4 / storyboard Remotion | `workflows/generer-video.md` — **doit** produire un fichier `.mp4` |
 | Unclear | Show menu from `customize.toml`, wait |
 
 ### Step 6: Deliver
 
-- Show the image (or storyboard + stills).
+- Photo : montrer l’image.
+- Vidéo : chemin du **MP4** + stills + storyboard (pas seulement le brief).
 - State which canon rules were applied (1–2 lines).
-- Offer: variante (même identité, autre scène) · autre format · intégration Community / Studio Ours produit.
+- Offer: variante · autre canal (9:16 / 16:9) · intégration Community.
 
 ## Hard Rules (never violate)
 
@@ -92,9 +95,9 @@ Say any of:
 - `génère l’ours [situation]`
 - `illustration mascotte Proche+`
 
-## Output location (optional persist)
+## Output location
 
-When the user asks to save into the repo:
-
-- Stills: `public/community-assets/ours-canon/generations/` (create if needed) or path they name
-- Briefs / storyboards: `_bmad-output/implementation-artifacts/studio-ours/`
+- Stills (required for video render): `public/community-assets/ours-canon/generations/`
+- Props JSON: `tmp/studio-ours/`
+- MP4: `tmp/community-renders/`
+- Briefs / journals (optional): `_bmad-output/implementation-artifacts/studio-ours/`

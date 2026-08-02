@@ -15,6 +15,11 @@ import {
 import type { CommunitySocialChannel } from "@prisma/client";
 
 export const REMOTION_COMPOSITION_ID = "ProchePlusShort";
+export const REMOTION_STORYBOARD_ID = "ProchePlusStoryboard";
+export const REMOTION_STORYBOARD_FACEBOOK_ID = "ProchePlusStoryboardFacebook";
+
+/** Frames par beat storyboard (30 fps → 2 s) */
+export const DEFAULT_STORYBOARD_BEAT_FRAMES = 60;
 
 export type RemotionInputProps = {
   title: string;
@@ -29,6 +34,32 @@ export type RemotionInputProps = {
   /** @deprecated — conservé pour compat props anciennes */
   poseSrc?: string;
 };
+
+/** Un plan d’une vidéo multi-stills (Studio Ours → Remotion) */
+export type RemotionStoryboardBeat = {
+  /** Chemin sous `public/` (ex. `/community-assets/ours-canon/generations/…`) */
+  sceneSrc: string;
+  title?: string;
+  body?: string;
+  durationInFrames?: number;
+};
+
+export type RemotionStoryboardProps = {
+  beats: RemotionStoryboardBeat[];
+  accent?: "teal" | "sun" | "terracotta";
+  titleColor?: string;
+  subtitleColor?: string;
+};
+
+export function storyboardDurationInFrames(
+  beats: RemotionStoryboardBeat[]
+): number {
+  if (!beats.length) return DEFAULT_STORYBOARD_BEAT_FRAMES;
+  return beats.reduce(
+    (sum, b) => sum + (b.durationInFrames ?? DEFAULT_STORYBOARD_BEAT_FRAMES),
+    0
+  );
+}
 
 export function buildRemotionProps(params: {
   title: string;
@@ -70,4 +101,9 @@ export function videoFormatForChannel(
 
 export function getRenderInstructions(publicationId: string): string {
   return `Rendu hors route courte : npm run community:render-video -- --publicationId=${publicationId}`;
+}
+
+/** Instructions rendu storyboard Studio Ours (props JSON local) */
+export function getStoryboardRenderInstructions(propsPath: string): string {
+  return `npm run community:render-video -- --composition=${REMOTION_STORYBOARD_ID} --props=${propsPath}`;
 }

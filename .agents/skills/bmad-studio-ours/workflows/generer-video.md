@@ -1,48 +1,104 @@
-# Workflow — VD Générer / préparer une vidéo
+# Workflow — VD Générer une vidéo (MP4)
 
 ## Goal
 
-Préparer une **vidéo ours** cohérente C-v3 : storyboard + stills clés, puis chemin produit Remotion si publication Community.
+Livrer une **vraie vidéo MP4** de l’ours Proche+ (canon C-v3) via Remotion : stills → storyboard → rendu.
 
-## Contexte produit
+## Pipeline
 
-- Formats : `src/lib/community/formats.ts` (`video-9-16` TikTok défaut ; `video-16-9` Facebook)
-- Remotion : `src/lib/community/video/remotion.ts`
-- Rendu CLI : `npm run community:render-video -- --publicationId=…` (quand une publication existe)
+```
+brief → stills C-v3 (GenerateImage) → props JSON → remotion render → MP4
+```
 
-Ce skill **ne remplace pas** le pipeline Remotion production ; il livre le **matériel visuel + brief** pour une vidéo fidèle au canon.
+| Élément | Chemin |
+|---|---|
+| Composition verticale | `ProchePlusStoryboard` (9:16) |
+| Composition paysage | `ProchePlusStoryboardFacebook` (16:9) |
+| Short 1 plan (~3 s) | `ProchePlusShort` (+ `sceneSrc` custom) |
+| Stills | `public/community-assets/ours-canon/generations/` |
+| Props | `tmp/studio-ours/<slug>-props.json` |
+| MP4 | `tmp/community-renders/<slug>-….mp4` |
+| CLI | `npm run community:render-video -- --composition=… --props=… --slug=…` |
 
 ## Steps
 
-1. **Brief vidéo** — situation · émotion · lieu · durée cible (ex. 8–15 s) · canal (TikTok 9:16 / FB 16:9 / IG) · message texte overlay (optionnel, court).
+1. **Brief** — situation · émotion · lieu · canal (TikTok 9:16 défaut / Facebook 16:9) · titre + sous-titre courts (optionnel) · durée cible (~4–8 s = 2–4 beats).
 
-2. **Gate** — mêmes règles photo (S1–S9, jamais au sol, jamais humains).
+2. **Gate** — `references/canon-rapide.md` + S1–S9. Refus FR si violation.
 
-3. **Storyboard** (3–5 beats max) — tableau :
+3. **Storyboard** (2–4 beats) :
 
-   | # | Temps | Action ours | Plan | Texte overlay (si) |
+   | # | Frames (30fps) | Action ours | Titre | Sous-titre |
    |---|---|---|---|---|
-   | 1 | … | … | … | … |
+   | 1 | 60 | … | … | … |
 
-   Une intention narrative claire. Pas de geste médical.
+4. **Stills** — pour chaque beat :
+   - suivre `workflows/generer-photo.md` (même identité, ratio canal)
+   - `reference_image_paths` = `canon-c-v3.png`
+   - **Copier** le PNG généré vers  
+     `public/community-assets/ours-canon/generations/ours-video-{slug}-beat{N}.png`
+   - chemin public : `/community-assets/ours-canon/generations/ours-video-{slug}-beat{N}.png`
 
-4. **Stills** — pour chaque beat clé (souvent 2–3) :
-   - suivre `workflows/generer-photo.md` (même identité)
-   - `aspect_ratio` = `9:16` ou `16:9` selon canal
-   - `reference_image_paths` = canon C-v3
-   - nommer `ours-video-{slug}-beat{N}.png`
+5. **Continuité** — même face / gilet / proportions. Regénérer si drift.
 
-5. **Continuité** — vérifier que les stills montrent le **même acteur** (face, gilet, proportions). Si drift → regénérer le beat fautif.
+6. **Props JSON** — écrire `tmp/studio-ours/{slug}-props.json` :
 
-6. **Livrer** :
-   - storyboard
-   - stills
-   - prompt / notes Remotion (props utiles : titres, format, our presence)
-   - si l’utilisateur veut intégrer Community : indiquer Studio posts / publication vidéo + commande render
+```json
+{
+  "accent": "teal",
+  "beats": [
+    {
+      "sceneSrc": "/community-assets/ours-canon/generations/ours-video-demo-beat1.png",
+      "title": "Titre court",
+      "body": "Sous-titre chaleureux",
+      "durationInFrames": 60
+    }
+  ]
+}
+```
 
-7. **Persist** (si demandé) — `_bmad-output/implementation-artifacts/studio-ours/video-{date}-{slug}.md` + assets sous `public/community-assets/ours-canon/generations/`.
+Variante **1 plan rapide** (composition `ProchePlusShort`) :
+
+```json
+{
+  "title": "Titre",
+  "body": "Sous-titre",
+  "poseKey": "encourage",
+  "accent": "teal",
+  "sceneSrc": "/community-assets/ours-canon/generations/ours-video-demo-beat1.png",
+  "bearEnabled": true
+}
+```
+
+7. **Rendre le MP4** :
+
+```bash
+mkdir -p tmp/studio-ours tmp/community-renders
+npm run community:render-video -- \
+  --composition=ProchePlusStoryboard \
+  --props=tmp/studio-ours/{slug}-props.json \
+  --slug={slug}
+```
+
+Facebook / paysage → `--composition=ProchePlusStoryboardFacebook`.
+
+8. **Livrer** :
+   - chemin du MP4 (`tmp/community-renders/…`)
+   - stills utilisés
+   - storyboard (tableau)
+   - proposer : variante · autre canal · intégration Community (Blob + `videoBlobUrl`)
+
+9. **Journal** (si demandé) — `_bmad-output/implementation-artifacts/studio-ours/video-{date}-{slug}.md`.
+
+## Variante sans nouvelles stills
+
+Si l’utilisateur veut une vidéo **immédiatement** avec le kit validé :
+
+- Utiliser des scènes `public/community-assets/ours-canon/scenes-referentiel/scene-*.png`
+- Même pipeline props → render (pas besoin de GenerateImage)
 
 ## Hors scope par défaut
 
 - Upload / publish réseaux sociaux
-- Amendement AD-11 (kit-only MVP Community vs gen en publication)
+- Worker Vercel / CI render
+- Amendement AD-11
