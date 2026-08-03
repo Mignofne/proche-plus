@@ -409,6 +409,64 @@ export async function bulkUpdateExerciseStatus(input: {
   return { updated: ids.length };
 }
 
+/** Change le niveau d’autonomie (appropriation patient) de plusieurs exercices. */
+export async function bulkUpdateExerciseAutonomy(input: {
+  exerciseIds: string[];
+  autonomyScaleId: string;
+}): Promise<{ updated: number; scaleLabel: string }> {
+  await requireFondateur();
+
+  const ids = [...new Set(input.exerciseIds.filter(Boolean))];
+  if (ids.length === 0) {
+    throw new Error("Sélectionnez au moins un exercice.");
+  }
+
+  const scale = await prisma.autonomyScale.findUnique({
+    where: { id: input.autonomyScaleId },
+  });
+  if (!scale || !scale.active) {
+    throw new Error("Niveau d'autonomie invalide.");
+  }
+
+  const existing = await prisma.exercise.findMany({
+    where: { id: { in: ids } },
+    select: { id: true },
+  });
+  if (existing.length !== ids.length) {
+    throw new Error("Un ou plusieurs exercices sont introuvables.");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.exercise.updateMany({
+      where: { id: { in: ids } },
+      data: { autonomyScaleId: scale.id },
+    });
+
+    // Retirer des parcours courants des patients dont le niveau ne correspond plus
+    await tx.patientExercise.updateMany({
+      where: {
+        exerciseId: { in: ids },
+        isCurrent: true,
+        patient: { autonomyLevel: { not: scale.patientEnum } },
+      },
+      data: { isCurrent: false, currentStatus: "acquis" },
+    });
+
+    for (const id of ids) {
+      await tx.auditLog.create({
+        data: {
+          action: "exercise.bulk_autonomy",
+          entity: "Exercise",
+          entityId: id,
+        },
+      });
+    }
+  });
+
+  revalidateCatalog();
+  return { updated: ids.length, scaleLabel: scale.label };
+}
+
 /** Suppression douce = archivage. Bloquée si transition active d'un publié. */
 export async function deleteExercise(exerciseId: string) {
   await requireFondateur();

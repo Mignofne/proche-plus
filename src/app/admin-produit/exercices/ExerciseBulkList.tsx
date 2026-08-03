@@ -5,7 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { bulkUpdateExerciseStatus } from "@/app/admin-produit/actions";
+import {
+  bulkUpdateExerciseAutonomy,
+  bulkUpdateExerciseStatus,
+} from "@/app/admin-produit/actions";
 import { CSV_IMPORT_VALIDATED_BY } from "@/lib/exercises/constants";
 
 const STATUS_LABEL: Record<string, string> = {
@@ -24,14 +27,28 @@ type ExerciseRow = {
   validatedBy: string | null;
   themeLabel: string;
   scaleCode: string;
+  scaleLabel: string;
 };
 
-export function ExerciseBulkList({ exercises }: { exercises: ExerciseRow[] }) {
+type ScaleOption = {
+  id: string;
+  code: string;
+  label: string;
+};
+
+export function ExerciseBulkList({
+  exercises,
+  scales,
+}: {
+  exercises: ExerciseRow[];
+  scales: ScaleOption[];
+}) {
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [targetStatus, setTargetStatus] = useState<
     "brouillon" | "a_valider" | "publie" | "archive"
   >("publie");
+  const [targetScaleId, setTargetScaleId] = useState(scales[0]?.id ?? "");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [pending, startTransition] = useTransition();
@@ -59,7 +76,7 @@ export function ExerciseBulkList({ exercises }: { exercises: ExerciseRow[] }) {
     });
   }
 
-  function apply() {
+  function applyStatus() {
     if (selected.size === 0) {
       setError("Sélectionnez au moins un exercice.");
       return;
@@ -88,6 +105,41 @@ export function ExerciseBulkList({ exercises }: { exercises: ExerciseRow[] }) {
     });
   }
 
+  function applyAutonomy() {
+    if (selected.size === 0) {
+      setError("Sélectionnez au moins un exercice.");
+      return;
+    }
+    if (!targetScaleId) {
+      setError("Choisissez un niveau patient.");
+      return;
+    }
+    setError("");
+    setMessage("");
+    const ids = [...selected];
+    startTransition(async () => {
+      try {
+        const result = await bulkUpdateExerciseAutonomy({
+          exerciseIds: ids,
+          autonomyScaleId: targetScaleId,
+        });
+        setSelected(new Set());
+        setMessage(
+          `${result.updated} exercice${result.updated > 1 ? "s" : ""} → ${
+            result.scaleLabel
+          }.`
+        );
+        router.refresh();
+      } catch (e) {
+        setError(
+          e instanceof Error
+            ? e.message
+            : "Impossible de changer le niveau patient."
+        );
+      }
+    });
+  }
+
   if (exercises.length === 0) {
     return (
       <Card>
@@ -100,50 +152,84 @@ export function ExerciseBulkList({ exercises }: { exercises: ExerciseRow[] }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 rounded-2xl border border-cream-dark bg-white/95 p-3 backdrop-blur">
-        <label className="flex items-center gap-2 text-sm font-medium">
-          <input
-            type="checkbox"
-            checked={allSelected}
-            onChange={toggleAll}
-            className="size-4 accent-teal"
-            aria-label="Tout sélectionner"
-          />
-          Tout ({exercises.length})
-        </label>
-        <span className="text-sm text-text-muted">
-          {selected.size} sélectionné{selected.size > 1 ? "s" : ""}
-        </span>
-        <select
-          value={targetStatus}
-          onChange={(e) =>
-            setTargetStatus(
-              e.target.value as typeof targetStatus
-            )
-          }
-          disabled={!someSelected || pending}
-          className="rounded-xl border border-cream-dark bg-white px-3 py-2 text-sm"
-          aria-label="Nouveau statut"
-        >
-          <option value="a_valider">À valider</option>
-          <option value="publie">Publié</option>
-          <option value="brouillon">Brouillon</option>
-          <option value="archive">Archivé</option>
-        </select>
-        <Button
-          size="sm"
-          onClick={apply}
-          disabled={!someSelected || pending}
-        >
-          {pending ? "Application…" : "Appliquer le statut"}
-        </Button>
+      <div className="sticky top-0 z-10 flex flex-col gap-2 rounded-2xl border border-cream-dark bg-white/95 p-3 backdrop-blur">
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleAll}
+              className="size-4 accent-teal"
+              aria-label="Tout sélectionner"
+            />
+            Tout ({exercises.length})
+          </label>
+          <span className="text-sm text-text-muted">
+            {selected.size} sélectionné{selected.size > 1 ? "s" : ""}
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+            Statut
+          </span>
+          <select
+            value={targetStatus}
+            onChange={(e) =>
+              setTargetStatus(e.target.value as typeof targetStatus)
+            }
+            disabled={!someSelected || pending}
+            className="rounded-xl border border-cream-dark bg-white px-3 py-2 text-sm"
+            aria-label="Nouveau statut"
+          >
+            <option value="a_valider">À valider</option>
+            <option value="publie">Publié</option>
+            <option value="brouillon">Brouillon</option>
+            <option value="archive">Archivé</option>
+          </select>
+          <Button
+            size="sm"
+            onClick={applyStatus}
+            disabled={!someSelected || pending}
+          >
+            {pending ? "Application…" : "Appliquer le statut"}
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+            Appropriation patient
+          </span>
+          <select
+            value={targetScaleId}
+            onChange={(e) => setTargetScaleId(e.target.value)}
+            disabled={!someSelected || pending || scales.length === 0}
+            className="min-w-48 rounded-xl border border-cream-dark bg-white px-3 py-2 text-sm"
+            aria-label="Niveau patient"
+          >
+            {scales.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.code} — {s.label}
+              </option>
+            ))}
+          </select>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={applyAutonomy}
+            disabled={!someSelected || pending || !targetScaleId}
+          >
+            {pending ? "Application…" : "Appliquer le niveau"}
+          </Button>
+        </div>
+
         {error && (
-          <p className="w-full text-sm font-medium text-terracotta" role="alert">
+          <p className="text-sm font-medium text-terracotta" role="alert">
             {error}
           </p>
         )}
         {message && (
-          <p className="w-full text-sm font-medium text-teal-dark" role="status">
+          <p className="text-sm font-medium text-teal-dark" role="status">
             {message}
           </p>
         )}
@@ -187,6 +273,9 @@ export function ExerciseBulkList({ exercises }: { exercises: ExerciseRow[] }) {
                         IA
                       </span>
                     )}
+                    <span className="text-xs font-semibold text-text-muted">
+                      {ex.scaleLabel}
+                    </span>
                     <span
                       className={`text-xs font-semibold ${
                         ex.status === "a_valider"

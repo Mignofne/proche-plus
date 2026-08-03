@@ -92,4 +92,63 @@ test.describe("Admin fondateur — CRUD référentiel", () => {
     await expect(page.getByRole("status")).toContainText(/À valider/i);
     await expect(page.getByText(nameA)).toBeVisible();
   });
+
+  test("peut changer le niveau patient de plusieurs exercices", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await loginUi(
+      page,
+      DEMO.fondateur.email,
+      DEMO.fondateur.password,
+      "fondateur"
+    );
+    await expect(page).toHaveURL(/\/admin-produit/);
+
+    const stamp = Date.now();
+    const nameA = `Bulk niveau A ${stamp}`;
+    const nameB = `Bulk niveau B ${stamp}`;
+
+    for (const name of [nameA, nameB]) {
+      await page.goto("/admin-produit/exercices/nouveau");
+      await expect(page.locator('input[name="name"]')).toBeVisible();
+      await page.locator('input[name="name"]').fill(name);
+      await page
+        .locator('textarea[name="objective"]')
+        .fill("Objectif test bulk niveau");
+      await page.getByLabel(/Étapes \/ guidance/i).fill("Étape 1");
+      await page.locator('select[name="status"]').selectOption("brouillon");
+      await page.getByRole("button", { name: /^Créer$/i }).click();
+      await expect(page).toHaveURL(/\/admin-produit\/exercices\/[^/]+$/);
+    }
+
+    await page.goto(
+      `/admin-produit/exercices?q=${encodeURIComponent(String(stamp))}`
+    );
+    await expect(
+      page.getByRole("heading", { name: /Référentiel exercices/i })
+    ).toBeVisible();
+
+    const applyBtn = page.getByRole("button", {
+      name: /Appliquer le niveau/i,
+    });
+    await expect(applyBtn).toBeDisabled();
+
+    await page.getByRole("checkbox", { name: `Sélectionner ${nameA}` }).check();
+    await page.getByRole("checkbox", { name: `Sélectionner ${nameB}` }).check();
+    await expect(applyBtn).toBeEnabled();
+
+    const levelSelect = page.getByLabel("Niveau patient");
+    const options = levelSelect.locator("option");
+    const optionCount = await options.count();
+    expect(optionCount).toBeGreaterThan(0);
+    // Choisir le dernier niveau pour forcer un changement visible
+    const lastValue = await options.nth(optionCount - 1).getAttribute("value");
+    const lastLabel = (await options.nth(optionCount - 1).textContent()) ?? "";
+    await levelSelect.selectOption(lastValue!);
+    await applyBtn.click();
+    await expect(page.getByRole("status")).toContainText(
+      new RegExp(lastLabel.split("—").pop()?.trim() || "Autonome", "i")
+    );
+  });
 });
