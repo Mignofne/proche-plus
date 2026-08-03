@@ -5,7 +5,7 @@ export const COMMUNITY_THEME_SEED = [
     slug: "vision-mission",
     label: "Vision & mission Proche+",
     description:
-      "Expliquer la raison d’être, les valeurs et le changement recherché pour les proches et les équipes.",
+      "Expliquer la raison d’être, les valeurs et le changement recherché : guidance verbale, autonomie préservée, sécurité partagée (sans portage délétère).",
     networks: ["instagram", "threads", "facebook", "blog"],
     formats: ["classique", "video", "article"],
     suggestedTags: [

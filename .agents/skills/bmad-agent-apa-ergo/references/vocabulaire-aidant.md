@@ -6,6 +6,9 @@
 - Tutoiement dans la guidance verbale (« Prends ton temps. », « Regarde où tu veux aller. »)
 - Verbes d'action concrets, une action par étape
 - Encouragement sans infantilisation
+- Consigne qui stimule la capacité restante (pas « fais à sa place »)
+
+Voir aussi `guidance-verbale.md` (principes + modalités Mode visite).
 
 ## À éviter
 

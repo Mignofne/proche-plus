@@ -11,6 +11,14 @@
 
 Le problème identifié n'est pas la transmission professionnel → aidant en tant que telle, mais l'**absence de boucle structurée** entre la réadaptation en établissement et les visites familiales. Le produit doit transformer la visite en **temps actif et sécurisé de réadaptation**, sans transformer le proche en soignant.
 
+**Guidance verbale** — technique d’accompagnement de la mobilité au cœur du Mode visite : guider la personne aidée **par la parole** pour préserver son autonomie et éviter tout portage délétère.
+
+| Principes / objectifs | Modalités |
+|---|---|
+| **Maintien de l’autonomie** — stimuler les capacités restantes plutôt que faire à la place | **Consignes claires** — annoncer chaque étape (« Avancez vos pieds », « Penchez-vous en avant ») |
+| **Sécurité partagée** — réduire l’effort de l’aidant, prévenir accidents et TMS | **Rythme respecté** — laisser le temps d’analyser et d’agir |
+| **Communication adaptée** — mots simples, précis, adaptés à l’état de conscience | **Association des aides** — voix + guidance non verbale (regard, toucher sécurisant) ou aide technique |
+
 **Boucle cœur de produit :**
 
 ```
