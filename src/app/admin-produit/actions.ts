@@ -323,6 +323,92 @@ export async function duplicateExercise(exerciseId: string) {
   redirect(`/admin-produit/exercices/${copy.id}`);
 }
 
+const PUBLICATION_STATUSES: ExercisePublicationStatus[] = [
+  "brouillon",
+  "a_valider",
+  "publie",
+  "archive",
+];
+
+/** Change le statut de plusieurs exercices d’un coup (référentiel admin produit). */
+export async function bulkUpdateExerciseStatus(input: {
+  exerciseIds: string[];
+  status: ExercisePublicationStatus;
+}): Promise<{ updated: number }> {
+  await requireFondateur();
+
+  const ids = [...new Set(input.exerciseIds.filter(Boolean))];
+  if (ids.length === 0) {
+    throw new Error("Sélectionnez au moins un exercice.");
+  }
+  if (!PUBLICATION_STATUSES.includes(input.status)) {
+    throw new Error("Statut invalide.");
+  }
+
+  const existing = await prisma.exercise.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, name: true },
+  });
+  if (existing.length !== ids.length) {
+    throw new Error("Un ou plusieurs exercices sont introuvables.");
+  }
+
+  if (input.status === "archive") {
+    const blockers = await prisma.exercise.findMany({
+      where: {
+        status: "publie",
+        id: { notIn: ids },
+        OR: [
+          { onSuccessExerciseId: { in: ids } },
+          { onPartialExerciseId: { in: ids } },
+          { onFailureExerciseId: { in: ids } },
+        ],
+      },
+      select: { name: true, onSuccessExerciseId: true, onPartialExerciseId: true, onFailureExerciseId: true },
+    });
+    if (blockers.length > 0) {
+      throw new Error(
+        `Impossible d'archiver : des exercices publiés référencent encore la sélection (${blockers
+          .map((b) => b.name)
+          .slice(0, 3)
+          .join(", ")}${blockers.length > 3 ? "…" : ""}).`
+      );
+    }
+  }
+
+  const now = new Date();
+  await prisma.$transaction(async (tx) => {
+    await tx.exercise.updateMany({
+      where: { id: { in: ids } },
+      data: {
+        status: input.status,
+        validatedBy: input.status === "publie" ? "Admin produit" : null,
+        validatedAt: input.status === "publie" ? now : null,
+      },
+    });
+
+    if (input.status === "archive") {
+      await tx.patientExercise.updateMany({
+        where: { exerciseId: { in: ids }, isCurrent: true },
+        data: { isCurrent: false, currentStatus: "acquis" },
+      });
+    }
+
+    for (const id of ids) {
+      await tx.auditLog.create({
+        data: {
+          action: "exercise.bulk_status",
+          entity: "Exercise",
+          entityId: id,
+        },
+      });
+    }
+  });
+
+  revalidateCatalog();
+  return { updated: ids.length };
+}
+
 /** Suppression douce = archivage. Bloquée si transition active d'un publié. */
 export async function deleteExercise(exerciseId: string) {
   await requireFondateur();
