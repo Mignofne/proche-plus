@@ -35,6 +35,7 @@ export function ExerciseForm({
     status: "brouillon" | "a_valider" | "publie" | "archive";
   };
 }) {
+  const isCreate = !initial;
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [steps, setSteps] = useState(initial?.steps.join("\n") ?? "");
@@ -42,15 +43,56 @@ export function ExerciseForm({
   const [mustNot, setMustNot] = useState(
     initial?.caregiverMustNot.join("\n") ?? ""
   );
+  const [selectedScaleIds, setSelectedScaleIds] = useState<Set<string>>(
+    () =>
+      new Set(
+        initial?.autonomyScaleId
+          ? [initial.autonomyScaleId]
+          : scales[0]
+            ? [scales[0].id]
+            : []
+      )
+  );
+
+  const allScalesSelected =
+    scales.length > 0 && scales.every((s) => selectedScaleIds.has(s.id));
+
+  function toggleScale(id: string) {
+    setSelectedScaleIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllScales() {
+    setSelectedScaleIds((prev) => {
+      if (scales.length > 0 && scales.every((s) => prev.has(s.id))) {
+        return new Set();
+      }
+      return new Set(scales.map((s) => s.id));
+    });
+  }
 
   function onSubmit(formData: FormData) {
     setError("");
+    const scaleIds = isCreate
+      ? [...selectedScaleIds]
+      : [String(formData.get("autonomyScaleId") || "")].filter(Boolean);
+
+    if (scaleIds.length === 0) {
+      setError("Sélectionnez au moins un niveau d'autonomie.");
+      return;
+    }
+
     startTransition(async () => {
       try {
         await saveExercise({
           id: initial?.id,
           themeId: String(formData.get("themeId")),
-          autonomyScaleId: String(formData.get("autonomyScaleId")),
+          autonomyScaleId: scaleIds[0],
+          autonomyScaleIds: isCreate ? scaleIds : undefined,
           tier: Number(formData.get("tier") || 1),
           name: String(formData.get("name")),
           objective: String(formData.get("objective")),
@@ -106,21 +148,58 @@ export function ExerciseForm({
         </select>
       </label>
 
-      <label className="block text-sm font-medium">
-        Niveau
-        <select
-          name="autonomyScaleId"
-          defaultValue={initial?.autonomyScaleId ?? scales[0]?.id}
-          className="mt-1 w-full rounded-xl border border-cream-dark bg-white p-3"
-          required
-        >
-          {scales.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      {isCreate ? (
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">
+            Appropriation patient (niveaux)
+          </legend>
+          <p className="text-xs text-text-muted">
+            Cochez tous les niveaux concernés — un exercice est créé par niveau
+            (ex. exercice assis pour A à E).
+          </p>
+          <label className="flex items-center gap-2 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={allScalesSelected}
+              onChange={toggleAllScales}
+              className="size-4 accent-teal"
+            />
+            Tous les niveaux ({scales.length})
+          </label>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {scales.map((s) => (
+              <label
+                key={s.id}
+                className="flex items-center gap-2 rounded-xl border border-cream-dark bg-white px-3 py-2 text-sm"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedScaleIds.has(s.id)}
+                  onChange={() => toggleScale(s.id)}
+                  className="size-4 accent-teal"
+                />
+                {s.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ) : (
+        <label className="block text-sm font-medium">
+          Niveau
+          <select
+            name="autonomyScaleId"
+            defaultValue={initial?.autonomyScaleId ?? scales[0]?.id}
+            className="mt-1 w-full rounded-xl border border-cream-dark bg-white p-3"
+            required
+          >
+            {scales.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       <label className="block text-sm font-medium">
         Palier
@@ -258,7 +337,11 @@ export function ExerciseForm({
 
       <div className="flex flex-wrap gap-3">
         <Button type="submit" disabled={pending}>
-          {initial ? "Enregistrer" : "Créer"}
+          {initial
+            ? "Enregistrer"
+            : selectedScaleIds.size > 1
+              ? `Créer (${selectedScaleIds.size} niveaux)`
+              : "Créer"}
         </Button>
         {initial && (
           <Button

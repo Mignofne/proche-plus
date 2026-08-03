@@ -31,10 +31,12 @@ export default async function NouveauExercicePage() {
           <div className="mt-4">
             <ExerciseForm
               themes={themes.map((t) => ({ id: t.id, label: t.label }))}
-              scales={scales.map((s) => ({
-                id: s.id,
-                label: `${s.code} — ${s.label}`,
-              }))}
+              scales={scales
+                .filter((s) => s.active)
+                .map((s) => ({
+                  id: s.id,
+                  label: `${s.code} — ${s.label}`,
+                }))}
               exerciseOptions={exercises.map((ex) => ({
                 id: ex.id,
                 label: `${ex.theme.label} · ${ex.autonomyScale.code}/p${ex.tier} — ${ex.name}`,

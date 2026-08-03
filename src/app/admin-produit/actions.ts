@@ -194,7 +194,10 @@ export async function deleteAutonomyScale(scaleId: string) {
 export async function saveExercise(input: {
   id?: string;
   themeId: string;
-  autonomyScaleId: string;
+  /** Édition : un seul niveau. */
+  autonomyScaleId?: string;
+  /** Création : un ou plusieurs niveaux (une fiche par niveau). */
+  autonomyScaleIds?: string[];
   tier: number;
   name: string;
   objective: string;
@@ -212,6 +215,34 @@ export async function saveExercise(input: {
 }) {
   await requireFondateur();
 
+  const name = input.name.trim();
+  const objective = input.objective.trim();
+  if (!name || !objective) {
+    throw new Error("Nom et objectif sont obligatoires");
+  }
+
+  const scaleIds = [
+    ...new Set(
+      (input.id
+        ? [input.autonomyScaleId]
+        : input.autonomyScaleIds?.length
+          ? input.autonomyScaleIds
+          : [input.autonomyScaleId]
+      ).filter((id): id is string => Boolean(id))
+    ),
+  ];
+  if (scaleIds.length === 0) {
+    throw new Error("Sélectionnez au moins un niveau d'autonomie.");
+  }
+
+  const scales = await prisma.autonomyScale.findMany({
+    where: { id: { in: scaleIds }, active: true },
+    select: { id: true },
+  });
+  if (scales.length !== scaleIds.length) {
+    throw new Error("Un ou plusieurs niveaux d'autonomie sont invalides.");
+  }
+
   let successScaleId: string | null = null;
   if (input.onSuccessExerciseId) {
     const success = await prisma.exercise.findUnique({
@@ -219,16 +250,12 @@ export async function saveExercise(input: {
     });
     successScaleId = success?.autonomyScaleId ?? null;
   }
-  const crosses =
-    input.crossesAutonomyLevel ||
-    (successScaleId !== null && successScaleId !== input.autonomyScaleId);
 
-  const data = {
+  const baseFields = {
     themeId: input.themeId,
-    autonomyScaleId: input.autonomyScaleId,
     tier: input.tier,
-    name: input.name.trim(),
-    objective: input.objective.trim(),
+    name,
+    objective,
     steps: toJsonStringArray(input.steps),
     caregiverCan: toJsonStringArray(input.caregiverCan),
     caregiverMustNot: toJsonStringArray(input.caregiverMustNot),
@@ -237,18 +264,19 @@ export async function saveExercise(input: {
     onSuccessExerciseId: input.onSuccessExerciseId || null,
     onPartialExerciseId: input.onPartialExerciseId || null,
     onFailureExerciseId: input.onFailureExerciseId || null,
-    crossesAutonomyLevel: crosses,
     alertOnFailure: input.alertOnFailure,
     status: input.status,
     validatedBy: input.status === "publie" ? "Admin produit" : null,
     validatedAt: input.status === "publie" ? new Date() : null,
   };
 
-  if (!data.name || !data.objective) {
-    throw new Error("Nom et objectif sont obligatoires");
-  }
-
   if (input.id) {
+    const autonomyScaleId = scaleIds[0]!;
+    const crosses =
+      input.crossesAutonomyLevel ||
+      (successScaleId !== null && successScaleId !== autonomyScaleId);
+    const data = { ...baseFields, autonomyScaleId, crossesAutonomyLevel: crosses };
+
     if (input.status === "archive") {
       const refs = await prisma.exercise.count({
         where: {
@@ -278,22 +306,37 @@ export async function saveExercise(input: {
     redirect(`/admin-produit/exercices/${input.id}`);
   }
 
-  const created = await prisma.exercise.create({ data });
-  if (!created.onPartialExerciseId) {
-    await prisma.exercise.update({
-      where: { id: created.id },
-      data: { onPartialExerciseId: created.id },
+  const createdIds: string[] = [];
+  for (const autonomyScaleId of scaleIds) {
+    const crosses =
+      input.crossesAutonomyLevel ||
+      (successScaleId !== null && successScaleId !== autonomyScaleId);
+    const created = await prisma.exercise.create({
+      data: { ...baseFields, autonomyScaleId, crossesAutonomyLevel: crosses },
     });
+    if (!created.onPartialExerciseId) {
+      await prisma.exercise.update({
+        where: { id: created.id },
+        data: { onPartialExerciseId: created.id },
+      });
+    }
+    await prisma.auditLog.create({
+      data: {
+        action: "exercise.create",
+        entity: "Exercise",
+        entityId: created.id,
+      },
+    });
+    createdIds.push(created.id);
   }
-  await prisma.auditLog.create({
-    data: {
-      action: "exercise.create",
-      entity: "Exercise",
-      entityId: created.id,
-    },
-  });
-  revalidateCatalog(created.id);
-  redirect(`/admin-produit/exercices/${created.id}`);
+
+  revalidateCatalog();
+  if (createdIds.length === 1) {
+    redirect(`/admin-produit/exercices/${createdIds[0]}`);
+  }
+  redirect(
+    `/admin-produit/exercices?q=${encodeURIComponent(name)}`
+  );
 }
 
 export async function duplicateExercise(exerciseId: string) {

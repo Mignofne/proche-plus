@@ -151,4 +151,49 @@ test.describe("Admin fondateur — CRUD référentiel", () => {
       new RegExp(lastLabel.split("—").pop()?.trim() || "Autonome", "i")
     );
   });
+
+  test("peut créer un exercice pour plusieurs niveaux d’autonomie", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await loginUi(
+      page,
+      DEMO.fondateur.email,
+      DEMO.fondateur.password,
+      "fondateur"
+    );
+    await expect(page).toHaveURL(/\/admin-produit/);
+
+    const stamp = Date.now();
+    const name = `Assis multi-niveaux ${stamp}`;
+    await page.goto("/admin-produit/exercices/nouveau");
+    await expect(page.locator('input[name="name"]')).toBeVisible();
+
+    const selectAll = page.getByRole("checkbox", { name: /Tous les niveaux/i });
+    const levelBoxes = page
+      .getByRole("group", { name: /Appropriation patient/i })
+      .getByRole("checkbox");
+    // Tout désélectionner puis cocher 2 niveaux
+    if (await selectAll.isChecked()) {
+      await selectAll.uncheck();
+    }
+    await expect(selectAll).not.toBeChecked();
+    // index 0 = Tous, 1..n = niveaux
+    await levelBoxes.nth(1).check();
+    await levelBoxes.nth(2).check();
+
+    await page.locator('input[name="name"]').fill(name);
+    await page
+      .locator('textarea[name="objective"]')
+      .fill("Objectif assis multi-niveaux");
+    await page.getByLabel(/Étapes \/ guidance/i).fill("Étape 1");
+    await page.locator('select[name="status"]').selectOption("brouillon");
+    await page.getByRole("button", { name: /Créer \(2 niveaux\)/i }).click();
+
+    await expect(page).toHaveURL(/\/admin-produit\/exercices\?q=/);
+    await expect(page).toHaveURL(new RegExp(String(stamp)));
+    await expect(
+      page.getByRole("checkbox", { name: new RegExp(`Sélectionner ${name}`) })
+    ).toHaveCount(2);
+  });
 });
