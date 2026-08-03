@@ -1,8 +1,12 @@
 import { test, expect } from "@playwright/test";
-import { DEMO_GIR_PROFILES } from "../../prisma/demo-gir-profiles";
+import {
+  DEMO_AIDANT_EMAIL,
+  DEMO_GIR_PROFILES,
+} from "../../prisma/demo-gir-profiles";
 
 test.describe("Profils démo GIR A–E", () => {
-  test("couvre exactement les 5 niveaux d'autonomie", () => {
+  test("5 proches sur l’aidant démo, un par niveau", () => {
+    expect(DEMO_AIDANT_EMAIL).toBe("jean.martin@demo.fr");
     expect(DEMO_GIR_PROFILES).toHaveLength(5);
     expect(DEMO_GIR_PROFILES.map((p) => p.code)).toEqual([
       "A",
@@ -18,8 +22,8 @@ test.describe("Profils démo GIR A–E", () => {
       "dependant",
       "grabataire",
     ]);
-    for (const p of DEMO_GIR_PROFILES) {
-      expect(p.email).toMatch(/^aidant\.[a-e]@procheplus\.demo$/);
-    }
+    const c = DEMO_GIR_PROFILES.find((p) => p.code === "C");
+    expect(c?.patientFirstName).toBe("Marie");
+    expect(c?.patientLastName).toBe("Martin");
   });
 });

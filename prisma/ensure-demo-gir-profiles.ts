@@ -1,10 +1,10 @@
 /**
- * Idempotent — 5 profils aidant A–E (GIR) pour tests locaux et prod.
+ * Idempotent — 5 proches A–E (GIR) sur jean.martin@demo.fr.
  * Usage : npx tsx prisma/ensure-demo-gir-profiles.ts
  */
 import { PrismaClient } from "@prisma/client";
 import {
-  DEMO_GIR_PASSWORD,
+  DEMO_AIDANT_EMAIL,
   DEMO_GIR_PROFILES,
   ensureDemoGirProfiles,
 } from "./demo-gir-profiles";
@@ -14,12 +14,11 @@ const prisma = new PrismaClient();
 async function main() {
   const result = await ensureDemoGirProfiles(prisma);
   console.log(
-    `Profils GIR démo OK — ${result.profiles} niveaux (créés: ${result.created.length}, mis à jour: ${result.updated.length}).`
+    `Profils GIR démo OK — ${result.profiles} proches sur ${result.caregiverEmail} (créés: ${result.created.length}, mis à jour: ${result.updated.length}).`
   );
   for (const p of DEMO_GIR_PROFILES) {
-    const gir = p.autonomyLevel;
     console.log(
-      `  ${p.code} · ${p.email} / ${DEMO_GIR_PASSWORD} → ${p.patientFirstName} ${p.patientLastName} (${gir})`
+      `  ${p.code} · ${p.patientFirstName} ${p.patientLastName} (${p.autonomyLevel})`
     );
   }
 }
