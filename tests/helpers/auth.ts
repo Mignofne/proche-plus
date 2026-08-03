@@ -6,6 +6,14 @@ export const DEMO = {
     password: "demo1234",
     home: "/aidant",
   },
+  /** Un compte par niveau A–E (GIR simplifié) — utiles pour Mode visite. */
+  aidantByLevel: {
+    A: { email: "aidant.a@procheplus.demo", password: "demo1234" },
+    B: { email: "aidant.b@procheplus.demo", password: "demo1234" },
+    C: { email: "aidant.c@procheplus.demo", password: "demo1234" },
+    D: { email: "aidant.d@procheplus.demo", password: "demo1234" },
+    E: { email: "aidant.e@procheplus.demo", password: "demo1234" },
+  },
   pro: {
     email: "pro@procheplus.demo",
     password: "demo1234",

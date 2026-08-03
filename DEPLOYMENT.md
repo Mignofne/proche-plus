@@ -85,6 +85,13 @@ Comptes démo créés :
 |------|-------|--------------|
 | Professionnel | `pro@procheplus.demo` | `demo1234` |
 | Aidant | `jean.martin@demo.fr` | `demo1234` |
+| Aidant niveau A (GIR 6) | `aidant.a@procheplus.demo` | `demo1234` |
+| Aidant niveau B (GIR 5) | `aidant.b@procheplus.demo` | `demo1234` |
+| Aidant niveau C (GIR 4) | `aidant.c@procheplus.demo` | `demo1234` |
+| Aidant niveau D (GIR 3) | `aidant.d@procheplus.demo` | `demo1234` |
+| Aidant niveau E (GIR 1) | `aidant.e@procheplus.demo` | `demo1234` |
+
+Les 5 profils A–E sont aussi synchronisés à chaque déploiement (`vercel-build` → `ensure-demo-gir-profiles`).
 
 ---
 

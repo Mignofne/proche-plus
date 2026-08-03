@@ -38,6 +38,11 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 |------|-------|--------------|
 | Professionnel | `pro@procheplus.demo` | `demo1234` |
 | Aidant | `jean.martin@demo.fr` | `demo1234` |
+| Aidant niveau A (GIR 6) | `aidant.a@procheplus.demo` | `demo1234` |
+| Aidant niveau B (GIR 5) | `aidant.b@procheplus.demo` | `demo1234` |
+| Aidant niveau C (GIR 4) | `aidant.c@procheplus.demo` | `demo1234` |
+| Aidant niveau D (GIR 3) | `aidant.d@procheplus.demo` | `demo1234` |
+| Aidant niveau E (GIR 1) | `aidant.e@procheplus.demo` | `demo1234` |
 
 ## Parcours implémentés (MVP)
 

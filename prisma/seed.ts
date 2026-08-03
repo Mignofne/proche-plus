@@ -1,6 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { seedExerciseCatalog } from "./seed-exercises";
+import {
+  DEMO_GIR_PASSWORD,
+  DEMO_GIR_PROFILES,
+  ensureDemoGirProfiles,
+} from "./demo-gir-profiles";
 
 const prisma = new PrismaClient();
 
@@ -280,12 +285,20 @@ async function main() {
     });
   }
 
+  // 5 profils A–E pour tests (mode visite / thèmes par niveau)
+  await ensureDemoGirProfiles(prisma);
+
   console.log("Seed OK");
   console.log("  Aidant: jean.martin@demo.fr / demo1234 (Marie liée)");
   console.log("  Aidant onboarding: invite@demo.fr / demo1234 (aucun proche)");
   console.log("  Pro: pro@procheplus.demo / demo1234");
   console.log("  Admin établissement: admin@procheplus.demo / demo1234");
   console.log("  Admin produit: fondateur@procheplus.demo / demo1234");
+  for (const p of DEMO_GIR_PROFILES) {
+    console.log(
+      `  Aidant ${p.code}: ${p.email} / ${DEMO_GIR_PASSWORD} (${p.patientFirstName} ${p.patientLastName})`
+    );
+  }
   console.log(`  Transmission: ${transmission.id}`);
   console.log(
     `  Exercices actifs démo (niveau C): ${marieExercises.length} thèmes`
