@@ -194,6 +194,13 @@ export default async function AdminExercicesPage({
 
           <div className="mt-3">
             <ExerciseBulkList
+              scales={scales
+                .filter((s) => s.active)
+                .map((s) => ({
+                  id: s.id,
+                  code: s.code,
+                  label: s.label,
+                }))}
               exercises={filtered.map((ex) => ({
                 id: ex.id,
                 name: ex.name,
@@ -203,6 +210,7 @@ export default async function AdminExercicesPage({
                 validatedBy: ex.validatedBy,
                 themeLabel: ex.theme.label,
                 scaleCode: ex.autonomyScale.code,
+                scaleLabel: ex.autonomyScale.label,
               }))}
             />
           </div>
