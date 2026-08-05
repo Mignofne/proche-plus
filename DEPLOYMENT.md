@@ -84,7 +84,9 @@ Comptes démo créés :
 | Rôle | Email | Mot de passe |
 |------|-------|--------------|
 | Professionnel | `pro@procheplus.demo` | `demo1234` |
-| Aidant | `jean.martin@demo.fr` | `demo1234` |
+| Aidant (5 proches A–E) | `jean.martin@demo.fr` | `demo1234` |
+
+Les 5 proches A–E sont synchronisés à chaque déploiement (`vercel-build` → `ensure-demo-gir-profiles`) sur le compte Jean Martin.
 
 ---
 

@@ -6,6 +6,14 @@ export const DEMO = {
     password: "demo1234",
     home: "/aidant",
   },
+  /** Proches A–E liés à jean.martin (noms affichés Mode visite). */
+  procheByLevel: {
+    A: "Léa Autonome",
+    B: "Bruno Semi-B",
+    C: "Marie Martin",
+    D: "Dylan Dépendant",
+    E: "Émile Grabataire",
+  },
   pro: {
     email: "pro@procheplus.demo",
     password: "demo1234",

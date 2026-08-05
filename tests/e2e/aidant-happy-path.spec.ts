@@ -24,7 +24,11 @@ test.describe("Aidant happy path", () => {
 
     await page.getByRole("link", { name: "Mode visite" }).click();
     await expect(page).toHaveURL(/\/aidant\/mode-visite(\?patientId=|$|\?)/);
-    // 1 proche démo → auto-sélection via ?patientId=
+    // Plusieurs proches démo → choisir Marie (niveau C)
+    const marie = page.getByRole("link", { name: /Marie Martin/i });
+    if (await marie.isVisible().catch(() => false)) {
+      await marie.click();
+    }
     await expect(page).toHaveURL(/patientId=/);
     // Check-in fatigue / douleur avant les thèmes
     await expect(

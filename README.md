@@ -37,7 +37,9 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 | Rôle | Email | Mot de passe |
 |------|-------|--------------|
 | Professionnel | `pro@procheplus.demo` | `demo1234` |
-| Aidant | `jean.martin@demo.fr` | `demo1234` |
+| Aidant (5 proches A–E) | `jean.martin@demo.fr` | `demo1234` |
+
+Proches de Jean Martin (choix en Mode visite) : Léa Autonome (A/GIR 6), Bruno Semi-B (B/GIR 5), Marie Martin (C/GIR 4), Dylan Dépendant (D/GIR 3), Émile Grabataire (E/GIR 1).
 
 ## Parcours implémentés (MVP)
 
