@@ -199,7 +199,13 @@ function InstructionPanel({
   );
 }
 
-function DemoPanel({ sceneSrc }: { sceneSrc: string }) {
+function DemoPanel({
+  sceneSrc,
+  objectPosition,
+}: {
+  sceneSrc: string;
+  objectPosition?: string;
+}) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const inAnim = spring({
@@ -217,7 +223,7 @@ function DemoPanel({ sceneSrc }: { sceneSrc: string }) {
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          objectPosition: "center bottom",
+          objectPosition: objectPosition ?? "center bottom",
           transform: `scale(${scale})`,
         }}
       />
@@ -236,6 +242,7 @@ function TutoStepFrame({
   instruction,
   sceneSrc,
   accent,
+  objectPosition,
 }: {
   exerciseName: string;
   themeLabel: string;
@@ -246,6 +253,7 @@ function TutoStepFrame({
   instruction: string;
   sceneSrc: string;
   accent: RemotionExerciseTutoProps["accent"];
+  objectPosition?: string;
 }) {
   const { height } = useVideoConfig();
   const instructionHeight = Math.round(height * 0.38);
@@ -273,7 +281,7 @@ function TutoStepFrame({
           bottom: 0,
         }}
       >
-        <DemoPanel sceneSrc={sceneSrc} />
+        <DemoPanel sceneSrc={sceneSrc} objectPosition={objectPosition} />
       </div>
     </AbsoluteFill>
   );
@@ -294,6 +302,7 @@ export const ProchePlusExerciseTuto: React.FC<RemotionExerciseTutoProps> = ({
   outroFrames = DEFAULT_TUTO_OUTRO_FRAMES,
   defaultStepFrames = DEFAULT_TUTO_STEP_FRAMES,
   accent = "teal",
+  demoObjectPosition,
 }) => {
   const { height } = useVideoConfig();
   const instructionHeight = Math.round(height * 0.42);
@@ -333,7 +342,10 @@ export const ProchePlusExerciseTuto: React.FC<RemotionExerciseTutoProps> = ({
                   bottom: 0,
                 }}
               >
-                <DemoPanel sceneSrc={safeSteps[0].sceneSrc} />
+                <DemoPanel
+                  sceneSrc={safeSteps[0].sceneSrc}
+                  objectPosition={demoObjectPosition}
+                />
               </div>
             ) : null}
           </AbsoluteFill>
@@ -354,6 +366,7 @@ export const ProchePlusExerciseTuto: React.FC<RemotionExerciseTutoProps> = ({
               instruction={step.instruction}
               sceneSrc={step.sceneSrc}
               accent={accent}
+              objectPosition={demoObjectPosition}
             />
           </Series.Sequence>
         ))}
@@ -388,7 +401,10 @@ export const ProchePlusExerciseTuto: React.FC<RemotionExerciseTutoProps> = ({
                   bottom: 0,
                 }}
               >
-                <DemoPanel sceneSrc={safeSteps[safeSteps.length - 1]!.sceneSrc} />
+                <DemoPanel
+                  sceneSrc={safeSteps[safeSteps.length - 1]!.sceneSrc}
+                  objectPosition={demoObjectPosition}
+                />
               </div>
             ) : null}
           </AbsoluteFill>

@@ -42,6 +42,11 @@ export type RemotionExerciseTutoProps = {
   outroFrames?: number;
   defaultStepFrames?: number;
   accent?: "teal" | "sun" | "terracotta";
+  /**
+   * Contrôle comment l'image de démo est recadrée dans le panneau bas.
+   * Par défaut on montre le bas (ours), et pour les humains on peut orienter vers le haut (visage).
+   */
+  demoObjectPosition?: string;
 };
 
 export function exerciseTutoDurationInFrames(
