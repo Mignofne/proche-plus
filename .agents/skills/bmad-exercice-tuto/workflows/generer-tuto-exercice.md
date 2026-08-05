@@ -34,6 +34,7 @@ Pour chaque `ex.steps[i]` :
    - ajouter la consigne **verbatim** depuis le CSV à la fin du prompt
 3. `GenerateImage` 9:16, `reference_image_paths` = frame précédente si disponible (continuité)
    - en mode **HUMAIN** : garder **la même tenue / même motif / mêmes boutons** entre step 1 → step N (si une tenue change, invalider et régénérer)
+   - si l’exercice parle d’un **gilet** : forcer le **gilet floral Proche+ C-v3** en version **manches longues** (cardigan) — références : `canon-c-v3.png` + `gilet-procheplus-floral-longsleeve-ref.png` + portrait visage verrouillé
 4. Sauver :
    - frames MP4 (si v1) : `public/community-assets/exercise-tutos/{slug}/frames/step-{NN}.png`
    - ou optionnellement dans un sous-dossier humain si vous souhaitez distinguer les variantes (ex. `demic-human70-zoom/`), puis fournir `sceneSrc` via props.
