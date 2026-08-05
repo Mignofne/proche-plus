@@ -74,6 +74,11 @@ Highlight accessoire manipulé : teal charte **`#2A9D8F`** uniquement.
 | 2. Passe d’abord le bras… | **Un bras clairement engagé dans UNE manche** du gilet manches longues ; l’autre pan encore sur les genoux / tenu. Beige sans manches toujours visible en dessous. Highlight teal sur le bras + manche. |
 | 3. Ramène l’autre pan… | **Une main tire clairement le 2ᵉ pan** du gilet manches longues derrière le dos / l’épaule. Beige sans manches encore visible. Highlight teal sur la main + pan. |
 
+**QC obligatoire avant d’accepter une photo :**
+- **2 mains** avec doigts visibles (jamais main manquante / fondue / amputée)
+- le gilet **à enfiler** montre clairement des **manches longues** (poignets / longueur de manche)
+- le beige sans manches est **déjà porté**, pas l’objet enfilé
+
 `reference_image_paths` (gilet humain) :
 1. portrait visage verrouillé (H ou F)
 2. `gilet-procheplus-beige-sleeveless-ref.png` (base portée)
