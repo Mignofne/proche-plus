@@ -47,6 +47,9 @@ Utiliser `buildTutoPropsFromExercise(ex, sceneSrcs[])` depuis `src/lib/exercises
 
 Écrire `tmp/exercise-tutos/{slug}-props.json`.
 
+Si mode **HUMAIN** :
+- ajouter `demoObjectPosition: "center top"` dans le props JSON pour que le visage soit visible dans le panneau démo bas.
+
 `defaultStepFrames`: **75** (senior). Monter à 90 si beaucoup d'étapes.
 
 ### 5. Rendre MP4
