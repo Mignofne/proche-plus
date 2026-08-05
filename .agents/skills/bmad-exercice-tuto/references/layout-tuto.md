@@ -41,21 +41,25 @@ FRAMING (verrouillé lisibilité mobile) :
 
 TENUE (verrouillé — identique sur toutes les étapes) :
   - garder le **même vêtement / même motif / mêmes boutons** entre step 1 → step N
-  - ne pas changer de couleur, de style ou de coupe du gilet
-  - si l’exercice implique un **gilet** : utiliser le **gilet floral Proche+ C-v3**
-    (crème + fleurs mexicaines orange/rose/bleu + feuilles vertes),
-    en version **manches longues** (cardigan) pour que le geste « enfiler » soit lisible
-  - référence motif : `public/community-assets/ours-canon/canon-c-v3.png`
-    + éventuelle ref dédiée `…/gilet-procheplus-floral-longsleeve-ref.png`
+  - si l’exercice implique un **gilet** : **gilet SANS MANCHES beige uni** (soft cream/beige),
+    **SANS fleurs / SANS motif floral** (style compagnon ours Proche+)
+  - référence : `…/gilet-procheplus-beige-sleeveless-ref.png`
 
-STYLE : illustration 3D chaleureuse (type DEMIC/fitness tutorial), couleurs crème/chaudes, fond neutre minimal, repère visuel vert discret autour de la zone à manipuler.
+GESTES (verrouillé lisibilité) :
+  - poses **très explicites** (bras / mains clairement en action, mouvement large)
+  - une étape = un geste dominant lisible même en petit écran
+
+ACCESSOIRE / HIGHLIGHT (charte Proche+) :
+  - si un accessoire est manipulé (gilet, etc.) : contour / glow **teal `#2A9D8F`**
+  - pas de vert fluo ni violet ; suivre la charte (teal / sun / terracotta)
+
+STYLE : illustration 3D chaleureuse (type DEMIC/fitness tutorial), couleurs crème/chaudes, fond neutre minimal.
 NO text in image, no watermark, no logo.
 ```
 
 `reference_image_paths` (mode HUMAIN) :
 - portrait visage verrouillé (homme ou femme)
-- ref gilet floral manches longues Proche+ (si exercice gilet)
-- `canon-c-v3.png` pour le motif
+- ref gilet beige sans manches (si exercice gilet)
 - frame précédente (continuité)
 
 ## Flipbook par étape (2–4 poses)
