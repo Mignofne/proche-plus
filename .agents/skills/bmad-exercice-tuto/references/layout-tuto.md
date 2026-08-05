@@ -35,6 +35,7 @@ Theme: {themeLabel}. Seated/safe posture per exercise. Never on floor.
 
 FRAMING (verrouillé lisibilité mobile) :
   - tête + corps entier + pieds visibles
+  - visage clairement visible, **non coupé** (yeux/forehead/menton), centré dans la partie haute
   - caméra légèrement rapprochée : la personne occupe ~90–95% de l’image
   - zoom léger sur l’action (gilet sur genoux + mains)
 
