@@ -2,7 +2,8 @@
 
 ## Goal
 
-MP4 tuto **lisible** (consignes XL) pour **un** exercice du référentiel.
+MP4 tuto **lisible** (consignes XL) pour **un** exercice du référentiel.  
+**1 étape CSV = 1 photo = 1 geste dominant.**
 
 ## Steps
 
@@ -19,41 +20,35 @@ import { findReferentielExercise, exerciseTutoSlug } from "src/lib/exercises/ref
 ### 2. Vérifier les étapes
 
 - `ex.steps` doit avoir ≥1 entrée
-- Si vide → STOP (exercice non pertinent / incomplet)
+- Si vide → STOP
+- Lister les étapes **numérotées** avant de générer (une ligne = une photo)
 
-### 3. Générer les visuels (par étape) — ours ou humains
+### 3. Générer les visuels — **une photo par étape**
 
-Pour chaque `ex.steps[i]` :
+Pour **chaque** `ex.steps[i]` séparément (ne pas batcher plusieurs gestes dans une image) :
 
-1. Détection intent :
-   - si l’utilisateur demande **humains** (mots-clés : “humain”, “DEMIC”, “sans ours”, “70 ans illustré”) → mode **HUMAIN**
-   - sinon → mode **OURS** (bear canon C-v3)
-2. Prompt :
-   - mode OURS : `references/layout-tuto.md` section **Prompt image ours**
-   - mode HUMAIN : `references/layout-tuto.md` section **Prompt image humain — option DEMIC**
-   - ajouter la consigne **verbatim** depuis le CSV à la fin du prompt
-3. `GenerateImage` 9:16, `reference_image_paths` = frame précédente si disponible (continuité)
-   - en mode **HUMAIN** : garder **la même tenue** entre step 1 → step N (si une tenue change, invalider et régénérer)
-   - si l’exercice parle d’un **gilet** : forcer **gilet sans manches beige uni SANS fleurs** + gestes **très explicites** + highlight accessoire **teal `#2A9D8F`**
-   - références : portrait visage verrouillé + `gilet-procheplus-beige-sleeveless-ref.png`
-4. Sauver :
-   - frames MP4 (si v1) : `public/community-assets/exercise-tutos/{slug}/frames/step-{NN}.png`
-   - ou optionnellement dans un sous-dossier humain si vous souhaitez distinguer les variantes (ex. `demic-human70-zoom/`), puis fournir `sceneSrc` via props.
-
-**Option animé par étape :** 2 poses (début/fin) → mini flipbook ; pour v1 une image forte par étape suffit.
-
-Safeguards C-v3 : `bmad-studio-ours/references/canon-rapide.md`
+1. Intent :
+   - **HUMAIN** si : « humain », « DEMIC », « sans ours », « 70 ans », « papi », « mamie »
+   - sinon **OURS** (canon C-v3)
+2. Prompt depuis `references/layout-tuto.md` + consigne **verbatim** de **cette** étape seulement
+3. Cas **gilet** (mode HUMAIN) — **2 couches** :
+   - **Déjà porté** : gilet **sans manches beige uni sans fleurs**
+   - **À enfiler** : gilet **manches longues** (accessoire) — highlight teal `#2A9D8F`
+   - Voir tableau « Découpe photo = 1 étape (gilet) » dans `layout-tuto.md`
+4. `GenerateImage` 9:16 avec `reference_image_paths` :
+   - visage lock + refs tenues + **frame étape précédente** (continuité)
+5. Sauver : `…/frames/step-{NN}.png` (NN = index 01, 02, 03…)
+6. **Contrôle qualité** avant de passer à l’étape suivante :
+   - le geste de l’étape est-il **seul** et **lisible** ?
+   - pour gilet : beige sans manches **déjà sur** le corps ? manches longues = **objet manipulé** ?
+   - si non → régénérer **cette** étape seulement
 
 ### 4. Construire les props
 
-Utiliser `buildTutoPropsFromExercise(ex, sceneSrcs[])` depuis `src/lib/exercises/tuto-video.ts`.
+`buildTutoPropsFromExercise(ex, sceneSrcs[])` → `tmp/exercise-tutos/{slug}-props.json`
 
-Écrire `tmp/exercise-tutos/{slug}-props.json`.
-
-Si mode **HUMAIN** :
-- ajouter `demoObjectPosition: "center top"` dans le props JSON pour que le visage soit visible dans le panneau démo bas.
-
-`defaultStepFrames`: **75** (senior). Monter à 90 si beaucoup d'étapes.
+Mode HUMAIN : `demoObjectPosition: "center top"`, `accent: "teal"`  
+`defaultStepFrames`: **75** (senior)
 
 ### 5. Rendre MP4
 
@@ -65,28 +60,19 @@ npm run community:render-video -- \
   --slug=exercise-tuto-{slug}
 ```
 
-### 6. Publier pour téléphone
+### 6. Publier
 
 ```bash
 cp tmp/community-renders/exercise-tuto-{slug}-*.mp4 \
   public/community-assets/exercise-tutos/{slug}/{slug}.mp4
 ```
 
-Lien raw (après push) :
-`https://raw.githubusercontent.com/…/public/community-assets/exercise-tutos/{slug}/{slug}.mp4`
-
 ### 7. Livrer
 
-- MP4 + lien téléchargement
-- Aperçu des frames
-- Rappeler : consignes = CSV (non modifiées)
-- Proposer : autre exercice, ralentir (`defaultStepFrames: 90`), paysage FB (`ProchePlusExerciseTutoFacebook`)
+- MP4 + lien
+- Aperçu **une frame par étape** (pour valider la découpe)
+- Consignes = CSV non modifiées
 
-## Exercice hors CSV (ex. Top chrono 15 prod only)
+## Exercice hors CSV
 
-Si absent du CSV :
-
-1. Demander validation d’ajout au référentiel **ou**
-2. Brief manuel : nom, thème, niveau, palier, objectif, `steps[]` — puis même pipeline
-
-Ne pas inventer les étapes cliniques.
+Brief manuel `{ name, steps[], objective }` — même pipeline. Ne pas inventer le clinique.

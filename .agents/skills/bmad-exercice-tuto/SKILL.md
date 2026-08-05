@@ -54,7 +54,8 @@ If not in CSV: tell user to add to referential first OR accept manual `{ name, s
 1. **Instructions EN GROS** — never render step text smaller than spec (48px min @ 1080w)
 2. **CSV steps verbatim** — do not rewrite clinical wording (Camille owns content)
 3. **Canon C-v3** for all bear frames
-3b. **Humains DEMIC uniquement si demandé** : expression rassurante/personnalité “Proche+ comme l’ours”, cadrage **tête + corps entier**, léger **zoom sur l’exercice**, pas de texte dans l’image.
+3b. **Humains DEMIC uniquement si demandé** : expression rassurante/personnalité “Proche+ comme l’ours”, cadrage **tête + corps entier**, **1 photo = 1 étape CSV**.
+3c. **Exercice gilet (humains)** : gilet **sans manches beige** = déjà porté ; gilet **manches longues** = accessoire à enfiler (highlight teal `#2A9D8F`).
 4. **Senior pace** — `DEFAULT_TUTO_STEP_FRAMES` = 75 minimum per step
 5. **Tutoiement** preserved from CSV
 
