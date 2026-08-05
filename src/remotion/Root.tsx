@@ -2,6 +2,7 @@ import { Composition } from "remotion";
 import { ProchePlusShort } from "./ProchePlusShort";
 import { ProchePlusStoryboard } from "./ProchePlusStoryboard";
 import { ProchePlusFlipbook } from "./ProchePlusFlipbook";
+import { ProchePlusExerciseTuto } from "./ProchePlusExerciseTuto";
 import {
   DEFAULT_FLIPBOOK_HOLD,
   DEFAULT_STORYBOARD_BEAT_FRAMES,
@@ -17,6 +18,14 @@ import {
   type RemotionInputProps,
   type RemotionStoryboardProps,
 } from "@/lib/community/video/remotion";
+import {
+  DEFAULT_TUTO_INTRO_FRAMES,
+  DEFAULT_TUTO_STEP_FRAMES,
+  REMOTION_EXERCISE_TUTO_FACEBOOK_ID,
+  REMOTION_EXERCISE_TUTO_ID,
+  exerciseTutoDurationInFrames,
+  type RemotionExerciseTutoProps,
+} from "@/lib/exercises/tuto-video-core";
 import { FORMATS } from "@/lib/community/formats";
 
 export const RemotionRoot: React.FC = () => {
@@ -55,6 +64,30 @@ export const RemotionRoot: React.FC = () => {
     endHoldFrames: 36,
     frames: [
       "/community-assets/ours-canon/scenes-referentiel/scene-cognitif.png",
+    ],
+  };
+
+  const defaultExerciseTuto: RemotionExerciseTutoProps = {
+    exerciseName: "Top chrono 15",
+    themeLabel: "Les Exercices Assis",
+    levelCode: "A",
+    tier: 1,
+    objective:
+      "Toutes les 15 minutes, bouger un peu pour stimuler le corps.",
+    accent: "teal",
+    steps: [
+      {
+        instruction: "Tape le sol avec tes pieds pendant 15 secondes.",
+        sceneSrc:
+          "/community-assets/ours-canon/scenes-referentiel/scene-fauteuil-freins.png",
+        durationInFrames: DEFAULT_TUTO_STEP_FRAMES,
+      },
+      {
+        instruction: "Tends et plies tes bras 15 fois.",
+        sceneSrc:
+          "/community-assets/ours-canon/scenes-referentiel/scene-cognitif.png",
+        durationInFrames: DEFAULT_TUTO_STEP_FRAMES,
+      },
     ],
   };
 
@@ -133,6 +166,36 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={defaultFlipbook}
         calculateMetadata={({ props }) => ({
           durationInFrames: Math.max(30, flipbookDurationInFrames(props)),
+        })}
+      />
+      <Composition
+        id={REMOTION_EXERCISE_TUTO_ID}
+        component={ProchePlusExerciseTuto}
+        durationInFrames={exerciseTutoDurationInFrames(defaultExerciseTuto)}
+        fps={30}
+        width={vertical.width}
+        height={vertical.height}
+        defaultProps={defaultExerciseTuto}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.max(
+            60,
+            exerciseTutoDurationInFrames(props)
+          ),
+        })}
+      />
+      <Composition
+        id={REMOTION_EXERCISE_TUTO_FACEBOOK_ID}
+        component={ProchePlusExerciseTuto}
+        durationInFrames={exerciseTutoDurationInFrames(defaultExerciseTuto)}
+        fps={30}
+        width={landscape.width}
+        height={landscape.height}
+        defaultProps={defaultExerciseTuto}
+        calculateMetadata={({ props }) => ({
+          durationInFrames: Math.max(
+            60,
+            exerciseTutoDurationInFrames(props)
+          ),
         })}
       />
     </>
