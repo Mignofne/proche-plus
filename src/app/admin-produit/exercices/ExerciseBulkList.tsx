@@ -198,7 +198,7 @@ export function ExerciseBulkList({
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-            Appropriation patient
+            Déplacer vers niveau
           </span>
           <select
             value={targetScaleId}
@@ -219,8 +219,8 @@ export function ExerciseBulkList({
             onClick={applyAutonomy}
             disabled={!someSelected || pending || !targetScaleId}
           >
-            {pending ? "Application…" : "Appliquer le niveau"}
-          </Button>
+          {pending ? "Application…" : "Déplacer le niveau"}
+        </Button>
         </div>
 
         {error && (

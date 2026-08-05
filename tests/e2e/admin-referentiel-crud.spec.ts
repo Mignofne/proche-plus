@@ -130,7 +130,7 @@ test.describe("Admin fondateur — CRUD référentiel", () => {
     ).toBeVisible();
 
     const applyBtn = page.getByRole("button", {
-      name: /Appliquer le niveau/i,
+      name: /Déplacer le niveau/i,
     });
     await expect(applyBtn).toBeDisabled();
 
@@ -192,6 +192,65 @@ test.describe("Admin fondateur — CRUD référentiel", () => {
 
     await expect(page).toHaveURL(/\/admin-produit\/exercices\?q=/);
     await expect(page).toHaveURL(new RegExp(String(stamp)));
+    await expect(
+      page.getByRole("checkbox", { name: new RegExp(`Sélectionner ${name}`) })
+    ).toHaveCount(2);
+  });
+
+  test("peut associer des exercices à un niveau GIR (copie)", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await loginUi(
+      page,
+      DEMO.fondateur.email,
+      DEMO.fondateur.password,
+      "fondateur"
+    );
+    await expect(page).toHaveURL(/\/admin-produit/);
+
+    const stamp = Date.now();
+    const name = `GIR link ${stamp}`;
+    await page.goto("/admin-produit/exercices/nouveau");
+    await page.locator('input[name="name"]').fill(name);
+    await page
+      .locator('textarea[name="objective"]')
+      .fill("Objectif test association GIR");
+    await page.getByLabel(/Étapes \/ guidance/i).fill("Étape 1");
+    await page.locator('select[name="status"]').selectOption("brouillon");
+    await page.getByRole("button", { name: /^Créer$/i }).click();
+    await expect(page).toHaveURL(/\/admin-produit\/exercices\/[^/]+$/);
+
+    await page.goto("/admin-produit/exercices");
+    const targetScale = page.getByLabel("Niveau GIR cible");
+    const options = targetScale.locator("option");
+    const optionCount = await options.count();
+    expect(optionCount).toBeGreaterThan(1);
+    const targetValue = await options.nth(1).getAttribute("value");
+    const targetCode =
+      ((await options.nth(1).textContent()) ?? "").split("—")[0]?.trim() ||
+      "B";
+    await targetScale.selectOption(targetValue!);
+
+    await page.getByPlaceholder(/Rechercher un exercice/i).fill(String(stamp));
+    const checkbox = page
+      .getByText(name)
+      .first()
+      .locator("xpath=ancestor::label")
+      .getByRole("checkbox");
+    await expect(checkbox).toBeVisible();
+    await checkbox.check();
+
+    await page
+      .getByRole("button", {
+        name: new RegExp(`Associer au niveau ${targetCode}`),
+      })
+      .click();
+    await expect(page.getByRole("status")).toContainText(/associé/i);
+
+    await page.goto(
+      `/admin-produit/exercices?q=${encodeURIComponent(String(stamp))}`
+    );
     await expect(
       page.getByRole("checkbox", { name: new RegExp(`Sélectionner ${name}`) })
     ).toHaveCount(2);

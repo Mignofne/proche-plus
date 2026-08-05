@@ -510,6 +510,99 @@ export async function bulkUpdateExerciseAutonomy(input: {
   return { updated: ids.length, scaleLabel: scale.label };
 }
 
+/**
+ * Associe des exercices à un niveau GIR en créant une copie par exercice
+ * (un même contenu peut exister sur plusieurs niveaux).
+ */
+export async function bulkAssociateExercisesToScale(input: {
+  exerciseIds: string[];
+  autonomyScaleId: string;
+}): Promise<{ created: number; skipped: number; scaleLabel: string }> {
+  await requireFondateur();
+
+  const ids = [...new Set(input.exerciseIds.filter(Boolean))];
+  if (ids.length === 0) {
+    throw new Error("Sélectionnez au moins un exercice.");
+  }
+
+  const scale = await prisma.autonomyScale.findUnique({
+    where: { id: input.autonomyScaleId },
+  });
+  if (!scale || !scale.active) {
+    throw new Error("Niveau d'autonomie invalide.");
+  }
+
+  const sources = await prisma.exercise.findMany({
+    where: { id: { in: ids } },
+  });
+  if (sources.length !== ids.length) {
+    throw new Error("Un ou plusieurs exercices sont introuvables.");
+  }
+
+  let created = 0;
+  let skipped = 0;
+
+  await prisma.$transaction(async (tx) => {
+    for (const source of sources) {
+      if (source.autonomyScaleId === scale.id) {
+        skipped += 1;
+        continue;
+      }
+
+      const duplicate = await tx.exercise.findFirst({
+        where: {
+          themeId: source.themeId,
+          tier: source.tier,
+          name: source.name,
+          autonomyScaleId: scale.id,
+        },
+      });
+      if (duplicate) {
+        skipped += 1;
+        continue;
+      }
+
+      const copy = await tx.exercise.create({
+        data: {
+          themeId: source.themeId,
+          autonomyScaleId: scale.id,
+          tier: source.tier,
+          name: source.name,
+          objective: source.objective,
+          steps: source.steps,
+          caregiverCan: source.caregiverCan,
+          caregiverMustNot: source.caregiverMustNot,
+          estimatedDuration: source.estimatedDuration,
+          risks: source.risks,
+          onSuccessExerciseId: null,
+          onPartialExerciseId: null,
+          onFailureExerciseId: null,
+          crossesAutonomyLevel: source.crossesAutonomyLevel,
+          alertOnFailure: source.alertOnFailure,
+          status: source.status,
+          validatedBy: source.status === "publie" ? source.validatedBy : null,
+          validatedAt: source.status === "publie" ? source.validatedAt : null,
+        },
+      });
+      await tx.exercise.update({
+        where: { id: copy.id },
+        data: { onPartialExerciseId: copy.id },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: "exercise.associate_scale",
+          entity: "Exercise",
+          entityId: copy.id,
+        },
+      });
+      created += 1;
+    }
+  });
+
+  revalidateCatalog();
+  return { created, skipped, scaleLabel: scale.label };
+}
+
 /** Suppression douce = archivage. Bloquée si transition active d'un publié. */
 export async function deleteExercise(exerciseId: string) {
   await requireFondateur();
