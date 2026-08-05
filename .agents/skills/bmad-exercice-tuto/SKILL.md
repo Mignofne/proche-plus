@@ -7,13 +7,13 @@ description: >
   tutorial for a specific exercise from Referentiel_Exercices.
 ---
 
-# Vidéo tuto exercice — référentiel + ours C-v3
+# Vidéo tuto exercice — référentiel + ours C-v3 (ou humains DEMIC)
 
 ## Overview
 
 Generate **one MP4 tutorial video per exercise** from `docs/referentiel/Referentiel_Exercices.csv`.
 
-Each CSV step = **large readable instruction** (senior/aidant) + **animated bear demo** (flipbook keyframes).
+Each CSV step = **large readable instruction** (senior/aidant) + **animated demo** (bear ou humains DEMIC selon l’intent).
 
 **Spec (mandatory):** `{project-root}/docs/exercise-tuto-video-spec.md`  
 **Bear canon:** `{project-root}/docs/mascot-generation-spec.md` §0bis  
@@ -28,7 +28,9 @@ Each CSV step = **large readable instruction** (senior/aidant) + **animated bear
 
 1. Read `docs/exercise-tuto-video-spec.md` (layout + typo XL locked)
 2. Read `references/layout-tuto.md`
-3. Load bear canon: `public/community-assets/ours-canon/canon-c-v3.png`
+3. Load demo asset selon l’intent :
+   - ours : `public/community-assets/ours-canon/canon-c-v3.png`
+   - humains : utiliser le cadrage DEMIC “corps entier + tête + léger zoom sur l’action” (voir `references/layout-tuto.md`)
 
 ## Collect (skip if known)
 
@@ -52,6 +54,7 @@ If not in CSV: tell user to add to referential first OR accept manual `{ name, s
 1. **Instructions EN GROS** — never render step text smaller than spec (48px min @ 1080w)
 2. **CSV steps verbatim** — do not rewrite clinical wording (Camille owns content)
 3. **Canon C-v3** for all bear frames
+3b. **Humains DEMIC uniquement si demandé** : expression rassurante/personnalité “Proche+ comme l’ours”, cadrage **tête + corps entier**, léger **zoom sur l’exercice**, pas de texte dans l’image.
 4. **Senior pace** — `DEFAULT_TUTO_STEP_FRAMES` = 75 minimum per step
 5. **Tutoiement** preserved from CSV
 

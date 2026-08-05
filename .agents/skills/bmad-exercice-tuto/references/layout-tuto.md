@@ -21,6 +21,29 @@ COMPOSITION: vertical 9:16 friendly, bear clear hero, warm cream home, NO text i
 
 `reference_image_paths`: `canon-c-v3.png` + previous step frame if available (continuity).
 
+## Prompt image humain — option DEMIC (par étape)
+
+> Utiliser uniquement si l’utilisateur demande explicitement une démo avec **humains** (ex. “humain”, “DEMIC”, “sans ours”, “70 ans illustré”, etc.).
+
+```
+IDENTITY (LOCKED — personnalité Proche+ identique à l’ours) :
+  - expression rassurante, sourire doux, posture aidante
+  - mouvements lents, gestes guidants, ambiance sécurisante
+SCENE: Humain illustré (≈70 ans) demonstrating exercise step for "{exerciseName}":
+"{instruction verbatim from CSV}"
+Theme: {themeLabel}. Seated/safe posture per exercise. Never on floor.
+
+FRAMING (verrouillé lisibilité mobile) :
+  - tête + corps entier + pieds visibles
+  - caméra légèrement rapprochée : la personne occupe ~90–95% de l’image
+  - zoom léger sur l’action (gilet sur genoux + mains)
+
+STYLE : illustration 3D chaleureuse (type DEMIC/fitness tutorial), couleurs crème/chaudes, fond neutre minimal, repère visuel vert discret autour de la zone à manipuler.
+NO text in image, no watermark, no logo.
+```
+
+`reference_image_paths` : previous step frame if available (continuity). (Aucun canon humain n’est verrouillé v1/v2.)
+
 ## Flipbook par étape (2–4 poses)
 
 Pour chaque étape CSV, générer 2 poses min (début/fin du geste) puis assembler en mini-séquence dans `sceneSrc` **ou** une image représentative si budget temps.

@@ -21,13 +21,21 @@ import { findReferentielExercise, exerciseTutoSlug } from "src/lib/exercises/ref
 - `ex.steps` doit avoir ≥1 entrée
 - Si vide → STOP (exercice non pertinent / incomplet)
 
-### 3. Générer les visuels ours (par étape)
+### 3. Générer les visuels (par étape) — ours ou humains
 
 Pour chaque `ex.steps[i]` :
 
-1. Prompt : `references/layout-tuto.md` + consigne **verbatim**
-2. `GenerateImage` 9:16, `reference_image_paths` = C-v3 (+ frame précédente)
-3. Sauver : `public/community-assets/exercise-tutos/{slug}/frames/step-{NN}.png`
+1. Détection intent :
+   - si l’utilisateur demande **humains** (mots-clés : “humain”, “DEMIC”, “sans ours”, “70 ans illustré”) → mode **HUMAIN**
+   - sinon → mode **OURS** (bear canon C-v3)
+2. Prompt :
+   - mode OURS : `references/layout-tuto.md` section **Prompt image ours**
+   - mode HUMAIN : `references/layout-tuto.md` section **Prompt image humain — option DEMIC**
+   - ajouter la consigne **verbatim** depuis le CSV à la fin du prompt
+3. `GenerateImage` 9:16, `reference_image_paths` = frame précédente si disponible (continuité)
+4. Sauver :
+   - frames MP4 (si v1) : `public/community-assets/exercise-tutos/{slug}/frames/step-{NN}.png`
+   - ou optionnellement dans un sous-dossier humain si vous souhaitez distinguer les variantes (ex. `demic-human70-zoom/`), puis fournir `sceneSrc` via props.
 
 **Option animé par étape :** 2 poses (début/fin) → mini flipbook ; pour v1 une image forte par étape suffit.
 

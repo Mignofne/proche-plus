@@ -130,7 +130,10 @@ npm run community:render-video -- \
 
 ## 8. Safeguards (hérités ours C-v3)
 
-Identiques `docs/mascot-generation-spec.md` S1–S9 : pas d’humain, pas au sol, family-safe, gilet floral primaire, etc.
+Identiques `docs/mascot-generation-spec.md` S1–S9 **pour la sécurité visuelle** (pas au sol, family-safe, ambiance “proche”, gilet floral primaire, etc.).
+
+- **v1 (ours)** : démo sans humain.
+- **v2 (humains DEMIC)** : humains autorisés, mais garder cadrage lisible (tête + corps entier), et conserver la “personnalité Proche+” (expression rassurante, gestes aidants, rythme senior).
 
 **Éditorial exercice :** reprendre les consignes CSV telles quelles (tutoiement aidant→proche) — **ne pas** réécrire le geste clinique sans Camille (APA).
 
