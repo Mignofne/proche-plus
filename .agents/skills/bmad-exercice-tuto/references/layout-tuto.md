@@ -39,6 +39,10 @@ FRAMING (verrouillé lisibilité mobile) :
   - caméra légèrement rapprochée : la personne occupe ~90–95% de l’image
   - zoom léger sur l’action (gilet sur genoux + mains)
 
+TENUE (verrouillé — identique sur toutes les étapes) :
+  - garder le **même vêtement / même motif / mêmes boutons** entre step 1 → step N
+  - ne pas changer de couleur, de style ou de coupe du gilet
+
 STYLE : illustration 3D chaleureuse (type DEMIC/fitness tutorial), couleurs crème/chaudes, fond neutre minimal, repère visuel vert discret autour de la zone à manipuler.
 NO text in image, no watermark, no logo.
 ```
