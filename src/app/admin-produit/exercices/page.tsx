@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { ensureCatalogReady } from "@/lib/exercises/ensure-catalog";
 import { ThemeManager } from "./ThemeManager";
 import { ScaleManager } from "./ScaleManager";
+import { ScaleExerciseLinker } from "./ScaleExerciseLinker";
 import { ExerciseBulkList } from "./ExerciseBulkList";
 
 const STATUS_SORT: Record<string, number> = {
@@ -20,7 +21,12 @@ const STATUS_SORT: Record<string, number> = {
 export default async function AdminExercicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ theme?: string; status?: string; q?: string }>;
+  searchParams: Promise<{
+    theme?: string;
+    status?: string;
+    scale?: string;
+    q?: string;
+  }>;
 }) {
   const session = await getSession();
   if (!session || session.role !== "admin_produit") {
@@ -33,6 +39,7 @@ export default async function AdminExercicesPage({
   const sp = await searchParams;
   const themeFilter = sp.theme || "";
   const statusFilter = sp.status || "";
+  const scaleFilter = sp.scale || "";
   const q = (sp.q || "").trim().toLowerCase();
 
   const [themes, exercises, scales] = await Promise.all([
@@ -53,6 +60,7 @@ export default async function AdminExercicesPage({
   const filtered = exercises
     .filter((ex) => {
       if (themeFilter && ex.themeId !== themeFilter) return false;
+      if (scaleFilter && ex.autonomyScaleId !== scaleFilter) return false;
       if (statusFilter && ex.status !== statusFilter) return false;
       if (q) {
         const hay = `${ex.name} ${ex.objective} ${ex.theme.label}`.toLowerCase();
@@ -123,6 +131,23 @@ export default async function AdminExercicesPage({
                 active: s.active,
               }))}
             />
+            <ScaleExerciseLinker
+              scales={scales.map((s) => ({
+                id: s.id,
+                code: s.code,
+                label: s.label,
+                active: s.active,
+              }))}
+              exercises={exercises.map((ex) => ({
+                id: ex.id,
+                name: ex.name,
+                themeLabel: ex.theme.label,
+                scaleId: ex.autonomyScaleId,
+                scaleCode: ex.autonomyScale.code,
+                tier: ex.tier,
+                status: ex.status,
+              }))}
+            />
           </div>
         </section>
 
@@ -170,6 +195,20 @@ export default async function AdminExercicesPage({
                   {t.label}
                 </option>
               ))}
+            </select>
+            <select
+              name="scale"
+              defaultValue={scaleFilter}
+              className="rounded-xl border border-cream-dark bg-white px-3 py-2 text-sm"
+            >
+              <option value="">Tous les niveaux GIR</option>
+              {scales
+                .filter((s) => s.active)
+                .map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.code} — {s.label}
+                  </option>
+                ))}
             </select>
             <select
               name="status"
