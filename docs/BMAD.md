@@ -27,6 +27,8 @@ BMAD (Build More, Architect Dreams) est installé sur ce projet pour orchestrer 
 | `bmad-quick-dev` | Corrections rapides sans cérémonie complète |
 | `bmad-code-review` | Revue de code structurée |
 | `bmad-sprint-planning` | Planifier un sprint |
+| `bmad-agent-apa-ergo` | Camille — catalogue exercices APA/ergo |
+| `bmad-agent-acquisition-aidants` | Claire — SEO & community aidants 60+ |
 
 ## Artefacts BMAD
 
