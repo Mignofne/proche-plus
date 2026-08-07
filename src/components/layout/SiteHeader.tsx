@@ -17,7 +17,7 @@ export function SiteHeader({
   title?: string;
   subtitle?: string;
   nav?: NavItem[];
-  /** `minimal` = logo only (landing pages). Does not change other variants. */
+  /** `minimal` = brand mark only, no link to app home (landing pages). */
   variant?: "public" | "app" | "minimal";
 }) {
   const [open, setOpen] = useState(false);
@@ -42,24 +42,28 @@ export function SiteHeader({
       )}
     >
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          {!isMinimal && (
-            <Mascot pose="welcome" size="sm" className="animate-mascot-float" />
-          )}
-          <div>
-            <p
-              className={cn(
-                "font-bold text-teal-dark",
-                isMinimal && "text-sm tracking-wide opacity-80"
+        {isMinimal ? (
+          <div className="flex items-center gap-2" aria-label={title}>
+            <div>
+              <p className="text-sm font-bold tracking-wide text-teal-dark opacity-80">
+                {title}
+              </p>
+              {subtitle && (
+                <p className="text-xs text-text-muted">{subtitle}</p>
               )}
-            >
-              {title}
-            </p>
-            {subtitle && (
-              <p className="text-xs text-text-muted">{subtitle}</p>
-            )}
+            </div>
           </div>
-        </Link>
+        ) : (
+          <Link href="/" className="flex items-center gap-2">
+            <Mascot pose="welcome" size="sm" className="animate-mascot-float" />
+            <div>
+              <p className="font-bold text-teal-dark">{title}</p>
+              {subtitle && (
+                <p className="text-xs text-text-muted">{subtitle}</p>
+              )}
+            </div>
+          </Link>
+        )}
 
         {!isMinimal && (
           <>
