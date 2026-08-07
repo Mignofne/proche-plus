@@ -50,9 +50,9 @@ C’est de la continuité éducative : ce que les pros transmettent, les famille
 C’est pour ça qu’on a créé Proche+.
 
 **CTA (question de recherche)**  
-Quand vous sortez d’une visite, qu’est-ce qui reste le plus fort : le soulagement d’être venu, ou la frustration de ne pas avoir su « quoi faire » ?
+Si vous aussi vous êtes déjà resté·e là, présent·e mais un peu perdu·e : vous n’êtes pas seul·e. Qu’est-ce qui vous aurait aidé, concrètement ?
 
-**Insight recherché** : mix émotionnel post-visite (soulagement / frustration) + formulations spontanées du « ne pas savoir quoi faire ».
+**Insight recherché** : ce qui aurait aidé concrètement (mots, consignes, geste, présence de l’équipe…) + formulations spontanées ; identité commune « présent·e mais perdu·e ».
 
 ---
 
@@ -67,7 +67,7 @@ Pas un chat médical. Pas un dossier patient. De la continuité, pour que la ré
 
 C’est l’idée derrière Proche+.
 
-Et vous : en sortant d’une visite, c’est plutôt le soulagement… ou la frustration de n’avoir « rien fait » ?
+Si vous aussi vous êtes déjà resté·e là, présent·e mais un peu perdu·e : vous n’êtes pas seul·e. Qu’est-ce qui vous aurait aidé, concrètement ?
 
 ---
 
