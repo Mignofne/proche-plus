@@ -3,7 +3,8 @@
 **Contexte** : tout premier contenu page Proche+.  
 **Règle lancement** : aucune mention de fonctionnalité, d’app ou de « solution ». Reconnaissance de la douleur commune uniquement. Marque absente du corps (signature de page suffisante).  
 **Surface** : page Facebook Proche+  
-**Filtre légal** : OK — pas de conseil médical, pas de pathologie précise, pas de claim produit.
+**Finalités communauté** : discovery qualitative (priorité) + distribution organique ; preuve buyer viendra des verbatims consentis.  
+**Filtre légal** : OK — pas de conseil médical, pas de pathologie précise, pas de claim produit. Anticiper : si un membre décrit un symptôme en commentaire → accuser réception de l’émotion, renvoyer vers un pro (ne pas répondre sur le fond).
 
 ---
 
@@ -14,6 +15,7 @@ Rubrique : (lancement — avant rubriques nommées)
 Persona ciblé : Danièle (aussi Corinne)
 Moment de visite : en établissement (SSR)
 Ton : informatif / empathique — zéro humour
+Finalité prioritaire : discovery (peur de mal faire / silence pendant la visite)
 ```
 
 **Accroche**  
@@ -24,8 +26,10 @@ Votre proche est en rééducation. Vous venez. Vous restez.
 Et parfois, vous vous assoyez… sans oser faire un geste, de peur de mal faire.  
 Ce silence-là, beaucoup de familles le connaissent. Ce n’est pas de l’indifférence. C’est de l’attention qui ne trouve pas encore ses mots.
 
-**CTA doux**  
-Et vous, pendant les visites : vous parlez, vous restez tranquille, ou un peu des deux ?
+**CTA (question de recherche)**  
+Quand vous êtes dans la chambre : qu’est-ce qui vous retient le plus — la peur de faire un mauvais geste, le sentiment de gêner l’équipe, ou autre chose ?
+
+**Insight recherché** : hiérarchie des freins pendant la visite (geste / équipe / autre formulation spontanée).
 
 ---
 
@@ -36,6 +40,7 @@ Rubrique : (lancement)
 Persona ciblé : Françoise (aussi Patrick)
 Moment de visite : en établissement (SSR)
 Ton : chaleureux, déculpabilisant — humour nul
+Finalité prioritaire : discovery (culpabilité de la rareté) + identité commune
 ```
 
 **Accroche**  
@@ -46,8 +51,10 @@ Quand le trajet est long, ou que le travail prend toute la semaine, on culpabili
 Pourtant, une visite rare mais présente — vraiment présente — peut compter autant qu’une présence quotidienne où l’on ne sait pas quoi faire.  
 Ce qui pèse, ce n’est pas le nombre d’heures. C’est le sentiment d’être utile… ou de ne pas l’être.
 
-**CTA doux**  
-Vous aussi, vous avez déjà eu cette petite voix qui dit « je ne viens pas assez » ?
+**CTA (question de recherche)**  
+Pour vous, « se sentir utile » pendant une visite, ça veut dire quoi concrètement — un geste, une conversation, juste être là ?
+
+**Insight recherché** : définition spontanée de l’utilité perçue (geste / parole / présence) — formulations réutilisables côté produit et argumentaire buyer.
 
 ---
 
@@ -58,6 +65,7 @@ Rubrique : (lancement)
 Persona ciblé : Michel (aussi Danièle)
 Moment de visite : en établissement (SSR) — ouvre aussi vers le domicile
 Ton : pragmatique + bienveillant — humour nul (premier post)
+Finalité prioritaire : discovery (spectateur vs utile) + distribution organique
 ```
 
 **Accroche**  
@@ -68,14 +76,16 @@ Pas remplacer l’équipe. Pas inventer des gestes. Juste… ne pas être specta
 Beaucoup d’aidants le disent : on apporte des nouvelles, des fruits, un sourire — et on repart avec l’impression d’avoir regardé la rééducation depuis le bord du terrain.  
 Aider, ce n’est pas soigner. Mais ça peut être autre chose que regarder.
 
-**CTA doux**  
-Qu’est-ce qui vous aide, vous, à vous sentir utile quand vous venez ?
+**CTA (question de recherche)**  
+Au moment de repartir, qu’est-ce qui vous reste le plus souvent : le soulagement d’être venu, la frustration de n’avoir « rien fait », ou les deux en même temps ?
+
+**Insight recherché** : mix émotionnel post-visite (soulagement / frustration) — moments de bascule à documenter.
 
 ---
 
 ## Recommandation
 
 Pour un **tout premier** post de page : **A**.  
-Elle pose la promesse émotionnelle (« vous voulez aider, vous ne savez pas comment ») sans produit, invite le commentaire, et parle au cœur du persona le plus fragile (Danièle) tout en résonnant pour Corinne et Michel.
+Elle pose la promesse émotionnelle sans produit, pose une vraie question de recherche (freins pendant la visite), et parle au persona le plus fragile (Danièle) tout en résonnant pour Corinne et Michel.
 
-Enchaînement possible : A (semaine 1) → B (déculpabilisation) → C (envie d’utilité) avant d’ouvrir les rubriques nommées.
+Enchaînement possible : A → B → C avant d’ouvrir les rubriques nommées. Consigner les réponses ; ne pas republier de verbatim avec pathologie identifiable sans accord documenté.

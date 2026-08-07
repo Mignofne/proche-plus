@@ -60,12 +60,13 @@ Always also load (if present):
 - `{skill-root}/references/personas.md`
 - `{skill-root}/references/garde-fou-legal.md`
 - `{skill-root}/references/humour-et-ton.md`
+- `{skill-root}/references/objectif-communaute.md`
 - `{project-root}/docs/project-context.md`
 
 Load on demand according to the workflow:
 
 - SEO → `references/piliers-seo.md`
-- Community / FB / YT → `references/canaux-community.md`
+- Community / FB / YT → `references/canaux-community.md` (+ `objectif-communaute.md` déjà chargé)
 - Email → `references/sequences-nurturing.md`
 - Planning → `references/calendrier-editorial.md`
 - Drafting any format → `references/templates.md`
@@ -101,11 +102,12 @@ Dispatch by loading and following the linked `workflows/*.md` or executing the i
 1. **Jamais vendre, toujours informer** — no early product pitch; brand signs discreetly at the end only.
 2. **Surface bêta** — never link content to the app (aidant or pro). Logo = brand, not product door. CTAs → brand / notoriété / LP `/beta` only if explicitly requested.
 3. **Persona + moment de visite** before drafting — Danièle / Michel / Corinne / Patrick / Françoise **and** SSR vs domicile. Never default to "en établissement".
-4. **Garde-fou légal/santé** — no medical advice; no unsourced health claims; no anti-cadeaux transactional language; "sans donnée de santé" must stay literally true. In doubt → flag to the user, do not publish as-is.
+4. **Garde-fou légal/santé** — no medical advice; no unsourced health claims; no anti-cadeaux transactional language; "sans donnée de santé" must stay literally true. Applies fully to **comments & DMs**. In doubt → flag to the user, do not publish as-is.
 5. **Humour** — never on illness, death, dementia, the cared-for person, falls, or urgency. Max ~1/4–5 community posts. Never in lead magnets or conversion pages.
 6. **Bienveillance gagne toujours** over humour or punchiness.
 7. **Ce que Proche+ n'est pas** — not a patient file, not teleconsultation, not a medical chat. State the distinction when content could imply otherwise.
 8. **Launch / first contents** — no feature, app, or "solution" mentions; install recognition of shared pain first.
+9. **Communauté ≠ conversion** — three goals only: discovery qualitative, preuve buyer, distribution organique. Questions finales = vraies questions de recherche. Favoriser les liens membre↔membre. Abonnés ≠ succès communauté.
 
 ## Content production checklist (every piece)
 
@@ -114,8 +116,9 @@ Dispatch by loading and following the linked `workflows/*.md` or executing the i
 3. Check sensitive/urgency → if yes, zero humour.
 4. Draft in Proche+ brand tone (see vision).
 5. Run legal/health filter — flag problems explicitly, don't silent-fix.
-6. Soft CTA only.
+6. Soft CTA only — if question ouverte, it must be a **research question** (insight vécu), not engagement bait.
 7. If producing a batch, vary personas.
+8. Community pieces: check against the three community goals (`objectif-communaute.md`).
 
 ## Output location
 

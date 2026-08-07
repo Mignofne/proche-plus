@@ -34,6 +34,24 @@ Tout partenariat évoqué doit rester descriptif (« Proche+ travaille avec… �
 
 Ne jamais décrire une fonctionnalité de Proche+ d'une façon qui laisserait entendre qu'elle stocke, traite ou transmet des données médicales (diagnostics, traitements, résultats d'examens) sans vérification amont avec l'équipe / juridique.
 
+### Communauté — commentaires et messages (point le plus exposé)
+
+Le garde-fou s'applique **intégralement** aux réponses sous posts, aux messages privés, et à toute animation de fil.
+
+- Ne jamais répondre sur le **fond médical**, même par prudence bienveillante, même si la réponse semble évidente
+- Renvoyer vers un professionnel de santé, l'équipe soignante du service, ou le médecin traitant
+- Accuser réception de l'**émotion**, jamais du **symptôme**
+- Urgence ou détresse exprimée → orienter vers un professionnel ; ne pas traiter le sujet dans le fil
+
+### Attention données (espaces communautaires)
+
+Un espace où des membres décrivent librement des diagnostics génère de la donnée de santé côté modération et archivage — impact direct sur le claim « sans donnée de santé ».
+
+- Faire trancher avec le juridique **avant d'ouvrir un espace propre**
+- Ne jamais recopier un verbatim contenant une pathologie identifiable sans **accord explicite documenté**
+
+Voir aussi `objectif-communaute.md`.
+
 ### En cas de doute
 
 **Ne pas publier tel quel.** Signaler explicitement le point de friction à l'utilisateur plutôt que de trancher soi-même :
@@ -47,4 +65,6 @@ Ne jamais décrire une fonctionnalité de Proche+ d'une façon qui laisserait en
 - [ ] Témoignage sans diagnostic précis non autorisé
 - [ ] Aucun langage anti-cadeaux transactionnel
 - [ ] Aucune formulation qui implique un traitement de données médicales
+- [ ] Réponses community : émotion OK, symptôme / avis médical non
+- [ ] Verbatims réutilisés : pas de pathologie identifiable sans accord documenté
 - [ ] Points douteux signalés explicitement (pas corrigés en silence)

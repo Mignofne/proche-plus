@@ -41,7 +41,9 @@ Accroche (1-2 lignes, doit fonctionner sans cliquer "voir plus") :
 Corps (court, 3-5 lignes) :
 ...
 
-CTA doux (question ouverte pour susciter les commentaires, ou lien article) :
+CTA doux (question ouverte = vraie question de recherche sur le vécu,
+pas un prétexte à engagement ; ou lien article) :
+Insight recherché : [irritant / formulation / moment de bascule]
 ...
 ```
 
@@ -59,6 +61,9 @@ Sujet principal (1 seul par email) :
 
 Bloc secondaire (optionnel, 1 lien vers ressource) :
 ...
+
+Question ouverte (si présente) = vraie question de recherche :
+Insight recherché : ...
 
 Signature humaine (prénom réel, pas "L'équipe Proche+") :
 ...

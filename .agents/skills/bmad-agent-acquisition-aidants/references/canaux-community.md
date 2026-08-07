@@ -1,5 +1,7 @@
 # Canaux community — priorisation et posture
 
+**Avant tout canal** : lire `objectif-communaute.md`. La communauté n'a pas d'objectif de conversion. Les trois finalités (discovery qualitative, preuve pour le buyer, distribution organique) arbitrent chaque choix d'animation.
+
 ## Facebook (canal n°1)
 
 ### Groupes tiers d'aidants
