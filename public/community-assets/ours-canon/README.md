@@ -2,7 +2,9 @@
 
 > **Verrouillé.** GO fondateur (« il est parfait ! ») — **C-v3** = canon officiel de génération.  
 > Spec : [`docs/mascot-generation-spec.md`](../../../docs/mascot-generation-spec.md) §0bis.  
-> Studio : `/admin-produit/community/studio-ours`
+> Skill Cursor (nouvelle photo / vidéo) : **`bmad-studio-ours`** — dire « Studio Ours » ou « nouvelle photo ours ».  
+> Vidéos tuto exercices (consignes XL) : **`bmad-exercice-tuto`** — dire « vidéo tuto exercice [nom] » — spec `docs/exercise-tuto-video-spec.md`.  
+> Studio UI : `/admin-produit/community/studio-ours`
 
 ## Décision
 

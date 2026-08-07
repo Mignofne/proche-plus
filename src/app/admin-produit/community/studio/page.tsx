@@ -24,8 +24,9 @@ export default function CommunityStudioPage() {
       <SurfaceRaised>
         <SectionTitle>Player de composition</SectionTitle>
         <p className="mt-2 text-sm text-text-muted">
-          Composition <code>ProchePlusShort</code> — aucun générateur vidéo
-          externe facturé.
+          Compositions <code>ProchePlusShort</code> (1 plan) et{" "}
+          <code>ProchePlusStoryboard</code> (multi-stills Studio Ours) — aucun
+          générateur vidéo externe facturé.
         </p>
         <div className="mt-4">
           <VideoPostPreview
@@ -35,9 +36,13 @@ export default function CommunityStudioPage() {
           />
         </div>
         <p className="mt-4 text-sm text-text-muted">
-          Rendu CLI local : <code>npm run community:render-video</code>. Sur
-          Vercel, le worker/CI dédié est documenté comme différé ; le Player et
-          les compositions sont livrés in-repo.
+          Rendu CLI : <code>npm run community:render-video</code> — pour un
+          storyboard généré :{" "}
+          <code>
+            --composition=ProchePlusStoryboard --props=./tmp/…-props.json
+          </code>
+          . Sur Vercel, le worker/CI dédié reste différé ; le Player et les
+          compositions sont livrés in-repo.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <ButtonLink

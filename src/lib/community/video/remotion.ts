@@ -15,6 +15,11 @@ import {
 import type { CommunitySocialChannel } from "@prisma/client";
 
 export const REMOTION_COMPOSITION_ID = "ProchePlusShort";
+export const REMOTION_STORYBOARD_ID = "ProchePlusStoryboard";
+export const REMOTION_STORYBOARD_FACEBOOK_ID = "ProchePlusStoryboardFacebook";
+
+/** Frames par beat storyboard (30 fps → 2 s) */
+export const DEFAULT_STORYBOARD_BEAT_FRAMES = 60;
 
 export type RemotionInputProps = {
   title: string;
@@ -29,6 +34,32 @@ export type RemotionInputProps = {
   /** @deprecated — conservé pour compat props anciennes */
   poseSrc?: string;
 };
+
+/** Un plan d’une vidéo multi-stills (Studio Ours → Remotion) */
+export type RemotionStoryboardBeat = {
+  /** Chemin sous `public/` (ex. `/community-assets/ours-canon/generations/…`) */
+  sceneSrc: string;
+  title?: string;
+  body?: string;
+  durationInFrames?: number;
+};
+
+export type RemotionStoryboardProps = {
+  beats: RemotionStoryboardBeat[];
+  accent?: "teal" | "sun" | "terracotta";
+  titleColor?: string;
+  subtitleColor?: string;
+};
+
+export function storyboardDurationInFrames(
+  beats: RemotionStoryboardBeat[]
+): number {
+  if (!beats.length) return DEFAULT_STORYBOARD_BEAT_FRAMES;
+  return beats.reduce(
+    (sum, b) => sum + (b.durationInFrames ?? DEFAULT_STORYBOARD_BEAT_FRAMES),
+    0
+  );
+}
 
 export function buildRemotionProps(params: {
   title: string;
@@ -70,4 +101,46 @@ export function videoFormatForChannel(
 
 export function getRenderInstructions(publicationId: string): string {
   return `Rendu hors route courte : npm run community:render-video -- --publicationId=${publicationId}`;
+}
+
+/** Instructions rendu storyboard Studio Ours (props JSON local) */
+export function getStoryboardRenderInstructions(propsPath: string): string {
+  return `npm run community:render-video -- --composition=${REMOTION_STORYBOARD_ID} --props=${propsPath}`;
+}
+
+export const REMOTION_FLIPBOOK_ID = "ProchePlusFlipbook";
+export const REMOTION_FLIPBOOK_FACEBOOK_ID = "ProchePlusFlipbookFacebook";
+
+/** Frames Remotion par image flipbook — défaut calme senior (~0,5 s/pose @ 30 fps) */
+export const DEFAULT_FLIPBOOK_HOLD = 14;
+
+/**
+ * Ours animé — suite de keyframes (même scène, poses successives).
+ * `loops` rejoue la séquence ; un hold final est ajouté hors loops dans Root.
+ */
+export type RemotionFlipbookProps = {
+  frames: string[];
+  holdFrames?: number;
+  title?: string;
+  body?: string;
+  accent?: "teal" | "sun" | "terracotta";
+  titleColor?: string;
+  subtitleColor?: string;
+  /** Nombre de passages sur la séquence de frames (défaut 2) */
+  loops?: number;
+  /** Frames supplémentaires figées sur la dernière pose */
+  endHoldFrames?: number;
+};
+
+export function flipbookDurationInFrames(
+  props: Pick<
+    RemotionFlipbookProps,
+    "frames" | "holdFrames" | "loops" | "endHoldFrames"
+  >
+): number {
+  const hold = props.holdFrames ?? DEFAULT_FLIPBOOK_HOLD;
+  const loops = Math.max(1, props.loops ?? 2);
+  const n = Math.max(1, props.frames.length);
+  const endHold = props.endHoldFrames ?? 30;
+  return n * hold * loops + endHold;
 }

@@ -4,6 +4,23 @@
 > **Phase produit :** **Phase 2 / Studio Ours** — évolution délibérée après le MVP Community kit-only (AD-11).  
 > **Sources :** synthèse sans réinvention. Ce qui n’est pas documenté est marqué **AMBIGU** / **UNKNOWN**.
 
+### Appeler pour une nouvelle photo / vidéo
+
+Skill Cursor : **`bmad-studio-ours`** (`.agents/skills/bmad-studio-ours/`).
+
+Dans une conversation, dire par exemple :
+
+- `Studio Ours`
+- `nouvelle photo ours — [situation]`
+- `nouvelle vidéo ours — [situation]`
+
+Le skill charge **cette spec** (§0bis + safeguards) + le master `public/community-assets/ours-canon/canon-c-v3.png`, puis génère.
+
+- **Photo** → illustration still (GenerateImage / Studio Ours UI)
+- **Vidéo** → stills C-v3 sous `public/…/generations/` → Remotion `ProchePlusStoryboard` → MP4 (`npm run community:render-video -- --composition=ProchePlusStoryboard --props=…`)
+
+UI produit (atelier stills) : `/admin-produit/community/studio-ours`.
+
 ---
 
 ## 0. Contexte décisionnel (AD-11 → Studio Ours)
